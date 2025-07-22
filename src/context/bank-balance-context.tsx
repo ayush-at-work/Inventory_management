@@ -11,21 +11,33 @@ interface BankBalanceContextType {
 const BankBalanceContext = createContext<BankBalanceContextType | undefined>(undefined);
 
 const BANK_BALANCE_STORAGE_KEY = 'bankBalance';
+const INITIAL_BALANCE = 123456.78;
 
 export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [balance, setBalanceState] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-        const savedBalance = localStorage.getItem(BANK_BALANCE_STORAGE_KEY);
-        return savedBalance ? parseFloat(savedBalance) : 123456.78;
-    }
-    return 123456.78;
-  });
+  const [balance, setBalanceState] = useState<number>(INITIAL_BALANCE);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem(BANK_BALANCE_STORAGE_KEY, String(balance));
+    setIsMounted(true);
+    try {
+        const savedBalance = localStorage.getItem(BANK_BALANCE_STORAGE_KEY);
+        if (savedBalance !== null) {
+            setBalanceState(parseFloat(savedBalance));
+        }
+    } catch (error) {
+        console.error("Failed to read from localStorage", error);
     }
-  }, [balance]);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(BANK_BALANCE_STORAGE_KEY, String(balance));
+      } catch (error) {
+        console.error("Failed to write to localStorage", error);
+      }
+    }
+  }, [balance, isMounted]);
 
   const setBalance = (newBalance: number) => {
     setBalanceState(newBalance);
@@ -34,6 +46,15 @@ export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const updateBalance = (amount: number) => {
     setBalanceState(prevBalance => prevBalance + amount);
   };
+
+  if (!isMounted) {
+      // Render a placeholder or nothing on the server/initial client render
+      return (
+        <BankBalanceContext.Provider value={{ balance: INITIAL_BALANCE, setBalance, updateBalance }}>
+            {children}
+        </BankBalanceContext.Provider>
+      )
+  }
 
   return (
     <BankBalanceContext.Provider value={{ balance, setBalance, updateBalance }}>
