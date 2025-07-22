@@ -12,8 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Moon, Sun } from 'lucide-react';
 
 export function UserNav() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,6 +50,20 @@ export function UserNav() {
           <DropdownMenuItem>Profile</DropdownMenuItem>
           <DropdownMenuItem>Settings</DropdownMenuItem>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <div className="flex w-full items-center justify-between">
+                <Label htmlFor="dark-mode" className="flex items-center gap-2 font-normal">
+                    {theme === 'dark' ? <Moon /> : <Sun />}
+                    <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+                </Label>
+                <Switch
+                    id="dark-mode"
+                    checked={theme === 'dark'}
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                />
+            </div>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Log out</DropdownMenuItem>
       </DropdownMenuContent>
