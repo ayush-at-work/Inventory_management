@@ -29,51 +29,97 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const indianStates = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+  "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir",
+  "Ladakh", "Lakshadweep", "Puducherry"
+];
 
 const initialInwardGoods = [
   {
     id: '1',
+    invoiceNumber: 'INV001',
+    date: '2023-10-01',
     supplier: 'MetalRecyclers Inc.',
+    gstNumber: '29ABCDE1234F1Z5',
+    placeOfSupply: 'Maharashtra',
+    taxableAmount: '$3200',
+    taxPercentage: '9%',
+    taxAmount: '$288',
+    totalInvoiceValue: '$3500',
     materialType: 'Copper',
     weight: '500 kg',
-    cost: '$3500',
-    date: '2023-10-01',
   },
   {
     id: '2',
+    invoiceNumber: 'INV002',
+    date: '2023-10-02',
     supplier: 'SteelScrappers Co.',
+    gstNumber: '27FGHIJ5678K1Z4',
+    placeOfSupply: 'Gujarat',
+    taxableAmount: '$750',
+    taxPercentage: '5%',
+    taxAmount: '$50',
+    totalInvoiceValue: '$800',
     materialType: 'Steel',
     weight: '2000 kg',
-    cost: '$800',
-    date: '2023-10-02',
   },
   {
     id: '3',
+    invoiceNumber: 'INV003',
+    date: '2023-10-03',
     supplier: 'Alu Source',
+    gstNumber: '36LMNOP9012Q1Z3',
+    placeOfSupply: 'Karnataka',
+    taxableAmount: '$1650',
+    taxPercentage: '9%',
+    taxAmount: '$150',
+    totalInvoiceValue: '$1800',
     materialType: 'Aluminum',
     weight: '1200 kg',
-    cost: '$1800',
-    date: '2023-10-03',
   },
 ];
 
 export default function InwardGoodsPage() {
   const [inwardGoods, setInwardGoods] = useState(initialInwardGoods);
   const [open, setOpen] = useState(false);
+  const [taxableAmount, setTaxableAmount] = useState(0);
+  const [taxPercentage, setTaxPercentage] = useState(0);
+
+  const calculateTax = (amount: number, percentage: number) => {
+    return (amount * percentage) / 100;
+  };
+
+  const taxAmount = calculateTax(taxableAmount, taxPercentage);
+  const totalInvoiceValue = taxableAmount + taxAmount;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const newEntry = {
       id: String(inwardGoods.length + 1),
+      invoiceNumber: formData.get('invoiceNumber') as string,
+      date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
+      gstNumber: formData.get('gstNumber') as string,
+      placeOfSupply: formData.get('placeOfSupply') as string,
+      taxableAmount: `$${taxableAmount.toFixed(2)}`,
+      taxPercentage: `${taxPercentage}%`,
+      taxAmount: `$${taxAmount.toFixed(2)}`,
+      totalInvoiceValue: `$${totalInvoiceValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
       weight: `${formData.get('weight')} kg`,
-      cost: `$${formData.get('cost')}`,
-      date: formData.get('date') as string,
     };
     setInwardGoods([newEntry, ...inwardGoods]);
     setOpen(false);
+    setTaxableAmount(0);
+    setTaxPercentage(0);
   };
 
   return (
@@ -86,7 +132,7 @@ export default function InwardGoodsPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Inward Entry</DialogTitle>
               <DialogDescription>
@@ -94,36 +140,63 @@ export default function InwardGoodsPage() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="supplier" className="text-right">
-                    Supplier
-                  </Label>
-                  <Input id="supplier" name="supplier" className="col-span-3" required />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                  <Input id="invoiceNumber" name="invoiceNumber" required />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="materialType" className="text-right">
-                    Material
-                  </Label>
-                  <Input id="materialType" name="materialType" className="col-span-3" required />
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="weight" className="text-right">
-                    Weight (kg)
-                  </Label>
-                  <Input id="weight" name="weight" type="number" className="col-span-3" required />
+                <div className="space-y-2">
+                  <Label htmlFor="supplier">Name of Supplier</Label>
+                  <Input id="supplier" name="supplier" required />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="cost" className="text-right">
-                    Cost ($)
-                  </Label>
-                  <Input id="cost" name="cost" type="number" className="col-span-3" required />
+                <div className="space-y-2">
+                  <Label htmlFor="gstNumber">GST Number</Label>
+                  <Input id="gstNumber" name="gstNumber" required />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="date" className="text-right">
-                    Date
-                  </Label>
-                  <Input id="date" name="date" type="date" className="col-span-3" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                <div className="space-y-2">
+                  <Label htmlFor="placeOfSupply">Place of Supply</Label>
+                  <Select name="placeOfSupply" required>
+                    <SelectTrigger id="placeOfSupply">
+                      <SelectValue placeholder="Select a state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {indianStates.map(state => (
+                        <SelectItem key={state} value={state}>{state}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="materialType">Material</Label>
+                  <Input id="materialType" name="materialType" required />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="weight">Weight (kg)</Label>
+                  <Input id="weight" name="weight" type="number" required />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
+                  <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
+                    onChange={(e) => setTaxableAmount(Number(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="taxPercentage">Tax Percentage (%)</Label>
+                  <Input id="taxPercentage" name="taxPercentage" type="number" step="0.01" required 
+                    onChange={(e) => setTaxPercentage(Number(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="taxAmount">Tax Amount ($)</Label>
+                  <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
+                </div>
+                <div className="space-y-2 col-span-1 md:col-span-2">
+                  <Label htmlFor="totalInvoiceValue">Total Invoice Value ($)</Label>
+                  <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
                 </div>
               </div>
               <DialogFooter>
@@ -141,22 +214,34 @@ export default function InwardGoodsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Supplier</TableHead>
-              <TableHead>Material Type</TableHead>
-              <TableHead>Weight</TableHead>
-              <TableHead>Cost</TableHead>
+              <TableHead>Invoice #</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Supplier</TableHead>
+              <TableHead>GST #</TableHead>
+              <TableHead>Supply Place</TableHead>
+               <TableHead>Material</TableHead>
+              <TableHead>Weight</TableHead>
+              <TableHead className="text-right">Taxable Amt</TableHead>
+              <TableHead className="text-right">Tax %</TableHead>
+              <TableHead className="text-right">Tax Amt</TableHead>
+              <TableHead className="text-right">Total Value</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {inwardGoods.map(item => (
               <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.supplier}</TableCell>
+                <TableCell className="font-medium">{item.invoiceNumber}</TableCell>
+                <TableCell>{item.date}</TableCell>
+                <TableCell>{item.supplier}</TableCell>
+                <TableCell>{item.gstNumber}</TableCell>
+                <TableCell>{item.placeOfSupply}</TableCell>
                 <TableCell>{item.materialType}</TableCell>
                 <TableCell>{item.weight}</TableCell>
-                <TableCell>{item.cost}</TableCell>
-                <TableCell>{item.date}</TableCell>
+                <TableCell className="text-right">{item.taxableAmount}</TableCell>
+                <TableCell className="text-right">{item.taxPercentage}</TableCell>
+                <TableCell className="text-right">{item.taxAmount}</TableCell>
+                <TableCell className="text-right font-bold">{item.totalInvoiceValue}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
