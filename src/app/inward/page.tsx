@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Download } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -122,92 +122,122 @@ export default function InwardGoodsPage() {
     setTaxPercentage(0);
   };
 
+  const handleExport = () => {
+    const headers = [
+      'Invoice #', 'Date', 'Supplier', 'GST #', 'Supply Place',
+      'Material', 'Weight', 'Taxable Amt', 'Tax %', 'Tax Amt', 'Total Value'
+    ];
+    const rows = inwardGoods.map(item => [
+      item.invoiceNumber, item.date, item.supplier, item.gstNumber, item.placeOfSupply,
+      item.materialType, item.weight, item.taxableAmount, item.taxPercentage,
+      item.taxAmount, item.totalInvoiceValue
+    ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(',') + "\n"
+      + rows.join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "inward_goods.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Inward Goods</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New Inward Entry</DialogTitle>
-              <DialogDescription>
-                Log a new batch of incoming scrap material.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="invoiceNumber">Invoice Number</Label>
-                  <Input id="invoiceNumber" name="invoiceNumber" required />
+        <div className="flex items-center gap-2">
+           <Button variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" /> Export
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add New Inward Entry</DialogTitle>
+                <DialogDescription>
+                  Log a new batch of incoming scrap material.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                    <Input id="invoiceNumber" name="invoiceNumber" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Date</Label>
+                    <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="supplier">Name of Supplier</Label>
+                    <Input id="supplier" name="supplier" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="gstNumber">GST Number</Label>
+                    <Input id="gstNumber" name="gstNumber" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="placeOfSupply">Place of Supply</Label>
+                    <Select name="placeOfSupply" required>
+                      <SelectTrigger id="placeOfSupply">
+                        <SelectValue placeholder="Select a state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {indianStates.map(state => (
+                          <SelectItem key={state} value={state}>{state}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="materialType">Material</Label>
+                    <Input id="materialType" name="materialType" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Input id="weight" name="weight" type="number" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
+                    <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
+                      onChange={(e) => setTaxableAmount(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxPercentage">Tax Percentage (%)</Label>
+                    <Input id="taxPercentage" name="taxPercentage" type="number" step="0.01" required 
+                      onChange={(e) => setTaxPercentage(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxAmount">Tax Amount ($)</Label>
+                    <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
+                  </div>
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <Label htmlFor="totalInvoiceValue">Total Invoice Value ($)</Label>
+                    <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="supplier">Name of Supplier</Label>
-                  <Input id="supplier" name="supplier" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="gstNumber">GST Number</Label>
-                  <Input id="gstNumber" name="gstNumber" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="placeOfSupply">Place of Supply</Label>
-                  <Select name="placeOfSupply" required>
-                    <SelectTrigger id="placeOfSupply">
-                      <SelectValue placeholder="Select a state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {indianStates.map(state => (
-                        <SelectItem key={state} value={state}>{state}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="materialType">Material</Label>
-                  <Input id="materialType" name="materialType" required />
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="weight">Weight (kg)</Label>
-                  <Input id="weight" name="weight" type="number" required />
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
-                  <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
-                    onChange={(e) => setTaxableAmount(Number(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="taxPercentage">Tax Percentage (%)</Label>
-                  <Input id="taxPercentage" name="taxPercentage" type="number" step="0.01" required 
-                    onChange={(e) => setTaxPercentage(Number(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="taxAmount">Tax Amount ($)</Label>
-                  <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
-                </div>
-                <div className="space-y-2 col-span-1 md:col-span-2">
-                  <Label htmlFor="totalInvoiceValue">Total Invoice Value ($)</Label>
-                  <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save Entry</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Save Entry</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="rounded-md border">
