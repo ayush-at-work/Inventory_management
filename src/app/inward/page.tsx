@@ -55,6 +55,7 @@ const initialInwardGoods = [
     totalInvoiceValue: '$3500',
     materialType: 'Copper',
     weight: '500 kg',
+    hsnCode: '74040010',
   },
   {
     id: '2',
@@ -69,6 +70,7 @@ const initialInwardGoods = [
     totalInvoiceValue: '$800',
     materialType: 'Steel',
     weight: '2000 kg',
+    hsnCode: '72044900',
   },
   {
     id: '3',
@@ -83,6 +85,7 @@ const initialInwardGoods = [
     totalInvoiceValue: '$1800',
     materialType: 'Aluminum',
     weight: '1200 kg',
+    hsnCode: '76020010',
   },
 ];
 
@@ -109,6 +112,7 @@ export default function InwardGoodsPage() {
       supplier: formData.get('supplier') as string,
       gstNumber: formData.get('gstNumber') as string,
       placeOfSupply: formData.get('placeOfSupply') as string,
+      hsnCode: formData.get('hsnCode') as string,
       taxableAmount: `$${taxableAmount.toFixed(2)}`,
       taxPercentage: `${taxPercentage}%`,
       taxAmount: `$${taxAmount.toFixed(2)}`,
@@ -125,11 +129,11 @@ export default function InwardGoodsPage() {
   const handleExport = () => {
     const headers = [
       'Invoice #', 'Date', 'Supplier', 'GST #', 'Supply Place',
-      'Material', 'Weight', 'Taxable Amt', 'Tax %', 'Tax Amt', 'Total Value'
+      'Material', 'HSN Code', 'Weight', 'Taxable Amt', 'Tax %', 'Tax Amt', 'Total Value'
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier, item.gstNumber, item.placeOfSupply,
-      item.materialType, item.weight, item.taxableAmount, item.taxPercentage,
+      item.materialType, item.hsnCode, item.weight, item.taxableAmount, item.taxPercentage,
       item.taxAmount, item.totalInvoiceValue
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
@@ -204,6 +208,10 @@ export default function InwardGoodsPage() {
                     <Input id="materialType" name="materialType" required />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="hsnCode">HSN Code</Label>
+                    <Input id="hsnCode" name="hsnCode" required />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="weight">Weight (kg)</Label>
                     <Input id="weight" name="weight" type="number" required />
                   </div>
@@ -250,6 +258,7 @@ export default function InwardGoodsPage() {
               <TableHead>GST #</TableHead>
               <TableHead>Supply Place</TableHead>
                <TableHead>Material</TableHead>
+               <TableHead>HSN Code</TableHead>
               <TableHead>Weight</TableHead>
               <TableHead className="text-right">Taxable Amt</TableHead>
               <TableHead className="text-right">Tax %</TableHead>
@@ -267,6 +276,7 @@ export default function InwardGoodsPage() {
                 <TableCell>{item.gstNumber}</TableCell>
                 <TableCell>{item.placeOfSupply}</TableCell>
                 <TableCell>{item.materialType}</TableCell>
+                <TableCell>{item.hsnCode}</TableCell>
                 <TableCell>{item.weight}</TableCell>
                 <TableCell className="text-right">{item.taxableAmount}</TableCell>
                 <TableCell className="text-right">{item.taxPercentage}</TableCell>
