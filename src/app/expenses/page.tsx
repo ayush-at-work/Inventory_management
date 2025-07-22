@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -75,11 +76,11 @@ export default function ExpensesPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Expenses</h2>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full md:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Expense
             </Button>
           </DialogTrigger>
@@ -128,7 +129,7 @@ export default function ExpensesPage() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -142,10 +143,10 @@ export default function ExpensesPage() {
           <TableBody>
             {expenses.map(item => (
               <TableRow key={item.id}>
-                <TableCell>{item.date}</TableCell>
-                <TableCell className="font-medium">{item.category}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                <TableCell className="font-medium whitespace-nowrap">{item.category}</TableCell>
                 <TableCell>{item.description}</TableCell>
-                <TableCell className="text-right">{item.amount}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">{item.amount}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

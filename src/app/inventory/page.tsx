@@ -158,13 +158,13 @@ export default function InventoryPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Inventory</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full md:w-auto items-center gap-2">
            <Input placeholder="Search materials..." className="w-full max-w-sm" />
            <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button onClick={handleAddNewClick}>
+                <Button onClick={handleAddNewClick} className="w-full md:w-auto">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                 </Button>
             </DialogTrigger>
@@ -228,7 +228,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -247,11 +247,11 @@ export default function InventoryPage() {
               const status = getStockLevel(item.quantity, item.unit);
               return (
               <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.materialType}</TableCell>
+                <TableCell className="font-medium whitespace-nowrap">{item.materialType}</TableCell>
                 <TableCell>{item.hsnCode}</TableCell>
                 <TableCell>{item.quantity.toLocaleString()}</TableCell>
                 <TableCell>{item.unit}</TableCell>
-                <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">₹{item.price.toFixed(2)}</TableCell>
                 <TableCell>
                   <Badge
                     variant={
@@ -266,7 +266,7 @@ export default function InventoryPage() {
                     {status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right font-medium">
+                <TableCell className="text-right font-medium whitespace-nowrap">
                   ₹{item.value.toLocaleString()}
                 </TableCell>
                  <TableCell>

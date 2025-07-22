@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -107,9 +108,9 @@ export function InventoryChart() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardContent className="flex-1 pb-4 text-sm">
+      <CardContent className="flex-1 justify-center flex pb-4 text-sm">
         <div
-          className="mx-auto grid max-w-[280px] grid-cols-2 gap-x-10 gap-y-1 text-sm [&>div]:flex [&>div]:items-center [&>div]:gap-2"
+          className="grid grid-cols-2 gap-x-10 gap-y-1 text-sm sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 [&>div]:flex [&>div]:items-center [&>div]:gap-2"
         >
           {chartData.map((item) => {
             const percentage = ((item.quantity / allQuantity) * 100).toFixed(1)

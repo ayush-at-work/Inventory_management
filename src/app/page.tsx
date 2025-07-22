@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -116,7 +117,7 @@ export default function Home() {
             A list of your most recent sales and purchases.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -130,7 +131,7 @@ export default function Home() {
             <TableBody>
               {recentTransactions.map(transaction => (
                 <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">{transaction.id}</TableCell>
+                  <TableCell className="font-medium whitespace-nowrap">{transaction.id}</TableCell>
                   <TableCell>{transaction.type}</TableCell>
                   <TableCell>{transaction.material}</TableCell>
                   <TableCell>
@@ -148,7 +149,7 @@ export default function Home() {
                     </Badge>
                   </TableCell>
                   <TableCell
-                    className={`text-right font-medium ${
+                    className={`text-right font-medium whitespace-nowrap ${
                       transaction.amount.startsWith('+')
                         ? 'text-green-600'
                         : 'text-red-600'

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -182,15 +183,15 @@ export default function InwardGoodsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Inward Goods</h2>
-        <div className="flex items-center gap-2">
-           <Button variant="outline" onClick={handleExport}>
+        <div className="flex w-full md:w-auto items-center gap-2">
+           <Button variant="outline" onClick={handleExport} className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" /> Export
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full md:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
               </Button>
             </DialogTrigger>
@@ -304,7 +305,7 @@ export default function InwardGoodsPage() {
         </div>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -329,21 +330,21 @@ export default function InwardGoodsPage() {
           <TableBody>
             {inwardGoods.map(item => (
               <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.invoiceNumber}</TableCell>
-                <TableCell>{item.date}</TableCell>
-                <TableCell>{item.supplier}</TableCell>
+                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
                 <TableCell>{item.gstNumber}</TableCell>
                 <TableCell>{item.placeOfSupply}</TableCell>
                 <TableCell>{item.materialType}</TableCell>
                 <TableCell>{item.hsnCode}</TableCell>
-                <TableCell>{item.weight}</TableCell>
-                <TableCell className="text-right">{item.taxableAmount}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">{item.taxableAmount}</TableCell>
                 <TableCell>{item.taxType}</TableCell>
                 <TableCell className="text-right">{item.cgst}</TableCell>
                 <TableCell className="text-right">{item.sgst}</TableCell>
                 <TableCell className="text-right">{item.igst}</TableCell>
-                <TableCell className="text-right">{item.taxAmount}</TableCell>
-                <TableCell className="text-right font-bold">{item.totalInvoiceValue}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">{item.taxAmount}</TableCell>
+                <TableCell className="text-right font-bold whitespace-nowrap">{item.totalInvoiceValue}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
