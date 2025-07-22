@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { suggestPricing, SuggestPricingOutput } from '@/ai/flows/suggest-pricing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,7 @@ function SubmitButton() {
 }
 
 export function AiPricingForm() {
-  const [state, formAction] = useFormState(async (prevState: any, formData: FormData) => {
+  const [state, formAction] = useActionState(async (prevState: any, formData: FormData) => {
     try {
       const result = await suggestPricing({
         materialType: formData.get('materialType') as string,
