@@ -37,21 +37,21 @@ const initialExpenses = [
     date: '2023-10-01',
     category: 'Utilities',
     description: 'Electricity Bill',
-    amount: '$350.00',
+    amount: '₹350.00',
   },
   {
     id: '2',
     date: '2023-10-02',
     category: 'Rent',
     description: 'Warehouse Rent',
-    amount: '$2500.00',
+    amount: '₹2500.00',
   },
   {
     id: '3',
     date: '2023-10-03',
     category: 'Fuel',
     description: 'Truck Fuel',
-    amount: '$400.00',
+    amount: '₹400.00',
   },
 ];
 
@@ -67,7 +67,7 @@ export default function ExpensesPage() {
       date: formData.get('date') as string,
       category: formData.get('category') as string,
       description: formData.get('description') as string,
-      amount: `$${formData.get('amount')}`,
+      amount: `₹${formData.get('amount')}`,
     };
     setExpenses([newEntry, ...expenses]);
     setOpen(false);
@@ -106,7 +106,7 @@ export default function ExpensesPage() {
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">
-                    Amount ($)
+                    Amount (₹)
                   </Label>
                   <Input id="amount" name="amount" type="number" step="0.01" className="col-span-3" required />
                 </div>

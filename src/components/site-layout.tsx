@@ -77,7 +77,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                     <Landmark className="w-5 h-5 text-sidebar-foreground/80" />
                     <span className="text-sm font-medium">Bank Balance</span>
                 </div>
-                <span className="text-sm font-bold text-green-400">$123,456.78</span>
+                <span className="text-sm font-bold text-green-400">₹123,456.78</span>
             </div>
           </div>
         </SidebarFooter>

@@ -88,7 +88,7 @@ export default function InventoryPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  ${item.value.toLocaleString()}
+                  ₹{item.value.toLocaleString()}
                 </TableCell>
               </TableRow>
             ))}

@@ -74,7 +74,7 @@ export function AiPricingForm() {
             <div>
               <p className="text-sm text-muted-foreground">Suggested Price / kg</p>
               <p className="text-2xl font-bold text-primary">
-                ${state.result.suggestedPrice.toFixed(2)}
+                ₹{state.result.suggestedPrice.toFixed(2)}
               </p>
             </div>
             <div>

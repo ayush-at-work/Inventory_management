@@ -50,13 +50,13 @@ const initialInwardGoods = [
     supplier: 'MetalRecyclers Inc.',
     gstNumber: '29ABCDE1234F1Z5',
     placeOfSupply: 'Maharashtra',
-    taxableAmount: '$3200',
+    taxableAmount: '₹3200',
     taxType: 'Inter-state',
     cgst: '4.5%',
     sgst: '4.5%',
     igst: '-',
-    taxAmount: '$288',
-    totalInvoiceValue: '$3488',
+    taxAmount: '₹288',
+    totalInvoiceValue: '₹3488',
     materialType: 'Copper',
     weight: '500 kg',
     hsnCode: '74040010',
@@ -68,13 +68,13 @@ const initialInwardGoods = [
     supplier: 'SteelScrappers Co.',
     gstNumber: '27FGHIJ5678K1Z4',
     placeOfSupply: 'Gujarat',
-    taxableAmount: '$750',
+    taxableAmount: '₹750',
     taxType: 'Intra-state',
     cgst: '-',
     sgst: '-',
     igst: '5%',
-    taxAmount: '$37.5',
-    totalInvoiceValue: '$787.5',
+    taxAmount: '₹37.5',
+    totalInvoiceValue: '₹787.5',
     materialType: 'Steel',
     weight: '2000 kg',
     hsnCode: '72044900',
@@ -86,13 +86,13 @@ const initialInwardGoods = [
     supplier: 'Alu Source',
     gstNumber: '36LMNOP9012Q1Z3',
     placeOfSupply: 'Karnataka',
-    taxableAmount: '$1650',
+    taxableAmount: '₹1650',
     taxType: 'Inter-state',
     cgst: '4.5%',
     sgst: '4.5%',
     igst: '-',
-    taxAmount: '$148.5',
-    totalInvoiceValue: '$1798.5',
+    taxAmount: '₹148.5',
+    totalInvoiceValue: '₹1798.5',
     materialType: 'Aluminum',
     weight: '1200 kg',
     hsnCode: '76020010',
@@ -131,13 +131,13 @@ export default function InwardGoodsPage() {
       gstNumber: formData.get('gstNumber') as string,
       placeOfSupply: formData.get('placeOfSupply') as string,
       hsnCode: formData.get('hsnCode') as string,
-      taxableAmount: `$${taxableAmount.toFixed(2)}`,
+      taxableAmount: `₹${taxableAmount.toFixed(2)}`,
       taxType: taxType as string,
       cgst: taxType === 'inter-state' ? `${cgst}%` : '-',
       sgst: taxType === 'inter-state' ? `${sgst}%` : '-',
       igst: taxType === 'intra-state' ? `${igst}%` : '-',
-      taxAmount: `$${taxAmount.toFixed(2)}`,
-      totalInvoiceValue: `$${totalInvoiceValue.toFixed(2)}`,
+      taxAmount: `₹${taxAmount.toFixed(2)}`,
+      totalInvoiceValue: `₹${totalInvoiceValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
       weight: `${formData.get('weight')} kg`,
     };
@@ -254,7 +254,7 @@ export default function InwardGoodsPage() {
                     </Select>
                   </div>
                    <div className="space-y-2">
-                    <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
+                    <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
                     <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
                       onChange={(e) => setTaxableAmount(Number(e.target.value))}
                     />
@@ -281,11 +281,11 @@ export default function InwardGoodsPage() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="taxAmount">Tax Amount ($)</Label>
+                    <Label htmlFor="taxAmount">Tax Amount (₹)</Label>
                     <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
                   </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
-                    <Label htmlFor="totalInvoiceValue">Total Invoice Value ($)</Label>
+                    <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
                     <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
                   </div>
                 </div>

@@ -50,13 +50,13 @@ const initialOutwardGoods = [
     customer: 'BuildRight Ltd.',
     gstNumber: '29ABCDE1234F1Z5',
     placeOfSupply: 'Maharashtra',
-    taxableAmount: '$1200',
+    taxableAmount: '₹1200',
     taxType: 'Inter-state',
     cgst: '9%',
     sgst: '9%',
     igst: '-',
-    taxAmount: '$216',
-    totalInvoiceValue: '$1416',
+    taxAmount: '₹216',
+    totalInvoiceValue: '₹1416',
     materialType: 'Steel',
     weight: '1500 kg',
     hsnCode: '72044900',
@@ -68,13 +68,13 @@ const initialOutwardGoods = [
     customer: 'Creative Alloys',
     gstNumber: '27FGHIJ5678K1Z4',
     placeOfSupply: 'Gujarat',
-    taxableAmount: '$2500',
+    taxableAmount: '₹2500',
     taxType: 'Intra-state',
     cgst: '-',
     sgst: '-',
     igst: '18%',
-    taxAmount: '$450',
-    totalInvoiceValue: '$2950',
+    taxAmount: '₹450',
+    totalInvoiceValue: '₹2950',
     materialType: 'Copper',
     weight: '300 kg',
     hsnCode: '74040010',
@@ -113,13 +113,13 @@ export default function OutwardGoodsPage() {
       gstNumber: formData.get('gstNumber') as string,
       placeOfSupply: formData.get('placeOfSupply') as string,
       hsnCode: formData.get('hsnCode') as string,
-      taxableAmount: `$${taxableAmount.toFixed(2)}`,
+      taxableAmount: `₹${taxableAmount.toFixed(2)}`,
       taxType: taxType as string,
       cgst: taxType === 'inter-state' ? `${cgst}%` : '-',
       sgst: taxType === 'inter-state' ? `${sgst}%` : '-',
       igst: taxType === 'intra-state' ? `${igst}%` : '-',
-      taxAmount: `$${taxAmount.toFixed(2)}`,
-      totalInvoiceValue: `$${totalInvoiceValue.toFixed(2)}`,
+      taxAmount: `₹${taxAmount.toFixed(2)}`,
+      totalInvoiceValue: `₹${totalInvoiceValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
       weight: `${formData.get('weight')} kg`,
     };
@@ -235,7 +235,7 @@ export default function OutwardGoodsPage() {
                     </Select>
                   </div>
                    <div className="space-y-2">
-                    <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
+                    <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
                     <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required
                       onChange={(e) => setTaxableAmount(Number(e.target.value))}
                     />
@@ -262,11 +262,11 @@ export default function OutwardGoodsPage() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="taxAmount">Tax Amount ($)</Label>
+                    <Label htmlFor="taxAmount">Tax Amount (₹)</Label>
                     <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
                   </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
-                    <Label htmlFor="totalInvoiceValue">Total Invoice Value ($)</Label>
+                    <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
                     <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
                   </div>
                 </div>
