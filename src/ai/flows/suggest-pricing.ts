@@ -69,7 +69,8 @@ const suggestPricingFlow = ai.defineFlow(
     inputSchema: SuggestPricingInputSchema,
     outputSchema: SuggestPricingOutputSchema,
   },
-  async input => {\n    const {output} = await suggestPricingPrompt(input);
+  async (input) => {
+    const {output} = await suggestPricingPrompt(input);
     return output!;
   }
 );
