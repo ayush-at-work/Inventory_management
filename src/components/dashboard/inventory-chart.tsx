@@ -1,0 +1,133 @@
+"use client"
+
+import * as React from "react"
+import { Pie, PieChart, Sector } from "recharts"
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+
+const chartData = [
+  { material: "Copper", quantity: 5200, fill: "var(--color-copper)" },
+  { material: "Steel", quantity: 25000, fill: "var(--color-steel)" },
+  { material: "Aluminum", quantity: 8500, fill: "var(--color-aluminum)" },
+  { material: "Brass", quantity: 1500, fill: "var(--color-brass)" },
+  { material: "Lead", quantity: 900, fill: "var(--color-lead)" },
+]
+
+const chartConfig = {
+  quantity: {
+    label: "Quantity (kg)",
+  },
+  copper: {
+    label: "Copper",
+    color: "hsl(var(--chart-1))",
+  },
+  steel: {
+    label: "Steel",
+    color: "hsl(var(--chart-2))",
+  },
+  aluminum: {
+    label: "Aluminum",
+    color: "hsl(var(--chart-3))",
+  },
+  brass: {
+    label: "Brass",
+    color: "hsl(var(--chart-4))",
+  },
+  lead: {
+    label: "Lead",
+    color: "hsl(var(--chart-5))",
+  },
+} satisfies ChartConfig
+
+export function InventoryChart() {
+  const id = "pie-interactive"
+  const [activeMaterial, setActiveMaterial] =
+    React.useState(chartData[0].material)
+
+  const activeIndex = React.useMemo(
+    () => chartData.findIndex((item) => item.material === activeMaterial),
+    [activeMaterial]
+  )
+  const allQuantity = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.quantity, 0)
+  }, [])
+
+  return (
+    <Card data-chart={id} className="flex flex-col h-full">
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Inventory Overview</CardTitle>
+        <CardDescription>By material type</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[300px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="quantity"
+              nameKey="material"
+              innerRadius={60}
+              strokeWidth={5}
+              activeIndex={activeIndex}
+              activeShape={({
+                outerRadius = 0,
+                ...props
+              }) => (
+                <g>
+                  <Sector {...props} outerRadius={outerRadius + 10} />
+                  <Sector
+                    {...props}
+                    outerRadius={outerRadius}
+                    innerRadius={outerRadius - 8}
+                  />
+                </g>
+              )}
+              onMouseOver={(_, index) => {
+                setActiveMaterial(chartData[index].material)
+              }}
+            />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+      <CardContent className="flex-1 pb-4 text-sm">
+        <div
+          className="mx-auto grid max-w-[280px] grid-cols-2 gap-x-10 gap-y-1 text-sm [&>div]:flex [&>div]:items-center [&>div]:gap-2"
+        >
+          {chartData.map((item) => {
+            const percentage = ((item.quantity / allQuantity) * 100).toFixed(1)
+            return (
+              <div key={item.material}>
+                <div
+                  className="size-2.5 shrink-0 rounded-[2px]"
+                  style={{
+                    backgroundColor: chartConfig[item.material.toLowerCase() as keyof typeof chartConfig]?.color,
+                  }}
+                />
+                <div className="flex-1 truncate">{item.material}</div>
+                <div className="text-right font-medium">{percentage}%</div>
+              </div>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
