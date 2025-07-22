@@ -41,6 +41,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 7,
     value: 36400,
+    hsnCode: '74040010',
   },
   {
     id: '2',
@@ -49,6 +50,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 0.4,
     value: 10000,
+    hsnCode: '72044900',
   },
   {
     id: '3',
@@ -57,6 +59,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 1.5,
     value: 12750,
+    hsnCode: '76020010',
   },
   {
     id: '4',
@@ -65,6 +68,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 4,
     value: 6000,
+    hsnCode: '74040022',
   },
   {
     id: '5',
@@ -73,6 +77,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 2,
     value: 1800,
+    hsnCode: '78020010',
   },
   {
     id: '6',
@@ -81,6 +86,7 @@ const initialInventoryData = [
     unit: 'kg',
     price: 2.5,
     value: 8000,
+    hsnCode: '79020010',
   },
   {
     id: '7',
@@ -89,6 +95,7 @@ const initialInventoryData = [
     unit: 'NOS',
     price: 10,
     value: 5000,
+    hsnCode: '85481020',
   },
 ];
 
@@ -120,6 +127,7 @@ export default function InventoryPage() {
     const entry: InventoryItem = {
       id: editingItem ? editingItem.id : String(inventory.length + 1),
       materialType: formData.get('materialType') as string,
+      hsnCode: formData.get('hsnCode') as string,
       quantity: quantity,
       unit: formData.get('unit') as string,
       price: price,
@@ -176,6 +184,12 @@ export default function InventoryPage() {
                     <Input id="materialType" name="materialType" className="col-span-3" defaultValue={editingItem?.materialType} required />
                   </div>
                    <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="hsnCode" className="text-right">
+                      HSN Code
+                    </Label>
+                    <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} required />
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="quantity" className="text-right">
                       Quantity
                     </Label>
@@ -219,6 +233,7 @@ export default function InventoryPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Material Type</TableHead>
+              <TableHead>HSN Code</TableHead>
               <TableHead>Quantity</TableHead>
               <TableHead>Unit</TableHead>
               <TableHead className="text-right">Price / Unit</TableHead>
@@ -233,6 +248,7 @@ export default function InventoryPage() {
               return (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.materialType}</TableCell>
+                <TableCell>{item.hsnCode}</TableCell>
                 <TableCell>{item.quantity.toLocaleString()}</TableCell>
                 <TableCell>{item.unit}</TableCell>
                 <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
