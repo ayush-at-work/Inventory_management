@@ -50,9 +50,12 @@ const initialInwardGoods = [
     gstNumber: '29ABCDE1234F1Z5',
     placeOfSupply: 'Maharashtra',
     taxableAmount: '$3200',
-    taxPercentage: '9%',
+    taxType: 'Inter-state',
+    cgst: '4.5%',
+    sgst: '4.5%',
+    igst: '-',
     taxAmount: '$288',
-    totalInvoiceValue: '$3500',
+    totalInvoiceValue: '$3488',
     materialType: 'Copper',
     weight: '500 kg',
     hsnCode: '74040010',
@@ -65,9 +68,12 @@ const initialInwardGoods = [
     gstNumber: '27FGHIJ5678K1Z4',
     placeOfSupply: 'Gujarat',
     taxableAmount: '$750',
-    taxPercentage: '5%',
-    taxAmount: '$50',
-    totalInvoiceValue: '$800',
+    taxType: 'Intra-state',
+    cgst: '-',
+    sgst: '-',
+    igst: '5%',
+    taxAmount: '$37.5',
+    totalInvoiceValue: '$787.5',
     materialType: 'Steel',
     weight: '2000 kg',
     hsnCode: '72044900',
@@ -80,9 +86,12 @@ const initialInwardGoods = [
     gstNumber: '36LMNOP9012Q1Z3',
     placeOfSupply: 'Karnataka',
     taxableAmount: '$1650',
-    taxPercentage: '9%',
-    taxAmount: '$150',
-    totalInvoiceValue: '$1800',
+    taxType: 'Inter-state',
+    cgst: '4.5%',
+    sgst: '4.5%',
+    igst: '-',
+    taxAmount: '$148.5',
+    totalInvoiceValue: '$1798.5',
     materialType: 'Aluminum',
     weight: '1200 kg',
     hsnCode: '76020010',
@@ -93,13 +102,21 @@ export default function InwardGoodsPage() {
   const [inwardGoods, setInwardGoods] = useState(initialInwardGoods);
   const [open, setOpen] = useState(false);
   const [taxableAmount, setTaxableAmount] = useState(0);
-  const [taxPercentage, setTaxPercentage] = useState(0);
+  const [taxType, setTaxType] = useState<'inter-state' | 'intra-state' | ''>('');
+  const [cgst, setCgst] = useState(0);
+  const [sgst, setSgst] = useState(0);
+  const [igst, setIgst] = useState(0);
 
-  const calculateTax = (amount: number, percentage: number) => {
-    return (amount * percentage) / 100;
-  };
+  const taxAmount = React.useMemo(() => {
+    if (taxType === 'inter-state') {
+      return (taxableAmount * (cgst + sgst)) / 100;
+    }
+    if (taxType === 'intra-state') {
+      return (taxableAmount * igst) / 100;
+    }
+    return 0;
+  }, [taxableAmount, taxType, cgst, sgst, igst]);
 
-  const taxAmount = calculateTax(taxableAmount, taxPercentage);
   const totalInvoiceValue = taxableAmount + taxAmount;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -114,7 +131,10 @@ export default function InwardGoodsPage() {
       placeOfSupply: formData.get('placeOfSupply') as string,
       hsnCode: formData.get('hsnCode') as string,
       taxableAmount: `$${taxableAmount.toFixed(2)}`,
-      taxPercentage: `${taxPercentage}%`,
+      taxType: taxType as string,
+      cgst: taxType === 'inter-state' ? `${cgst}%` : '-',
+      sgst: taxType === 'inter-state' ? `${sgst}%` : '-',
+      igst: taxType === 'intra-state' ? `${igst}%` : '-',
       taxAmount: `$${taxAmount.toFixed(2)}`,
       totalInvoiceValue: `$${totalInvoiceValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
@@ -122,19 +142,24 @@ export default function InwardGoodsPage() {
     };
     setInwardGoods([newEntry, ...inwardGoods]);
     setOpen(false);
+    // Reset form state
     setTaxableAmount(0);
-    setTaxPercentage(0);
+    setTaxType('');
+    setCgst(0);
+    setSgst(0);
+    setIgst(0);
   };
 
   const handleExport = () => {
     const headers = [
       'Invoice #', 'Date', 'Supplier', 'GST #', 'Supply Place',
-      'Material', 'HSN Code', 'Weight', 'Taxable Amt', 'Tax %', 'Tax Amt', 'Total Value'
+      'Material', 'HSN Code', 'Weight', 'Taxable Amt', 'Tax Type', 'CGST', 'SGST', 'IGST',
+      'Tax Amt', 'Total Value'
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier, item.gstNumber, item.placeOfSupply,
-      item.materialType, item.hsnCode, item.weight, item.taxableAmount, item.taxPercentage,
-      item.taxAmount, item.totalInvoiceValue
+      item.materialType, item.hsnCode, item.weight, item.taxableAmount, item.taxType,
+      item.cgst, item.sgst, item.igst, item.taxAmount, item.totalInvoiceValue
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -216,17 +241,44 @@ export default function InwardGoodsPage() {
                     <Input id="weight" name="weight" type="number" required />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="taxType">Tax Type</Label>
+                     <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)}>
+                      <SelectTrigger id="taxType">
+                        <SelectValue placeholder="Select tax type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inter-state">Inter-state</SelectItem>
+                        <SelectItem value="intra-state">Intra-state</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
                     <Label htmlFor="taxableAmount">Taxable Amount ($)</Label>
                     <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
                       onChange={(e) => setTaxableAmount(Number(e.target.value))}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="taxPercentage">Tax Percentage (%)</Label>
-                    <Input id="taxPercentage" name="taxPercentage" type="number" step="0.01" required 
-                      onChange={(e) => setTaxPercentage(Number(e.target.value))}
-                    />
-                  </div>
+
+                  {taxType === 'inter-state' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="cgst">CGST (%)</Label>
+                        <Input id="cgst" name="cgst" type="number" step="0.01" required onChange={(e) => setCgst(Number(e.target.value))} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="sgst">SGST (%)</Label>
+                        <Input id="sgst" name="sgst" type="number" step="0.01" required onChange={(e) => setSgst(Number(e.target.value))} />
+                      </div>
+                    </>
+                  )}
+
+                  {taxType === 'intra-state' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="igst">IGST (%)</Label>
+                      <Input id="igst" name="igst" type="number" step="0.01" required onChange={(e) => setIgst(Number(e.target.value))} />
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     <Label htmlFor="taxAmount">Tax Amount ($)</Label>
                     <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
@@ -261,7 +313,10 @@ export default function InwardGoodsPage() {
                <TableHead>HSN Code</TableHead>
               <TableHead>Weight</TableHead>
               <TableHead className="text-right">Taxable Amt</TableHead>
-              <TableHead className="text-right">Tax %</TableHead>
+              <TableHead>Tax Type</TableHead>
+              <TableHead className="text-right">CGST</TableHead>
+              <TableHead className="text-right">SGST</TableHead>
+              <TableHead className="text-right">IGST</TableHead>
               <TableHead className="text-right">Tax Amt</TableHead>
               <TableHead className="text-right">Total Value</TableHead>
               <TableHead>Actions</TableHead>
@@ -279,7 +334,10 @@ export default function InwardGoodsPage() {
                 <TableCell>{item.hsnCode}</TableCell>
                 <TableCell>{item.weight}</TableCell>
                 <TableCell className="text-right">{item.taxableAmount}</TableCell>
-                <TableCell className="text-right">{item.taxPercentage}</TableCell>
+                <TableCell>{item.taxType}</TableCell>
+                <TableCell className="text-right">{item.cgst}</TableCell>
+                <TableCell className="text-right">{item.sgst}</TableCell>
+                <TableCell className="text-right">{item.igst}</TableCell>
                 <TableCell className="text-right">{item.taxAmount}</TableCell>
                 <TableCell className="text-right font-bold">{item.totalInvoiceValue}</TableCell>
                 <TableCell>
