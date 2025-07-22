@@ -27,8 +27,13 @@ import {
   Receipt,
   Package2,
   Landmark,
+  Pencil,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { useBankBalance } from '@/context/bank-balance-context';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -42,6 +47,18 @@ const navItems = [
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { balance, setBalance } = useBankBalance();
+  const [newBalance, setNewBalance] = React.useState(balance);
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setNewBalance(balance);
+  }, [balance]);
+
+  const handleSave = () => {
+    setBalance(newBalance);
+    setOpen(false);
+  };
 
   return (
     <SidebarProvider>
@@ -77,7 +94,39 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                     <Landmark className="w-5 h-5 text-sidebar-foreground/80" />
                     <span className="text-sm font-medium">Bank Balance</span>
                 </div>
-                <span className="text-sm font-bold text-green-400">₹123,456.78</span>
+                <div className='flex items-center gap-2'>
+                  <span className="text-sm font-bold text-green-400">₹{balance.toLocaleString()}</span>
+                   <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <Pencil className="w-3 h-3 text-sidebar-foreground/80" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Bank Balance</DialogTitle>
+                        <DialogDescription>
+                          Update your current bank balance.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <Label htmlFor="balance">New Balance (₹)</Label>
+                        <Input
+                          id="balance"
+                          type="number"
+                          value={newBalance}
+                          onChange={(e) => setNewBalance(Number(e.target.value))}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="secondary">Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={handleSave}>Save</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
             </div>
           </div>
         </SidebarFooter>

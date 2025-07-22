@@ -3,6 +3,7 @@ import './globals.css';
 import { SiteLayout } from '@/components/site-layout';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
+import { BankBalanceProvider } from '@/context/bank-balance-context';
 
 export const metadata: Metadata = {
   title: 'ScrapFlow',
@@ -28,9 +29,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          <SiteLayout>
-            {children}
-          </SiteLayout>
+          <BankBalanceProvider>
+            <SiteLayout>
+              {children}
+            </SiteLayout>
+          </BankBalanceProvider>
           <Toaster />
         </ThemeProvider>
       </body>

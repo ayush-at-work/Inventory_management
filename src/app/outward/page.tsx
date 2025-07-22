@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useBankBalance } from '@/context/bank-balance-context';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -89,6 +90,7 @@ export default function OutwardGoodsPage() {
   const [cgst, setCgst] = useState(0);
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
+  const { updateBalance } = useBankBalance();
 
   const taxAmount = React.useMemo(() => {
     if (taxType === 'inter-state') {
@@ -124,6 +126,7 @@ export default function OutwardGoodsPage() {
       weight: `${formData.get('weight')} kg`,
     };
     setOutwardGoods([newEntry, ...outwardGoods]);
+    updateBalance(totalInvoiceValue);
     setOpen(false);
     // Reset form state
     setTaxableAmount(0);
