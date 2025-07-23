@@ -4,63 +4,63 @@
 
 @layer base {
   :root {
-    --background: 188 95% 90%;
-    --foreground: 195 91% 16%;
-    --card: 188 95% 95%;
-    --card-foreground: 195 91% 16%;
-    --popover: 188 95% 95%;
-    --popover-foreground: 195 91% 16%;
-    --primary: 188 88% 64%;
-    --primary-foreground: 195 91% 16%;
-    --secondary: 188 95% 85%;
-    --secondary-foreground: 195 91% 16%;
-    --muted: 188 95% 85%;
-    --muted-foreground: 195 91% 26%;
-    --accent: 63 92% 65%;
-    --accent-foreground: 63 92% 15%;
-    --destructive: 351 100% 83%;
+    --background: 220 60% 95%; /* Freeze Purple: #e5eaf5 */
+    --foreground: 270 36% 52%; /* Purple Pain: #8458B3 */
+    --card: 220 60% 95%; /* Freeze Purple: #e5eaf5 */
+    --card-foreground: 270 36% 52%; /* Purple Pain: #8458B3 */
+    --popover: 220 60% 95%; /* Freeze Purple: #e5eaf5 */
+    --popover-foreground: 270 36% 52%; /* Purple Pain: #8458B3 */
+    --primary: 202 72% 77%; /* Ice Cold: #a0d2eb */
+    --primary-foreground: 270 36% 22%; /* Darker Purple Pain */
+    --secondary: 261 48% 86%; /* Medium Purple: #d0bdf4 */
+    --secondary-foreground: 270 36% 22%; /* Darker Purple Pain */
+    --muted: 349 14% 77%; /* Heavy Purple: #a28089 */
+    --muted-foreground: 349 14% 47%; /* Darker Heavy Purple */
+    --accent: 261 48% 86%; /* Medium Purple: #d0bdf4 */
+    --accent-foreground: 270 36% 22%; /* Darker Purple Pain */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 188 88% 80%;
-    --input: 188 88% 85%;
-    --ring: 188 88% 64%;
+    --border: 220 60% 85%; /* Lighter Freeze Purple */
+    --input: 220 60% 90%; /* Lighter Freeze Purple */
+    --ring: 202 72% 77%; /* Ice Cold: #a0d2eb */
     --radius: 0.5rem;
-    --sidebar-background: 195 91% 10%;
-    --sidebar-foreground: 188 95% 85%;
-    --sidebar-primary: 188 88% 64%;
-    --sidebar-primary-foreground: 195 91% 10%;
-    --sidebar-accent: 63 92% 65%;
-    --sidebar-accent-foreground: 63 92% 15%;
-    --sidebar-border: 195 91% 15%;
-    --sidebar-ring: 188 88% 64%;
+    --sidebar-background: 270 36% 32%;
+    --sidebar-foreground: 220 60% 95%;
+    --sidebar-primary: 202 72% 77%;
+    --sidebar-primary-foreground: 270 36% 22%;
+    --sidebar-accent: 261 48% 86%;
+    --sidebar-accent-foreground: 270 36% 22%;
+    --sidebar-border: 270 36% 42%;
+    --sidebar-ring: 202 72% 77%;
   }
   .dark {
-    --background: 195 50% 10%;
-    --foreground: 0 0% 98%;
-    --card: 195 50% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 195 50% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 188 88% 64%;
-    --primary-foreground: 195 91% 16%;
-    --secondary: 195 30% 15%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 195 30% 15%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 63 92% 65%;
-    --accent-foreground: 63 92% 15%;
-    --destructive: 351 80% 50%;
+    --background: 270 36% 15%; /* Dark Purple Pain */
+    --foreground: 220 60% 95%; /* Freeze Purple */
+    --card: 270 36% 15%; /* Dark Purple Pain */
+    --card-foreground: 220 60% 95%; /* Freeze Purple */
+    --popover: 270 36% 15%; /* Dark Purple Pain */
+    --popover-foreground: 220 60% 95%; /* Freeze Purple */
+    --primary: 261 48% 86%; /* Medium Purple: #d0bdf4 */
+    --primary-foreground: 270 36% 12%; /* Darker Purple Pain */
+    --secondary: 349 14% 27%; /* Dark Heavy Purple */
+    --secondary-foreground: 220 60% 95%; /* Freeze Purple */
+    --muted: 349 14% 27%; /* Dark Heavy Purple */
+    --muted-foreground: 349 14% 67%;
+    --accent: 202 72% 77%; /* Ice Cold: #a0d2eb */
+    --accent-foreground: 270 36% 12%; /* Darker Purple Pain */
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 195 30% 15%;
-    --input: 195 30% 20%;
-    --ring: 188 88% 64%;
-    --sidebar-background: 195 50% 5%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 188 88% 64%;
-    --sidebar-primary-foreground: 195 91% 10%;
-    --sidebar-accent: 63 92% 65%;
-    --sidebar-accent-foreground: 63 92% 15%;
-    --sidebar-border: 195 50% 12%;
-    --sidebar-ring: 188 88% 64%;
+    --border: 349 14% 27%; /* Dark Heavy Purple */
+    --input: 349 14% 32%;
+    --ring: 261 48% 86%; /* Medium Purple: #d0bdf4 */
+    --sidebar-background: 270 36% 10%;
+    --sidebar-foreground: 220 60% 95%;
+    --sidebar-primary: 261 48% 86%;
+    --sidebar-primary-foreground: 270 36% 12%;
+    --sidebar-accent: 202 72% 77%;
+    --sidebar-accent-foreground: 270 36% 12%;
+    --sidebar-border: 270 36% 15%;
+    --sidebar-ring: 261 48% 86%;
   }
 }
 
