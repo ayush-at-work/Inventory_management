@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Banknote, MinusCircle, PlusCircle, Receipt, DollarSign } from 'lucide-react';
+import { Banknote, MinusCircle, PlusCircle, Receipt, IndianRupee } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ export default function Home() {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
          <Link href="/cash-inward">
             <Button variant="outline">
-                <DollarSign className="mr-2 h-4 w-4" /> Go to Cash Deals
+                <IndianRupee className="mr-2 h-4 w-4" /> Go to Cash Deals
             </Button>
         </Link>
       </div>
