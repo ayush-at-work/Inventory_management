@@ -9,6 +9,7 @@ import {
 import { Banknote, MinusCircle, PlusCircle, Receipt } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
+import Link from 'next/link';
 
 const summaryData = [
   {
@@ -60,7 +61,9 @@ export default function Home() {
           <RevenueChart />
         </div>
         <div className="col-span-full lg:col-span-3">
-          <InventoryChart />
+          <Link href="/inventory" className="cursor-pointer">
+            <InventoryChart />
+          </Link>
         </div>
       </div>
     </div>
