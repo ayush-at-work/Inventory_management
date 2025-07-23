@@ -391,5 +391,3 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
-
-    

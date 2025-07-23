@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import { Pie, PieChart, Sector } from "recharts"
+import { useInventory } from "@/context/inventory-context";
 
 import {
   Card,
@@ -18,7 +19,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
+const initialChartData = [
   { material: "Copper", quantity: 0, fill: "var(--color-copper)" },
   { material: "Steel", quantity: 0, fill: "var(--color-steel)" },
   { material: "Aluminum", quantity: 0, fill: "var(--color-aluminum)" },
@@ -53,23 +54,50 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function InventoryChart() {
+  const { inventory } = useInventory();
+  
+  const chartData = React.useMemo(() => {
+    if (!inventory || inventory.length === 0) return initialChartData;
+
+    const materialMap = new Map<string, number>();
+    inventory.forEach(item => {
+        if (item.unit.toLowerCase() === 'kg') {
+            materialMap.set(item.materialType, (materialMap.get(item.materialType) || 0) + item.quantity);
+        }
+    });
+
+    return initialChartData.map(d => ({
+        ...d,
+        quantity: materialMap.get(d.material) || 0,
+    })).filter(d => d.quantity > 0);
+
+  }, [inventory]);
+
   const id = "pie-interactive"
   const [activeMaterial, setActiveMaterial] =
     React.useState(chartData[0]?.material)
 
+  React.useEffect(() => {
+    if (chartData.length > 0) {
+      setActiveMaterial(chartData[0].material)
+    } else {
+        setActiveMaterial(undefined)
+    }
+  }, [chartData])
+
   const activeIndex = React.useMemo(
     () => chartData.findIndex((item) => item.material === activeMaterial),
-    [activeMaterial]
+    [activeMaterial, chartData]
   )
   const allQuantity = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.quantity, 0)
-  }, [])
+  }, [chartData])
 
   return (
     <Card data-chart={id} className="flex flex-col h-full">
       <CardHeader className="items-center pb-0">
         <CardTitle>Inventory Overview</CardTitle>
-        <CardDescription>By material type</CardDescription>
+        <CardDescription>By material type (in kg)</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -122,12 +150,16 @@ export function InventoryChart() {
           {chartData.map((item) => {
             const percentage = allQuantity > 0 ? ((item.quantity / allQuantity) * 100).toFixed(1) : 0
             if (item.quantity === 0) return null;
+            
+            const colorKey = item.material.toLowerCase() as keyof typeof chartConfig;
+            const itemConfig = chartConfig[colorKey];
+
             return (
               <div key={item.material}>
                 <div
                   className="size-2.5 shrink-0 rounded-[2px]"
                   style={{
-                    backgroundColor: chartConfig[item.material.toLowerCase() as keyof typeof chartConfig]?.color,
+                    backgroundColor: itemConfig ? itemConfig.color : "hsl(var(--muted))",
                   }}
                 />
                 <div className="flex-1 truncate">{item.material}</div>
