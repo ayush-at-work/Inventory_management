@@ -6,15 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Banknote, MinusCircle, PlusCircle, Receipt } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
@@ -46,44 +37,6 @@ const summaryData = [
   },
 ];
 
-const recentTransactions = [
-  {
-    id: 'TXN001',
-    type: 'Sale',
-    material: 'Copper',
-    amount: '+₹1,999.00',
-    status: 'Completed',
-  },
-  {
-    id: 'TXN002',
-    type: 'Purchase',
-    material: 'Aluminum',
-    amount: '-₹39.00',
-    status: 'Pending',
-  },
-  {
-    id: 'TXN003',
-    type: 'Sale',
-    material: 'Steel',
-    amount: '+₹299.00',
-    status: 'Completed',
-  },
-  {
-    id: 'TXN004',
-    type: 'Purchase',
-    material: 'Brass',
-    amount: '-₹150.00',
-    status: 'Completed',
-  },
-  {
-    id: 'TXN005',
-    type: 'Sale',
-    material: 'Lead',
-    amount: '+₹999.00',
-    status: 'On Hold',
-  },
-];
-
 export default function Home() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -110,59 +63,6 @@ export default function Home() {
           <InventoryChart />
         </div>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-          <CardDescription>
-            A list of your most recent sales and purchases.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Material</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentTransactions.map(transaction => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium whitespace-nowrap">{transaction.id}</TableCell>
-                  <TableCell>{transaction.type}</TableCell>
-                  <TableCell>{transaction.material}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        transaction.status === 'Completed'
-                          ? 'default'
-                          : transaction.status === 'Pending'
-                          ? 'secondary'
-                          : 'destructive'
-                      }
-                      className="bg-opacity-20"
-                    >
-                      {transaction.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    className={`text-right font-medium whitespace-nowrap ${
-                      transaction.amount.startsWith('+')
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }`}
-                  >
-                    {transaction.amount}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 }
