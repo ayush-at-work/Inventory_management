@@ -18,6 +18,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Button } from '@/components/ui/button';
@@ -61,8 +62,43 @@ const mainNavItems = [
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
 ];
 
-export function SiteLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+function NavLink({ href, label, icon: Icon, onClick }: { href: string, label: string, icon: React.ElementType, onClick: () => void }) {
+    const pathname = usePathname();
+    return (
+        <SidebarMenuItem>
+            <Link href={href} onClick={onClick}>
+                <SidebarMenuButton
+                    isActive={pathname === href}
+                    tooltip={label}
+                >
+                    <Icon />
+                    <span>{label}</span>
+                </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
+    )
+}
+
+function NavLinkOutline({ href, label, icon: Icon, onClick }: { href: string, label: string, icon: React.ElementType, onClick: () => void }) {
+    const pathname = usePathname();
+    return (
+        <SidebarMenuItem>
+            <Link href={href} onClick={onClick}>
+            <SidebarMenuButton
+                isActive={pathname === href}
+                tooltip={label}
+                variant="outline"
+            >
+                <Icon />
+                <span>{label}</span>
+            </SidebarMenuButton>
+            </Link>
+        </SidebarMenuItem>
+    )
+}
+
+function SiteLayoutContent({ children }: { children: React.ReactNode }) {
+  const { isMobile, setOpenMobile } = useSidebar();
   const { balance: bankBalance, setBalance: setBankBalance } = useBankBalance();
   const { balance: cashBalance, setBalance: setCashBalance } = useCashBalance();
   
@@ -90,8 +126,14 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     setOpenCashDialog(false);
   };
 
+  const handleLinkClick = () => {
+    if (isMobile) {
+        setOpenMobile(false);
+    }
+  }
+
   return (
-    <SidebarProvider>
+    <>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2 p-2">
@@ -102,17 +144,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
             <SidebarMenu>
                 {mainNavItems.map(item => (
-                <SidebarMenuItem key={item.href}>
-                    <Link href={item.href}>
-                    <SidebarMenuButton
-                        isActive={pathname === item.href}
-                        tooltip={item.label}
-                    >
-                        <item.icon />
-                        <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    </Link>
-                </SidebarMenuItem>
+                    <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={handleLinkClick} />
                 ))}
             </SidebarMenu>
 
@@ -123,18 +155,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                 <SidebarGroupContent>
                     <SidebarMenu>
                     {gstNavItems.map(item => (
-                        <SidebarMenuItem key={item.href}>
-                            <Link href={item.href}>
-                            <SidebarMenuButton
-                                isActive={pathname === item.href}
-                                tooltip={item.label}
-                                variant="outline"
-                            >
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
+                       <NavLinkOutline key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={handleLinkClick} />
                         ))}
                     </SidebarMenu>
                 </SidebarGroupContent>
@@ -145,18 +166,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                 <SidebarGroupContent>
                     <SidebarMenu>
                     {cashNavItems.map(item => (
-                        <SidebarMenuItem key={item.href}>
-                            <Link href={item.href}>
-                            <SidebarMenuButton
-                                isActive={pathname === item.href}
-                                tooltip={item.label}
-                                variant="outline"
-                            >
-                                <item.icon />
-                                <span>{item.label}</span>
-                            </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
+                        <NavLinkOutline key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={handleLinkClick} />
                         ))}
                     </SidebarMenu>
                 </SidebarGroupContent>
@@ -257,6 +267,14 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1">{children}</main>
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
+}
+
+export function SiteLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider>
+            <SiteLayoutContent>{children}</SiteLayoutContent>
+        </SidebarProvider>
+    )
 }
