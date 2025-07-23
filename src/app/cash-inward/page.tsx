@@ -22,6 +22,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Download, DollarSign } from 'lucide-react';
@@ -84,6 +95,12 @@ export default function CashInwardPage() {
     setEditingItem(item);
     setOpen(true);
   };
+  
+  const handleDeleteClick = (itemToDelete: CashInward) => {
+      // Add the value back to balance since the purchase is being deleted
+      updateBalance(itemToDelete.totalValue);
+      setInwardGoods(inwardGoods.filter(item => item.id !== itemToDelete.id));
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -138,7 +155,7 @@ export default function CashInwardPage() {
     link.click();
     document.body.removeChild(link);
   };
-
+  
   const [weightValue, unitValue] = editingItem?.weight.split(' ') || ['', 'kg'];
 
   return (
@@ -189,7 +206,7 @@ export default function CashInwardPage() {
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="unit">Unit</Label>
-                     <Select name="unit" required defaultValue={unitValue}>
+                     <Select name="unit" required defaultValue={unitValue || 'kg'}>
                       <SelectTrigger id="unit">
                         <SelectValue placeholder="Select a unit" />
                       </SelectTrigger>
@@ -254,7 +271,24 @@ export default function CashInwardPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                           <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete this entry
+                              and update the bank balance.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

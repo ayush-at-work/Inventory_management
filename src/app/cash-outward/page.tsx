@@ -22,6 +22,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Download, DollarSign } from 'lucide-react';
@@ -54,13 +65,23 @@ const initialCashOutward = [
     customer: 'Small Workshop Y',
     totalValue: 3000,
     materialType: 'Aluminum Parts',
-    weight: '200 kg',
+    weight: '200 NOS',
     hsnCode: '76020010',
     paymentStatus: 'Unpaid' as const,
   },
 ];
 
-type CashSale = typeof initialCashOutward[0];
+type CashSale = {
+    id: string;
+    invoiceNumber: string;
+    date: string;
+    customer: string;
+    totalValue: number;
+    materialType: string;
+    weight: string;
+    hsnCode: string;
+    paymentStatus: 'Paid' | 'Unpaid';
+};
 
 
 export default function CashOutwardPage() {
@@ -80,11 +101,22 @@ export default function CashOutwardPage() {
     setOpen(true);
   };
 
+   const handleDeleteClick = (itemToDelete: CashSale) => {
+      // If the sale was paid, subtract the value from the balance
+      if (itemToDelete.paymentStatus === 'Paid') {
+          updateBalance(-itemToDelete.totalValue);
+      }
+      setOutwardGoods(outwardGoods.filter(item => item.id !== itemToDelete.id));
+  };
+
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const paymentStatus = formData.get('paymentStatus') as 'Paid' | 'Unpaid';
     const totalValue = Number(formData.get('totalValue'));
+    const quantity = formData.get('quantity') as string;
+    const unit = formData.get('unit') as string;
     
     const newEntry: CashSale = {
       id: editingItem ? editingItem.id : String(outwardGoods.length + 1),
@@ -94,14 +126,26 @@ export default function CashOutwardPage() {
       hsnCode: formData.get('hsnCode') as string,
       totalValue: totalValue,
       materialType: formData.get('materialType') as string,
-      weight: `${formData.get('weight')} kg`,
+      weight: `${quantity} ${unit}`,
       paymentStatus: paymentStatus,
     };
 
     if (editingItem) {
-        // If status changed from Unpaid to Paid, update balance
+        let balanceChange = 0;
+        // Case 1: Was Paid, now Unpaid
+        if(editingItem.paymentStatus === 'Paid' && newEntry.paymentStatus === 'Unpaid') {
+            balanceChange = -editingItem.totalValue;
+        }
+        // Case 2: Was Unpaid, now Paid
         if(editingItem.paymentStatus === 'Unpaid' && newEntry.paymentStatus === 'Paid') {
-            updateBalance(newEntry.totalValue);
+            balanceChange = newEntry.totalValue;
+        }
+        // Case 3: Was Paid, still Paid, value changed
+        if(editingItem.paymentStatus === 'Paid' && newEntry.paymentStatus === 'Paid') {
+            balanceChange = newEntry.totalValue - editingItem.totalValue;
+        }
+        if(balanceChange !== 0) {
+            updateBalance(balanceChange);
         }
         setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
     } else {
@@ -136,6 +180,8 @@ export default function CashOutwardPage() {
     link.click();
     document.body.removeChild(link);
   };
+  
+  const [weightValue, unitValue] = editingItem?.weight.split(' ') || ['', 'kg'];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -184,14 +230,26 @@ export default function CashOutwardPage() {
                     <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (kg)</Label>
-                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight.replace(' kg', '')} required />
+                    <Label htmlFor="unit">Unit</Label>
+                     <Select name="unit" required defaultValue={unitValue || 'kg'}>
+                      <SelectTrigger id="unit">
+                        <SelectValue placeholder="Select a unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="NOS">NOS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="quantity">Quantity</Label>
+                    <Input id="quantity" name="quantity" type="number" defaultValue={weightValue} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="totalValue">Total Value (₹)</Label>
                     <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
                   </div>
-                   <div className="space-y-2">
+                   <div className="space-y-2 col-span-1 md:col-span-2">
                     <Label htmlFor="paymentStatus">Payment Status</Label>
                      <Select name="paymentStatus" required defaultValue={editingItem?.paymentStatus || 'Paid'}>
                       <SelectTrigger id="paymentStatus">
@@ -258,7 +316,24 @@ export default function CashOutwardPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                           <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete this entry
+                              and update the bank balance accordingly.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
