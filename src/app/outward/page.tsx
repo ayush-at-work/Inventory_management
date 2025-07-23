@@ -35,6 +35,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useBankBalance } from '@/context/bank-balance-context';
 import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
+import { useGst, GstOutward } from '@/context/gst-context';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -46,31 +47,10 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-const initialOutwardGoods: OutwardGood[] = [];
-
-type OutwardGood = {
-  id: string;
-  invoiceNumber: string;
-  date: string;
-  customer: string;
-  gstNumber: string;
-  placeOfSupply: string;
-  taxableAmount: number;
-  taxType: 'Inter-state' | 'Intra-state';
-  cgst: number;
-  sgst: number;
-  igst: number;
-  materialType: string;
-  weight: string;
-  hsnCode: string;
-  paymentStatus: 'Paid' | 'Unpaid';
-};
-
-
 export default function OutwardGoodsPage() {
-  const [outwardGoods, setOutwardGoods] = useState<OutwardGood[]>(initialOutwardGoods);
+  const { outwardGoods, addOutwardGood } = useGst();
   const [open, setOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<OutwardGood | null>(null);
+  const [editingItem, setEditingItem] = useState<GstOutward | null>(null);
 
   const [taxableAmount, setTaxableAmount] = useState(0);
   const [taxType, setTaxType] = useState<'Inter-state' | 'Intra-state' | ''>('');
@@ -102,7 +82,7 @@ export default function OutwardGoodsPage() {
     setOpen(true);
   };
 
-  const handleEditClick = (item: OutwardGood) => {
+  const handleEditClick = (item: GstOutward) => {
     setEditingItem(item);
     setTaxableAmount(item.taxableAmount);
     setTaxType(item.taxType);
@@ -118,8 +98,7 @@ export default function OutwardGoodsPage() {
     const paymentStatus = formData.get('paymentStatus') as 'Paid' | 'Unpaid';
     const weight = Number(formData.get('weight'));
     
-    const newEntry: OutwardGood = {
-      id: editingItem ? editingItem.id : String(Date.now()),
+    const newEntry: Omit<GstOutward, 'id'> = {
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       customer: formData.get('customer') as string,
@@ -132,7 +111,7 @@ export default function OutwardGoodsPage() {
       sgst: taxType === 'Inter-state' ? sgst : 0,
       igst: taxType === 'Intra-state' ? igst : 0,
       materialType: formData.get('materialType') as string,
-      weight: `${weight} kg`,
+      weight: weight,
       paymentStatus: paymentStatus,
     };
 
@@ -143,12 +122,13 @@ export default function OutwardGoodsPage() {
             const currentTotalValue = newEntry.taxableAmount + currentTaxAmount;
             updateBalance(currentTotalValue);
         }
-        setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+        // TODO: Update logic
+        // setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
     } else {
         if(paymentStatus === 'Paid') {
             updateBalance(totalInvoiceValue);
         }
-        setOutwardGoods([newEntry, ...outwardGoods]);
+        addOutwardGood(newEntry);
         decreaseInventory(newEntry.materialType, weight, 'GST');
     }
 
@@ -167,7 +147,7 @@ export default function OutwardGoodsPage() {
         const itemTotalValue = item.taxableAmount + itemTaxAmount;
         return [
             item.invoiceNumber, item.date, item.customer, item.gstNumber, item.placeOfSupply,
-            item.materialType, item.hsnCode, item.weight, `₹${item.taxableAmount.toFixed(2)}`, item.taxType,
+            item.materialType, item.hsnCode, `${item.weight} kg`, `₹${item.taxableAmount.toFixed(2)}`, item.taxType,
             item.taxType === 'Inter-state' ? `${item.cgst}%` : '-', 
             item.taxType === 'Inter-state' ? `${item.sgst}%` : '-',
             item.taxType === 'Intra-state' ? `${item.igst}%` : '-',
@@ -250,7 +230,7 @@ export default function OutwardGoodsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="weight">Weight (kg)</Label>
-                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight.replace(' kg', '')} required />
+                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight} required />
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="taxType">Tax Type</Label>
@@ -352,7 +332,7 @@ export default function OutwardGoodsPage() {
                     <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
                     <TableCell>{item.gstNumber}</TableCell>
                     <TableCell>{item.materialType}</TableCell>
-                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight} kg</TableCell>
                     <TableCell className="text-right font-bold whitespace-nowrap">₹{itemTotalValue.toFixed(2)}</TableCell>
                     <TableCell>
                     <Badge

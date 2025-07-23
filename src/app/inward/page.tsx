@@ -34,6 +34,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBankBalance } from '@/context/bank-balance-context';
 import { useInventory } from '@/context/inventory-context';
+import { useGst, GstInward } from '@/context/gst-context';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -45,10 +46,8 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-const initialInwardGoods: any[] = [];
-
 export default function InwardGoodsPage() {
-  const [inwardGoods, setInwardGoods] = useState(initialInwardGoods);
+  const { inwardGoods, addInwardGood } = useGst();
   const [open, setOpen] = useState(false);
   const [taxableAmount, setTaxableAmount] = useState(0);
   const [taxType, setTaxType] = useState<'inter-state' | 'intra-state' | ''>('');
@@ -76,25 +75,25 @@ export default function InwardGoodsPage() {
     const weight = Number(formData.get('weight'));
     const pricePerUnit = taxableAmount / weight;
     
-    const newEntry = {
-      id: String(Date.now()),
+    const newEntry: Omit<GstInward, 'id'> = {
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
       gstNumber: formData.get('gstNumber') as string,
       placeOfSupply: formData.get('placeOfSupply') as string,
       hsnCode: formData.get('hsnCode') as string,
-      taxableAmount: `₹${taxableAmount.toFixed(2)}`,
-      taxType: taxType as string,
-      cgst: taxType === 'inter-state' ? `${cgst}%` : '-',
-      sgst: taxType === 'inter-state' ? `${sgst}%` : '-',
-      igst: taxType === 'intra-state' ? `${igst}%` : '-',
-      taxAmount: `₹${taxAmount.toFixed(2)}`,
-      totalInvoiceValue: `₹${totalInvoiceValue.toFixed(2)}`,
+      taxableAmount: taxableAmount,
+      taxType: taxType as 'inter-state' | 'intra-state',
+      cgst: taxType === 'inter-state' ? cgst : 0,
+      sgst: taxType === 'inter-state' ? sgst : 0,
+      igst: taxType === 'intra-state' ? igst : 0,
+      taxAmount: taxAmount,
+      totalInvoiceValue: totalInvoiceValue,
       materialType: formData.get('materialType') as string,
-      weight: `${weight} kg`,
+      weight: weight,
     };
-    setInwardGoods([newEntry, ...inwardGoods]);
+    
+    addInwardGood(newEntry);
     updateBalance(-totalInvoiceValue);
 
     // Add to inventory
@@ -125,8 +124,11 @@ export default function InwardGoodsPage() {
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier, item.gstNumber, item.placeOfSupply,
-      item.materialType, item.hsnCode, item.weight, item.taxableAmount, item.taxType,
-      item.cgst, item.sgst, item.igst, item.taxAmount, item.totalInvoiceValue
+      item.materialType, item.hsnCode, `${item.weight} kg`, `₹${item.taxableAmount.toFixed(2)}`, item.taxType,
+      item.cgst > 0 ? `${item.cgst}%` : '-',
+      item.sgst > 0 ? `${item.sgst}%` : '-',
+      item.igst > 0 ? `${item.igst}%` : '-',
+      `₹${item.taxAmount.toFixed(2)}`, `₹${item.totalInvoiceValue.toFixed(2)}`
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -300,14 +302,14 @@ export default function InwardGoodsPage() {
                     <TableCell>{item.placeOfSupply}</TableCell>
                     <TableCell>{item.materialType}</TableCell>
                     <TableCell>{item.hsnCode}</TableCell>
-                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                    <TableCell className="text-right whitespace-nowrap">{item.taxableAmount}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight} kg</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">₹{item.taxableAmount.toFixed(2)}</TableCell>
                     <TableCell>{item.taxType}</TableCell>
-                    <TableCell className="text-right">{item.cgst}</TableCell>
-                    <TableCell className="text-right">{item.sgst}</TableCell>
-                    <TableCell className="text-right">{item.igst}</TableCell>
-                    <TableCell className="text-right whitespace-nowrap">{item.taxAmount}</TableCell>
-                    <TableCell className="text-right font-bold whitespace-nowrap">{item.totalInvoiceValue}</TableCell>
+                    <TableCell className="text-right">{item.cgst > 0 ? `${item.cgst}%` : '-'}</TableCell>
+                    <TableCell className="text-right">{item.sgst > 0 ? `${item.sgst}%` : '-'}</TableCell>
+                    <TableCell className="text-right">{item.igst > 0 ? `${item.igst}%` : '-'}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">₹{item.taxAmount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalInvoiceValue.toFixed(2)}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

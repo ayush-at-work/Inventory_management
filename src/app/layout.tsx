@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { SiteLayout } from '@/components/site-layout';
@@ -7,6 +8,7 @@ import { BankBalanceProvider } from '@/context/bank-balance-context';
 import { CashBalanceProvider } from '@/context/cash-balance-context';
 import { InventoryProvider } from '@/context/inventory-context';
 import { StaffProvider } from '@/context/staff-context';
+import { GstProvider } from '@/context/gst-context';
 
 export const metadata: Metadata = {
   title: 'ScrapFlow',
@@ -36,9 +38,11 @@ export default function RootLayout({
             <CashBalanceProvider>
               <InventoryProvider>
                 <StaffProvider>
-                  <SiteLayout>
-                    {children}
-                  </SiteLayout>
+                  <GstProvider>
+                    <SiteLayout>
+                      {children}
+                    </SiteLayout>
+                  </GstProvider>
                 </StaffProvider>
               </InventoryProvider>
             </CashBalanceProvider>
