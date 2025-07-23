@@ -42,7 +42,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useBankBalance } from '@/context/bank-balance-context';
+import { useCashBalance } from '@/context/cash-balance-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -89,7 +89,7 @@ export default function CashOutwardPage() {
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CashSale | null>(null);
 
-  const { updateBalance } = useBankBalance();
+  const { updateBalance } = useCashBalance();
 
   const handleAddNewClick = () => {
     setEditingItem(null);

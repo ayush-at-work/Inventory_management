@@ -34,9 +34,11 @@ import {
   Pencil,
   DollarSign,
   FileDigit,
+  Coins,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
+import { useCashBalance } from '@/context/cash-balance-context';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -61,17 +63,31 @@ const mainNavItems = [
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { balance, setBalance } = useBankBalance();
-  const [newBalance, setNewBalance] = React.useState(balance);
-  const [open, setOpen] = React.useState(false);
+  const { balance: bankBalance, setBalance: setBankBalance } = useBankBalance();
+  const { balance: cashBalance, setBalance: setCashBalance } = useCashBalance();
+  
+  const [newBankBalance, setNewBankBalance] = React.useState(bankBalance);
+  const [openBankDialog, setOpenBankDialog] = React.useState(false);
+
+  const [newCashBalance, setNewCashBalance] = React.useState(cashBalance);
+  const [openCashDialog, setOpenCashDialog] = React.useState(false);
 
   React.useEffect(() => {
-    setNewBalance(balance);
-  }, [balance]);
+    setNewBankBalance(bankBalance);
+  }, [bankBalance]);
+  
+  React.useEffect(() => {
+    setNewCashBalance(cashBalance);
+  }, [cashBalance]);
 
-  const handleSave = () => {
-    setBalance(newBalance);
-    setOpen(false);
+  const handleBankSave = () => {
+    setBankBalance(newBankBalance);
+    setOpenBankDialog(false);
+  };
+
+  const handleCashSave = () => {
+    setCashBalance(newCashBalance);
+    setOpenCashDialog(false);
   };
 
   return (
@@ -156,8 +172,8 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                     <span className="text-sm font-medium">Bank Balance</span>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <span className="text-sm font-bold text-green-400">₹{balance.toLocaleString()}</span>
-                   <Dialog open={open} onOpenChange={setOpen}>
+                  <span className="text-sm font-bold text-green-400">₹{bankBalance.toLocaleString()}</span>
+                   <Dialog open={openBankDialog} onOpenChange={setOpenBankDialog}>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-6 w-6">
                         <Pencil className="w-3 h-3 text-sidebar-foreground/80" />
@@ -167,23 +183,62 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
                       <DialogHeader>
                         <DialogTitle>Edit Bank Balance</DialogTitle>
                         <DialogDescription>
-                          Update your current bank balance.
+                          Update your current bank balance for GST transactions.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
-                        <Label htmlFor="balance">New Balance (₹)</Label>
+                        <Label htmlFor="bank-balance">New Balance (₹)</Label>
                         <Input
-                          id="balance"
+                          id="bank-balance"
                           type="number"
-                          value={newBalance}
-                          onChange={(e) => setNewBalance(Number(e.target.value))}
+                          value={newBankBalance}
+                          onChange={(e) => setNewBankBalance(Number(e.target.value))}
                         />
                       </div>
                       <DialogFooter>
                         <DialogClose asChild>
                           <Button variant="secondary">Cancel</Button>
                         </DialogClose>
-                        <Button onClick={handleSave}>Save</Button>
+                        <Button onClick={handleBankSave}>Save</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+            </div>
+             <div className="flex items-center justify-between p-2 rounded-md bg-sidebar-accent/10">
+                <div className="flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-sidebar-foreground/80" />
+                    <span className="text-sm font-medium">Cash Balance</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <span className="text-sm font-bold text-yellow-400">₹{cashBalance.toLocaleString()}</span>
+                   <Dialog open={openCashDialog} onOpenChange={setOpenCashDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <Pencil className="w-3 h-3 text-sidebar-foreground/80" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Cash Balance</DialogTitle>
+                        <DialogDescription>
+                          Update your current cash-in-hand balance.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <Label htmlFor="cash-balance">New Balance (₹)</Label>
+                        <Input
+                          id="cash-balance"
+                          type="number"
+                          value={newCashBalance}
+                          onChange={(e) => setNewCashBalance(Number(e.target.value))}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="secondary">Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={handleCashSave}>Save</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>

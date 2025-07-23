@@ -42,7 +42,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useBankBalance } from '@/context/bank-balance-context';
+import { useCashBalance } from '@/context/cash-balance-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialCashInward = [
@@ -84,7 +84,7 @@ export default function CashInwardPage() {
   const [inwardGoods, setInwardGoods] = useState<CashInward[]>(initialCashInward);
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CashInward | null>(null);
-  const { updateBalance } = useBankBalance();
+  const { updateBalance } = useCashBalance();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
