@@ -31,7 +31,6 @@ const suggestPricingPrompt = ai.definePrompt({
   name: 'suggestPricingPrompt',
   input: {schema: SuggestPricingInputSchema},
   output: {schema: SuggestPricingOutputSchema},
-  tools: [ai.tool.webSearch],
   prompt: `You are an expert in scrap material pricing. Your task is to suggest a competitive and profitable price for a given scrap material.
 
   To do this, you MUST use the web search tool to find the current market price and latest trends for the specified material.
