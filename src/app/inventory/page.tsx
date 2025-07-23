@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -116,6 +116,15 @@ export default function InventoryPage() {
   const { inventory, addInventoryItem, updateInventoryItem } = useInventory();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [formTransactionType, setFormTransactionType] = useState<'GST' | 'Cash'>('GST');
+
+  useEffect(() => {
+    if (editingItem) {
+      setFormTransactionType(editingItem.transactionType);
+    } else {
+      setFormTransactionType('GST');
+    }
+  }, [editingItem, open]);
 
   const handleEditClick = (item: InventoryItem) => {
     setEditingItem(item);
@@ -184,17 +193,17 @@ export default function InventoryPage() {
                     </Label>
                     <Input id="materialType" name="materialType" className="col-span-3" defaultValue={editingItem?.materialType} required />
                   </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="hsnCode" className="text-right">
-                      HSN Code
-                    </Label>
-                    <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} />
-                  </div>
+                   
                    <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right">
                       Type
                     </Label>
-                    <RadioGroup name="transactionType" defaultValue={editingItem?.transactionType || "GST"} className="col-span-3 flex gap-4">
+                    <RadioGroup 
+                        name="transactionType" 
+                        value={formTransactionType}
+                        onValueChange={(value) => setFormTransactionType(value as 'GST' | 'Cash')}
+                        className="col-span-3 flex gap-4"
+                    >
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="GST" id="r-gst" />
                             <Label htmlFor="r-gst">GST</Label>
@@ -205,6 +214,16 @@ export default function InventoryPage() {
                         </div>
                     </RadioGroup>
                   </div>
+
+                  {formTransactionType === 'GST' && (
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="hsnCode" className="text-right">
+                        HSN Code
+                        </Label>
+                        <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} />
+                    </div>
+                  )}
+
                    <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="quantity" className="text-right">
                       Quantity
