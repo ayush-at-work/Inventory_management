@@ -6,10 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Banknote, MinusCircle, PlusCircle, Receipt } from 'lucide-react';
+import { Banknote, MinusCircle, PlusCircle, Receipt, DollarSign } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const summaryData = [
   {
@@ -41,7 +42,14 @@ const summaryData = [
 export default function Home() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+         <Link href="/cash-inward">
+            <Button variant="outline">
+                <DollarSign className="mr-2 h-4 w-4" /> Go to Cash Deals
+            </Button>
+        </Link>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {summaryData.map(item => (
           <Card key={item.title}>

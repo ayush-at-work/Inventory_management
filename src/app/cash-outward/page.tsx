@@ -1,0 +1,272 @@
+
+"use client";
+
+import * as React from 'react';
+import { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PlusCircle, MoreHorizontal, Download, DollarSign } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useBankBalance } from '@/context/bank-balance-context';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const initialCashOutward = [
+  {
+    id: '1',
+    invoiceNumber: 'CASH-SALE-001',
+    date: '2023-10-12',
+    customer: 'Local Buyer X',
+    totalValue: 8200,
+    materialType: 'Copper Scrap',
+    weight: '100 kg',
+    hsnCode: '74040010',
+    paymentStatus: 'Paid' as const,
+  },
+  {
+    id: '2',
+    invoiceNumber: 'CASH-SALE-002',
+    date: '2023-10-13',
+    customer: 'Small Workshop Y',
+    totalValue: 3000,
+    materialType: 'Aluminum Parts',
+    weight: '200 kg',
+    hsnCode: '76020010',
+    paymentStatus: 'Unpaid' as const,
+  },
+];
+
+type CashSale = typeof initialCashOutward[0];
+
+
+export default function CashOutwardPage() {
+  const [outwardGoods, setOutwardGoods] = useState<CashSale[]>(initialCashOutward);
+  const [open, setOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<CashSale | null>(null);
+
+  const { updateBalance } = useBankBalance();
+
+  const handleAddNewClick = () => {
+    setEditingItem(null);
+    setOpen(true);
+  };
+
+  const handleEditClick = (item: CashSale) => {
+    setEditingItem(item);
+    setOpen(true);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const paymentStatus = formData.get('paymentStatus') as 'Paid' | 'Unpaid';
+    const totalValue = Number(formData.get('totalValue'));
+    
+    const newEntry: CashSale = {
+      id: editingItem ? editingItem.id : String(outwardGoods.length + 1),
+      invoiceNumber: formData.get('invoiceNumber') as string,
+      date: formData.get('date') as string,
+      customer: formData.get('customer') as string,
+      hsnCode: formData.get('hsnCode') as string,
+      totalValue: totalValue,
+      materialType: formData.get('materialType') as string,
+      weight: `${formData.get('weight')} kg`,
+      paymentStatus: paymentStatus,
+    };
+
+    if (editingItem) {
+        // If status changed from Unpaid to Paid, update balance
+        if(editingItem.paymentStatus === 'Unpaid' && newEntry.paymentStatus === 'Paid') {
+            updateBalance(newEntry.totalValue);
+        }
+        setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+    } else {
+        if(paymentStatus === 'Paid') {
+            updateBalance(totalValue);
+        }
+        setOutwardGoods([newEntry, ...outwardGoods]);
+    }
+
+    setOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleExport = () => {
+    const headers = [
+      'Reference #', 'Date', 'Customer', 'Material', 'HSN Code', 'Weight', 'Total Value', 'Payment Status'
+    ];
+    const rows = outwardGoods.map(item => [
+        item.invoiceNumber, item.date, item.customer,
+        item.materialType, item.hsnCode, item.weight, `₹${item.totalValue.toFixed(2)}`, item.paymentStatus
+    ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(',') + "\n"
+      + rows.join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "cash_outward_sales.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+         <div className="flex items-center gap-4">
+            <DollarSign className="h-8 w-8 text-primary" />
+            <h2 className="text-3xl font-bold tracking-tight">Cash Outward</h2>
+        </div>
+        <div className="flex w-full md:w-auto items-center gap-2">
+           <Button variant="outline" onClick={handleExport} className="w-full md:w-auto">
+            <Download className="mr-2 h-4 w-4" /> Export
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={handleAddNewClick} className="w-full md:w-auto">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Cash Sale
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>{editingItem ? 'Edit Cash Sale' : 'Add New Cash Sale'}</DialogTitle>
+                <DialogDescription>
+                  {editingItem ? 'Update the details of the cash sale.' : 'Log a new cash sale of scrap material.'}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="invoiceNumber">Reference / Bill No.</Label>
+                    <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Date</Label>
+                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="customer">Name of Customer</Label>
+                    <Input id="customer" name="customer" defaultValue={editingItem?.customer} required />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="materialType">Material</Label>
+                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hsnCode">HSN Code (Optional)</Label>
+                    <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight.replace(' kg', '')} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="totalValue">Total Value (₹)</Label>
+                    <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="paymentStatus">Payment Status</Label>
+                     <Select name="paymentStatus" required defaultValue={editingItem?.paymentStatus || 'Paid'}>
+                      <SelectTrigger id="paymentStatus">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Paid">Paid</SelectItem>
+                        <SelectItem value="Unpaid">Unpaid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">{editingItem ? 'Save Changes' : 'Save Sale'}</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Reference #</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Customer</TableHead>
+               <TableHead>Material</TableHead>
+               <TableHead>Weight</TableHead>
+              <TableHead className="text-right">Total Value</TableHead>
+              <TableHead>Payment Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {outwardGoods.map(item => {
+              return (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
+                <TableCell>{item.materialType}</TableCell>
+                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
+                    className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
+                  >
+                    {item.paymentStatus}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )})}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}

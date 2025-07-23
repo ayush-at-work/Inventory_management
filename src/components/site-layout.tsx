@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -14,6 +15,9 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
 } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Button } from '@/components/ui/button';
@@ -28,6 +32,8 @@ import {
   Package2,
   Landmark,
   Pencil,
+  DollarSign,
+  FileDigit,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -35,10 +41,18 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+const gstNavItems = [
   { href: '/inward', label: 'Inward Goods', icon: ArrowDownCircle },
   { href: '/outward', label: 'Outward Goods', icon: ArrowUpCircle },
+];
+
+const cashNavItems = [
+    { href: '/cash-inward', label: 'Cash Inward', icon: ArrowDownCircle },
+    { href: '/cash-outward', label: 'Cash Outward', icon: ArrowUpCircle },
+]
+
+const mainNavItems = [
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/inventory', label: 'Inventory', icon: Warehouse },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/reports', label: 'Reports', icon: FileText },
@@ -70,21 +84,68 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarMenu>
-            {navItems.map(item => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+            <SidebarMenu>
+                {mainNavItems.map(item => (
+                <SidebarMenuItem key={item.href}>
+                    <Link href={item.href}>
+                    <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                    >
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+
+            <Separator className='my-4' />
+
+            <SidebarGroup>
+                <SidebarGroupLabel className='flex items-center gap-2'><FileDigit /> GST Transactions</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                    {gstNavItems.map(item => (
+                        <SidebarMenuItem key={item.href}>
+                            <Link href={item.href}>
+                            <SidebarMenuButton
+                                isActive={pathname === item.href}
+                                tooltip={item.label}
+                                variant="outline"
+                            >
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            
+            <SidebarGroup>
+                <SidebarGroupLabel className='flex items-center gap-2'><DollarSign /> Cash Transactions</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                    {cashNavItems.map(item => (
+                        <SidebarMenuItem key={item.href}>
+                            <Link href={item.href}>
+                            <SidebarMenuButton
+                                isActive={pathname === item.href}
+                                tooltip={item.label}
+                                variant="outline"
+                            >
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+
         </SidebarContent>
         <SidebarFooter>
           <Separator className="my-2" />
