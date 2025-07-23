@@ -55,7 +55,7 @@ const initialCashInward = [
     totalValue: 5500,
     materialType: 'Mixed Scrap',
     weight: '750 kg',
-    hsnCode: 'N/A',
+    hsnCode: '',
   },
    {
     id: '2',
@@ -65,7 +65,7 @@ const initialCashInward = [
     totalValue: 1200,
     materialType: 'Old Newspapers',
     weight: '100 kg',
-    hsnCode: '47079000',
+    hsnCode: '',
   },
 ];
 
@@ -136,7 +136,6 @@ export default function CashInwardPage() {
             quantity: quantity,
             unit: unit,
             price: totalValue / quantity,
-            value: totalValue,
             transactionType: 'Cash'
         });
     }
@@ -147,11 +146,11 @@ export default function CashInwardPage() {
 
   const handleExport = () => {
     const headers = [
-      'Invoice #', 'Date', 'Supplier', 'Material', 'HSN Code', 'Weight', 'Total Value'
+      'Invoice #', 'Date', 'Supplier', 'Material', 'Weight', 'Total Value'
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier,
-      item.materialType, item.hsnCode, item.weight, `₹${item.totalValue.toFixed(2)}`
+      item.materialType, item.weight, `₹${item.totalValue.toFixed(2)}`
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -256,7 +255,6 @@ export default function CashInwardPage() {
               <TableHead>Date</TableHead>
               <TableHead>Supplier</TableHead>
                <TableHead>Material</TableHead>
-               <TableHead>HSN Code</TableHead>
               <TableHead>Weight</TableHead>
               <TableHead className="text-right">Total Value</TableHead>
               <TableHead>Actions</TableHead>
@@ -269,7 +267,6 @@ export default function CashInwardPage() {
                 <TableCell className="whitespace-nowrap">{item.date}</TableCell>
                 <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
                 <TableCell>{item.materialType}</TableCell>
-                <TableCell>{item.hsnCode}</TableCell>
                 <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
                 <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
                 <TableCell>

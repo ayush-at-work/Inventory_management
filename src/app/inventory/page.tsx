@@ -36,7 +36,7 @@ import { useInventory, InventoryItem } from '@/context/inventory-context';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-const InventoryTable = ({ items, onEdit }: { items: InventoryItem[], onEdit: (item: InventoryItem) => void }) => {
+const InventoryTable = ({ items, onEdit, showHsnCode }: { items: InventoryItem[], onEdit: (item: InventoryItem) => void, showHsnCode: boolean }) => {
     const getStockLevel = (quantity: number, unit: string) => {
         if (unit === 'kg') {
             if (quantity > 10000) return 'High';
@@ -55,7 +55,7 @@ const InventoryTable = ({ items, onEdit }: { items: InventoryItem[], onEdit: (it
           <TableHeader>
             <TableRow>
               <TableHead>Material Type</TableHead>
-              <TableHead>HSN Code</TableHead>
+              {showHsnCode && <TableHead>HSN Code</TableHead>}
               <TableHead>Quantity</TableHead>
               <TableHead>Unit</TableHead>
               <TableHead className="text-right">Price / Unit</TableHead>
@@ -70,7 +70,7 @@ const InventoryTable = ({ items, onEdit }: { items: InventoryItem[], onEdit: (it
               return (
               <TableRow key={item.id}>
                 <TableCell className="font-medium whitespace-nowrap">{item.materialType}</TableCell>
-                <TableCell>{item.hsnCode}</TableCell>
+                {showHsnCode && <TableCell>{item.hsnCode}</TableCell>}
                 <TableCell>{item.quantity.toLocaleString()}</TableCell>
                 <TableCell>{item.unit}</TableCell>
                 <TableCell className="text-right whitespace-nowrap">₹{item.price.toFixed(2)}</TableCell>
@@ -188,7 +188,7 @@ export default function InventoryPage() {
                     <Label htmlFor="hsnCode" className="text-right">
                       HSN Code
                     </Label>
-                    <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} required />
+                    <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} />
                   </div>
                    <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right">
@@ -250,10 +250,10 @@ export default function InventoryPage() {
             <TabsTrigger value="cash">Cash Inventory</TabsTrigger>
         </TabsList>
         <TabsContent value="gst" className="space-y-4">
-            <InventoryTable items={gstInventory} onEdit={handleEditClick} />
+            <InventoryTable items={gstInventory} onEdit={handleEditClick} showHsnCode={true} />
         </TabsContent>
         <TabsContent value="cash" className="space-y-4">
-            <InventoryTable items={cashInventory} onEdit={handleEditClick} />
+            <InventoryTable items={cashInventory} onEdit={handleEditClick} showHsnCode={false} />
         </TabsContent>
       </Tabs>
 
