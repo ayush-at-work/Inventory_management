@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useCashBalance } from '@/context/cash-balance-context';
+import { useInventory } from '@/context/inventory-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialCashInward = [
@@ -85,6 +86,7 @@ export default function CashInwardPage() {
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CashInward | null>(null);
   const { updateBalance } = useCashBalance();
+  const { addInventoryItem } = useInventory();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
@@ -106,7 +108,7 @@ export default function CashInwardPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const totalValue = Number(formData.get('totalValue'));
-    const quantity = formData.get('quantity') as string;
+    const quantity = Number(formData.get('quantity'));
     const unit = formData.get('unit') as string;
 
     const newEntry: CashInward = {
@@ -128,6 +130,15 @@ export default function CashInwardPage() {
     } else {
         setInwardGoods([newEntry, ...inwardGoods]);
         updateBalance(-totalValue);
+        addInventoryItem({
+            materialType: newEntry.materialType,
+            hsnCode: newEntry.hsnCode,
+            quantity: quantity,
+            unit: unit,
+            price: totalValue / quantity,
+            value: totalValue,
+            transactionType: 'Cash'
+        });
     }
 
     setOpen(false);

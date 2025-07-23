@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useCashBalance } from '@/context/cash-balance-context';
+import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -90,6 +91,7 @@ export default function CashOutwardPage() {
   const [editingItem, setEditingItem] = useState<CashSale | null>(null);
 
   const { updateBalance } = useCashBalance();
+  const { decreaseInventory } = useInventory();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
@@ -115,7 +117,7 @@ export default function CashOutwardPage() {
     const formData = new FormData(event.currentTarget);
     const paymentStatus = formData.get('paymentStatus') as 'Paid' | 'Unpaid';
     const totalValue = Number(formData.get('totalValue'));
-    const quantity = formData.get('quantity') as string;
+    const quantity = Number(formData.get('quantity'));
     const unit = formData.get('unit') as string;
     
     const newEntry: CashSale = {
@@ -153,6 +155,7 @@ export default function CashOutwardPage() {
             updateBalance(totalValue);
         }
         setOutwardGoods([newEntry, ...outwardGoods]);
+        decreaseInventory(newEntry.materialType, quantity, 'Cash');
     }
 
     setOpen(false);

@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBankBalance } from '@/context/bank-balance-context';
+import { useInventory } from '@/context/inventory-context';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -110,6 +111,7 @@ export default function InwardGoodsPage() {
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
   const { updateBalance } = useBankBalance();
+  const { addInventoryItem } = useInventory();
 
   const taxAmount = React.useMemo(() => {
     if (taxType === 'inter-state') {
@@ -126,6 +128,9 @@ export default function InwardGoodsPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const weight = Number(formData.get('weight'));
+    const pricePerUnit = taxableAmount / weight;
+    
     const newEntry = {
       id: String(inwardGoods.length + 1),
       invoiceNumber: formData.get('invoiceNumber') as string,
@@ -142,10 +147,22 @@ export default function InwardGoodsPage() {
       taxAmount: `₹${taxAmount.toFixed(2)}`,
       totalInvoiceValue: `₹${totalInvoiceValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
-      weight: `${formData.get('weight')} kg`,
+      weight: `${weight} kg`,
     };
     setInwardGoods([newEntry, ...inwardGoods]);
     updateBalance(-totalInvoiceValue);
+
+    // Add to inventory
+    addInventoryItem({
+        materialType: newEntry.materialType,
+        hsnCode: newEntry.hsnCode,
+        quantity: weight,
+        unit: 'kg',
+        price: pricePerUnit,
+        value: taxableAmount,
+        transactionType: 'GST',
+    });
+
     setOpen(false);
     // Reset form state
     setTaxableAmount(0);

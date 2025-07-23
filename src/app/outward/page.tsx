@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBankBalance } from '@/context/bank-balance-context';
+import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
 
 const indianStates = [
@@ -112,6 +113,7 @@ export default function OutwardGoodsPage() {
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
   const { updateBalance } = useBankBalance();
+  const { decreaseInventory } = useInventory();
 
   const taxAmount = React.useMemo(() => {
     if (taxType === 'Inter-state') {
@@ -149,6 +151,7 @@ export default function OutwardGoodsPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const paymentStatus = formData.get('paymentStatus') as 'Paid' | 'Unpaid';
+    const weight = Number(formData.get('weight'));
     
     const newEntry: OutwardGood = {
       id: editingItem ? editingItem.id : String(outwardGoods.length + 1),
@@ -164,7 +167,7 @@ export default function OutwardGoodsPage() {
       sgst: taxType === 'Inter-state' ? sgst : 0,
       igst: taxType === 'Intra-state' ? igst : 0,
       materialType: formData.get('materialType') as string,
-      weight: `${formData.get('weight')} kg`,
+      weight: `${weight} kg`,
       paymentStatus: paymentStatus,
     };
 
@@ -181,6 +184,7 @@ export default function OutwardGoodsPage() {
             updateBalance(totalInvoiceValue);
         }
         setOutwardGoods([newEntry, ...outwardGoods]);
+        decreaseInventory(newEntry.materialType, weight, 'GST');
     }
 
     setOpen(false);

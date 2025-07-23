@@ -32,78 +32,88 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useInventory, InventoryItem } from '@/context/inventory-context';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-const initialInventoryData = [
-  {
-    id: '1',
-    materialType: 'Copper',
-    quantity: 5200,
-    unit: 'kg',
-    price: 7,
-    value: 36400,
-    hsnCode: '74040010',
-  },
-  {
-    id: '2',
-    materialType: 'Steel',
-    quantity: 25000,
-    unit: 'kg',
-    price: 0.4,
-    value: 10000,
-    hsnCode: '72044900',
-  },
-  {
-    id: '3',
-    materialType: 'Aluminum',
-    quantity: 8500,
-    unit: 'kg',
-    price: 1.5,
-    value: 12750,
-    hsnCode: '76020010',
-  },
-  {
-    id: '4',
-    materialType: 'Brass',
-    quantity: 1500,
-    unit: 'kg',
-    price: 4,
-    value: 6000,
-    hsnCode: '74040022',
-  },
-  {
-    id: '5',
-    materialType: 'Lead',
-    quantity: 900,
-    unit: 'kg',
-    price: 2,
-    value: 1800,
-    hsnCode: '78020010',
-  },
-  {
-    id: '6',
-    materialType: 'Zinc',
-    quantity: 3200,
-    unit: 'kg',
-    price: 2.5,
-    value: 8000,
-    hsnCode: '79020010',
-  },
-  {
-    id: '7',
-    materialType: 'Used Batteries',
-    quantity: 500,
-    unit: 'NOS',
-    price: 10,
-    value: 5000,
-    hsnCode: '85481020',
-  },
-];
+const InventoryTable = ({ items, onEdit }: { items: InventoryItem[], onEdit: (item: InventoryItem) => void }) => {
+    const getStockLevel = (quantity: number, unit: string) => {
+        if (unit === 'kg') {
+            if (quantity > 10000) return 'High';
+            if (quantity > 2000) return 'Medium';
+            return 'Low';
+        }
+        // Assuming NOS
+        if (quantity > 100) return 'High';
+        if (quantity > 20) return 'Medium';
+        return 'Low';
+    };
 
-type InventoryItem = typeof initialInventoryData[0];
-
+    return (
+        <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Material Type</TableHead>
+              <TableHead>HSN Code</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Unit</TableHead>
+              <TableHead className="text-right">Price / Unit</TableHead>
+              <TableHead>Stock Level</TableHead>
+              <TableHead className="text-right">Estimated Value</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map(item => {
+              const status = getStockLevel(item.quantity, item.unit);
+              return (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium whitespace-nowrap">{item.materialType}</TableCell>
+                <TableCell>{item.hsnCode}</TableCell>
+                <TableCell>{item.quantity.toLocaleString()}</TableCell>
+                <TableCell>{item.unit}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">₹{item.price.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      status === 'High'
+                        ? 'default'
+                        : status === 'Medium'
+                        ? 'secondary'
+                        : 'destructive'
+                    }
+                    className={`${status === 'High' ? 'bg-green-500/20 text-green-700' : status === 'Medium' ? 'bg-yellow-500/20 text-yellow-700' : 'bg-red-500/20 text-red-700'}`}
+                  >
+                    {status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right font-medium whitespace-nowrap">
+                  ₹{item.value.toLocaleString()}
+                </TableCell>
+                 <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )})}
+          </TableBody>
+        </Table>
+      </div>
+    )
+}
 
 export default function InventoryPage() {
-  const [inventory, setInventory] = useState(initialInventoryData);
+  const { inventory, addInventoryItem, updateInventoryItem } = useInventory();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
@@ -124,37 +134,28 @@ export default function InventoryPage() {
     const price = Number(formData.get('price'));
     const value = quantity * price;
 
-    const entry: InventoryItem = {
-      id: editingItem ? editingItem.id : String(inventory.length + 1),
+    const entry: Omit<InventoryItem, 'id'> = {
       materialType: formData.get('materialType') as string,
       hsnCode: formData.get('hsnCode') as string,
       quantity: quantity,
       unit: formData.get('unit') as string,
       price: price,
-      value: value
+      value: value,
+      transactionType: formData.get('transactionType') as 'GST' | 'Cash',
     };
 
     if (editingItem) {
-      setInventory(inventory.map(item => item.id === editingItem.id ? entry : item));
+      updateInventoryItem(editingItem.id, entry);
     } else {
-      setInventory([entry, ...inventory]);
+      addInventoryItem(entry);
     }
     
     setEditingItem(null);
     setOpen(false);
   };
 
-  const getStockLevel = (quantity: number, unit: string) => {
-    if (unit === 'kg') {
-      if (quantity > 10000) return 'High';
-      if (quantity > 2000) return 'Medium';
-      return 'Low';
-    }
-    // Assuming NOS
-    if (quantity > 100) return 'High';
-    if (quantity > 20) return 'Medium';
-    return 'Low';
-  };
+  const gstInventory = inventory.filter(item => item.transactionType === 'GST');
+  const cashInventory = inventory.filter(item => item.transactionType === 'Cash');
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -188,6 +189,21 @@ export default function InventoryPage() {
                       HSN Code
                     </Label>
                     <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} required />
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">
+                      Type
+                    </Label>
+                    <RadioGroup name="transactionType" defaultValue={editingItem?.transactionType || "GST"} className="col-span-3 flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="GST" id="r-gst" />
+                            <Label htmlFor="r-gst">GST</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Cash" id="r-cash" />
+                            <Label htmlFor="r-cash">Cash</Label>
+                        </div>
+                    </RadioGroup>
                   </div>
                    <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="quantity" className="text-right">
@@ -227,66 +243,21 @@ export default function InventoryPage() {
             </Dialog>
         </div>
       </div>
+      
+      <Tabs defaultValue="gst" className="space-y-4">
+        <TabsList>
+            <TabsTrigger value="gst">GST Inventory</TabsTrigger>
+            <TabsTrigger value="cash">Cash Inventory</TabsTrigger>
+        </TabsList>
+        <TabsContent value="gst" className="space-y-4">
+            <InventoryTable items={gstInventory} onEdit={handleEditClick} />
+        </TabsContent>
+        <TabsContent value="cash" className="space-y-4">
+            <InventoryTable items={cashInventory} onEdit={handleEditClick} />
+        </TabsContent>
+      </Tabs>
 
-      <div className="rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Material Type</TableHead>
-              <TableHead>HSN Code</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Unit</TableHead>
-              <TableHead className="text-right">Price / Unit</TableHead>
-              <TableHead>Stock Level</TableHead>
-              <TableHead className="text-right">Estimated Value</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {inventory.map(item => {
-              const status = getStockLevel(item.quantity, item.unit);
-              return (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">{item.materialType}</TableCell>
-                <TableCell>{item.hsnCode}</TableCell>
-                <TableCell>{item.quantity.toLocaleString()}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell className="text-right whitespace-nowrap">₹{item.price.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      status === 'High'
-                        ? 'default'
-                        : status === 'Medium'
-                        ? 'secondary'
-                        : 'destructive'
-                    }
-                    className={`${status === 'High' ? 'bg-green-500/20 text-green-700' : status === 'Medium' ? 'bg-yellow-500/20 text-yellow-700' : 'bg-red-500/20 text-red-700'}`}
-                  >
-                    {status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right font-medium whitespace-nowrap">
-                  ₹{item.value.toLocaleString()}
-                </TableCell>
-                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )})}
-          </TableBody>
-        </Table>
-      </div>
+
     </div>
   );
 }
