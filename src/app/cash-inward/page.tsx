@@ -40,7 +40,7 @@ const initialCashInward = [
     invoiceNumber: 'CASH-001',
     date: '2023-10-10',
     supplier: 'Local Seller A',
-    totalValue: '₹5500',
+    totalValue: 5500,
     materialType: 'Mixed Scrap',
     weight: '750 kg',
     hsnCode: 'N/A',
@@ -50,18 +50,40 @@ const initialCashInward = [
     invoiceNumber: 'CASH-002',
     date: '2023-10-11',
     supplier: 'Walk-in Supplier',
-    totalValue: '₹1200',
+    totalValue: 1200,
     materialType: 'Old Newspapers',
     weight: '100 kg',
     hsnCode: '47079000',
   },
 ];
 
+type CashInward = {
+    id: string;
+    invoiceNumber: string;
+    date: string;
+    supplier: string;
+    totalValue: number;
+    materialType: string;
+    weight: string;
+    hsnCode: string;
+};
+
 
 export default function CashInwardPage() {
-  const [inwardGoods, setInwardGoods] = useState(initialCashInward);
+  const [inwardGoods, setInwardGoods] = useState<CashInward[]>(initialCashInward);
   const [open, setOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<CashInward | null>(null);
   const { updateBalance } = useBankBalance();
+
+  const handleAddNewClick = () => {
+    setEditingItem(null);
+    setOpen(true);
+  };
+
+  const handleEditClick = (item: CashInward) => {
+    setEditingItem(item);
+    setOpen(true);
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -70,19 +92,29 @@ export default function CashInwardPage() {
     const quantity = formData.get('quantity') as string;
     const unit = formData.get('unit') as string;
 
-    const newEntry = {
-      id: String(inwardGoods.length + 1),
+    const newEntry: CashInward = {
+      id: editingItem ? editingItem.id : String(inwardGoods.length + 1),
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
       hsnCode: formData.get('hsnCode') as string,
-      totalValue: `₹${totalValue.toFixed(2)}`,
+      totalValue: totalValue,
       materialType: formData.get('materialType') as string,
       weight: `${quantity} ${unit}`,
     };
-    setInwardGoods([newEntry, ...inwardGoods]);
-    updateBalance(-totalValue);
+
+    if (editingItem) {
+        // Recalculate balance impact
+        const originalValue = editingItem.totalValue;
+        updateBalance(originalValue - newEntry.totalValue); // Add back old, subtract new
+        setInwardGoods(inwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+    } else {
+        setInwardGoods([newEntry, ...inwardGoods]);
+        updateBalance(-totalValue);
+    }
+
     setOpen(false);
+    setEditingItem(null);
   };
 
   const handleExport = () => {
@@ -91,7 +123,7 @@ export default function CashInwardPage() {
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier,
-      item.materialType, item.hsnCode, item.weight, item.totalValue
+      item.materialType, item.hsnCode, item.weight, `₹${item.totalValue.toFixed(2)}`
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -107,6 +139,7 @@ export default function CashInwardPage() {
     document.body.removeChild(link);
   };
 
+  const [weightValue, unitValue] = editingItem?.weight.split(' ') || ['', 'kg'];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -121,42 +154,42 @@ export default function CashInwardPage() {
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full md:w-auto">
+              <Button onClick={handleAddNewClick} className="w-full md:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Cash Entry
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl">
               <DialogHeader>
-                <DialogTitle>Add New Cash Inward Entry</DialogTitle>
+                <DialogTitle>{editingItem ? 'Edit Cash Inward Entry' : 'Add New Cash Inward Entry'}</DialogTitle>
                 <DialogDescription>
-                  Log a new cash purchase of scrap material.
+                  {editingItem ? 'Update the details of the cash purchase.' : 'Log a new cash purchase of scrap material.'}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Reference / Bill No.</Label>
-                    <Input id="invoiceNumber" name="invoiceNumber" required />
+                    <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>
-                    <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="supplier">Name of Supplier</Label>
-                    <Input id="supplier" name="supplier" required />
+                    <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="materialType">Material</Label>
-                    <Input id="materialType" name="materialType" required />
+                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="hsnCode">HSN Code (Optional)</Label>
-                    <Input id="hsnCode" name="hsnCode" />
+                    <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="unit">Unit</Label>
-                     <Select name="unit" required defaultValue="kg">
+                     <Select name="unit" required defaultValue={unitValue}>
                       <SelectTrigger id="unit">
                         <SelectValue placeholder="Select a unit" />
                       </SelectTrigger>
@@ -168,18 +201,18 @@ export default function CashInwardPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="quantity">Quantity</Label>
-                    <Input id="quantity" name="quantity" type="number" required />
+                    <Input id="quantity" name="quantity" type="number" defaultValue={weightValue} required />
                   </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
                     <Label htmlFor="totalValue">Total Value (₹)</Label>
-                    <Input id="totalValue" name="totalValue" type="number" step="0.01" required />
+                    <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
                   </div>
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button type="button" variant="secondary">Cancel</Button>
+                    <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                   </DialogClose>
-                  <Button type="submit">Save Entry</Button>
+                  <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -210,7 +243,7 @@ export default function CashInwardPage() {
                 <TableCell>{item.materialType}</TableCell>
                 <TableCell>{item.hsnCode}</TableCell>
                 <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                <TableCell className="text-right font-bold whitespace-nowrap">{item.totalValue}</TableCell>
+                <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -220,7 +253,7 @@ export default function CashInwardPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
