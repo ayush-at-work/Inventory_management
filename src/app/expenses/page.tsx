@@ -21,6 +21,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Receipt } from 'lucide-react';
@@ -60,9 +71,9 @@ const initialExpenses = [
 ];
 
 const initialLabourAttendance = [
-    { id: '1', date: '2023-10-10', name: 'Ramesh', status: 'Present', wages: 500 },
-    { id: '2', date: '2023-10-10', name: 'Suresh', status: 'Half Day', wages: 250 },
-    { id: '3', date: '2023-10-10', name: 'Vikas', status: 'Absent', wages: 0 },
+    { id: '1', date: '2023-10-10', name: 'Ramesh', status: 'Present' as const, wages: 500 },
+    { id: '2', date: '2023-10-10', name: 'Suresh', status: 'Half Day' as const, wages: 250 },
+    { id: '3', date: '2023-10-10', name: 'Vikas', status: 'Absent' as const, wages: 0 },
 ];
 
 type Expense = {
@@ -88,38 +99,106 @@ export default function ExpensesPage() {
 
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [labourOpen, setLabourOpen] = useState(false);
+  
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [editingLabour, setEditingLabour] = useState<LabourAttendance | null>(null);
+  
   const { updateBalance } = useCashBalance();
+
+  // Expense Handlers
+  const handleAddExpenseClick = () => {
+    setEditingExpense(null);
+    setExpenseOpen(true);
+  };
+  
+  const handleEditExpenseClick = (expense: Expense) => {
+    setEditingExpense(expense);
+    setExpenseOpen(true);
+  };
+
+  const handleDeleteExpenseClick = (expenseToDelete: Expense) => {
+    setExpenses(expenses.filter(exp => exp.id !== expenseToDelete.id));
+    updateBalance(expenseToDelete.amount); // Add amount back
+  };
 
   const handleExpenseSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const amount = Number(formData.get('amount'));
-    const newEntry: Expense = {
-      id: String(expenses.length + 1),
-      date: formData.get('date') as string,
-      category: formData.get('category') as string,
-      description: formData.get('description') as string,
-      amount: amount,
-    };
-    setExpenses([newEntry, ...expenses]);
-    updateBalance(-amount); // Expenses are paid from cash
+    
+    if (editingExpense) {
+      const updatedExpense = {
+        ...editingExpense,
+        date: formData.get('date') as string,
+        category: formData.get('category') as string,
+        description: formData.get('description') as string,
+        amount: amount,
+      };
+      const balanceChange = editingExpense.amount - updatedExpense.amount;
+      updateBalance(balanceChange);
+      setExpenses(expenses.map(exp => exp.id === editingExpense.id ? updatedExpense : exp));
+    } else {
+      const newEntry: Expense = {
+        id: String(Date.now()),
+        date: formData.get('date') as string,
+        category: formData.get('category') as string,
+        description: formData.get('description') as string,
+        amount: amount,
+      };
+      setExpenses([newEntry, ...expenses]);
+      updateBalance(-amount);
+    }
+    
     setExpenseOpen(false);
+    setEditingExpense(null);
+  };
+
+  // Labour Handlers
+  const handleAddLabourClick = () => {
+    setEditingLabour(null);
+    setLabourOpen(true);
+  };
+
+  const handleEditLabourClick = (labourEntry: LabourAttendance) => {
+    setEditingLabour(labourEntry);
+    setLabourOpen(true);
+  };
+  
+  const handleDeleteLabourClick = (labourToDelete: LabourAttendance) => {
+    setLabour(labour.filter(l => l.id !== labourToDelete.id));
+    updateBalance(labourToDelete.wages); // Add wages back
   };
 
   const handleLabourSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const wages = Number(formData.get('wages'));
-    const newEntry: LabourAttendance = {
-        id: String(labour.length + 1),
+
+    if (editingLabour) {
+      const updatedLabour = {
+        ...editingLabour,
         date: formData.get('date') as string,
         name: formData.get('name') as string,
         status: formData.get('status') as 'Present' | 'Absent' | 'Half Day',
         wages: wages,
-    };
-    setLabour([newEntry, ...labour]);
-    updateBalance(-wages);
+      };
+      const balanceChange = editingLabour.wages - updatedLabour.wages;
+      updateBalance(balanceChange);
+      setLabour(labour.map(l => l.id === editingLabour.id ? updatedLabour : l));
+    } else {
+      const newEntry: LabourAttendance = {
+          id: String(Date.now()),
+          date: formData.get('date') as string,
+          name: formData.get('name') as string,
+          status: formData.get('status') as 'Present' | 'Absent' | 'Half Day',
+          wages: wages,
+      };
+      setLabour([newEntry, ...labour]);
+      updateBalance(-wages);
+    }
+    
     setLabourOpen(false);
+    setEditingLabour(null);
   }
 
   return (
@@ -138,15 +217,13 @@ export default function ExpensesPage() {
              <div className="w-full md:w-auto">
                 <Dialog open={expenseOpen} onOpenChange={setExpenseOpen}>
                 <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="general-expense-trigger">
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Expense
-                    </Button>
+                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="general-expense-trigger" onClick={handleAddExpenseClick} />
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                    <DialogTitle>Add New Expense</DialogTitle>
+                    <DialogTitle>{editingExpense ? 'Edit Expense' : 'Add New Expense'}</DialogTitle>
                     <DialogDescription>
-                        Record a new business expense.
+                        {editingExpense ? 'Update the details of the expense.' : 'Record a new business expense.'}
                     </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleExpenseSubmit}>
@@ -155,32 +232,32 @@ export default function ExpensesPage() {
                         <Label htmlFor="date">
                             Date
                         </Label>
-                        <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                        <Input id="date" name="date" type="date" defaultValue={editingExpense?.date || new Date().toISOString().substring(0, 10)} required />
                         </div>
                         <div className="space-y-2">
                         <Label htmlFor="category">
                             Category
                         </Label>
-                        <Input id="category" name="category" required />
+                        <Input id="category" name="category" defaultValue={editingExpense?.category} required />
                         </div>
                         <div className="space-y-2">
                         <Label htmlFor="amount">
                             Amount (₹)
                         </Label>
-                        <Input id="amount" name="amount" type="number" step="0.01" required />
+                        <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingExpense?.amount} required />
                         </div>
                         <div className="space-y-2">
                         <Label htmlFor="description">
                             Description
                         </Label>
-                        <Textarea id="description" name="description" required />
+                        <Textarea id="description" name="description" defaultValue={editingExpense?.description} required />
                         </div>
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                        <Button type="button" variant="secondary">Cancel</Button>
+                            <Button type="button" variant="secondary" onClick={() => setEditingExpense(null)}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Save Expense</Button>
+                        <Button type="submit">{editingExpense ? 'Save Changes' : 'Save Expense'}</Button>
                     </DialogFooter>
                     </form>
                 </DialogContent>
@@ -188,15 +265,13 @@ export default function ExpensesPage() {
 
                 <Dialog open={labourOpen} onOpenChange={setLabourOpen}>
                 <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="labour-expense-trigger">
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Labour Entry
-                    </Button>
+                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="labour-expense-trigger" onClick={handleAddLabourClick} />
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                    <DialogTitle>Add Labour Entry</DialogTitle>
+                    <DialogTitle>{editingLabour ? 'Edit Labour Entry' : 'Add Labour Entry'}</DialogTitle>
                     <DialogDescription>
-                        Record daily labour attendance and wages.
+                        {editingLabour ? 'Update the details of the labour entry.' : 'Record daily labour attendance and wages.'}
                     </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleLabourSubmit}>
@@ -205,17 +280,17 @@ export default function ExpensesPage() {
                         <Label htmlFor="date-labour">
                             Date
                         </Label>
-                        <Input id="date-labour" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                        <Input id="date-labour" name="date" type="date" defaultValue={editingLabour?.date || new Date().toISOString().substring(0, 10)} required />
                         </div>
                         <div className="space-y-2">
                         <Label htmlFor="name">
                             Labourer Name
                         </Label>
-                        <Input id="name" name="name" required />
+                        <Input id="name" name="name" defaultValue={editingLabour?.name} required />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="status">Attendance Status</Label>
-                            <Select name="status" required defaultValue="Present">
+                            <Select name="status" required defaultValue={editingLabour?.status || 'Present'}>
                             <SelectTrigger id="status">
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
@@ -230,14 +305,14 @@ export default function ExpensesPage() {
                         <Label htmlFor="wages">
                             Wages Paid (₹)
                         </Label>
-                        <Input id="wages" name="wages" type="number" step="0.01" required />
+                        <Input id="wages" name="wages" type="number" step="0.01" defaultValue={editingLabour?.wages} required />
                         </div>
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                        <Button type="button" variant="secondary">Cancel</Button>
+                            <Button type="button" variant="secondary" onClick={() => setEditingLabour(null)}>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Save Entry</Button>
+                        <Button type="submit">{editingLabour ? 'Save Changes' : 'Save Entry'}</Button>
                     </DialogFooter>
                     </form>
                 </DialogContent>
@@ -284,8 +359,24 @@ export default function ExpensesPage() {
                             </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditExpenseClick(item)}>Edit</DropdownMenuItem>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete this expense entry.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteExpenseClick(item)}>Continue</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         </TableCell>
@@ -323,8 +414,24 @@ export default function ExpensesPage() {
                             </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditLabourClick(item)}>Edit</DropdownMenuItem>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete this labour entry.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteLabourClick(item)}>Continue</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         </TableCell>
