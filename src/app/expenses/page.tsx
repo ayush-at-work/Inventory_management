@@ -84,7 +84,7 @@ export default function ExpensesPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Add Expense
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add New Expense</DialogTitle>
               <DialogDescription>
@@ -93,29 +93,29 @@ export default function ExpensesPage() {
             </DialogHeader>
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="date" className="text-right">
+                <div className="space-y-2">
+                  <Label htmlFor="date">
                     Date
                   </Label>
-                  <Input id="date" name="date" type="date" className="col-span-3" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                  <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="category" className="text-right">
+                <div className="space-y-2">
+                  <Label htmlFor="category">
                     Category
                   </Label>
-                  <Input id="category" name="category" className="col-span-3" required />
+                  <Input id="category" name="category" required />
                 </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">
+                 <div className="space-y-2">
+                  <Label htmlFor="amount">
                     Amount (₹)
                   </Label>
-                  <Input id="amount" name="amount" type="number" step="0.01" className="col-span-3" required />
+                  <Input id="amount" name="amount" type="number" step="0.01" required />
                 </div>
-                <div className="grid grid-cols-4 items-start gap-4">
-                  <Label htmlFor="description" className="text-right pt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="description">
                     Description
                   </Label>
-                  <Textarea id="description" name="description" className="col-span-3" required />
+                  <Textarea id="description" name="description" required />
                 </div>
               </div>
               <DialogFooter>
@@ -169,3 +169,5 @@ export default function ExpensesPage() {
     </div>
   );
 }
+
+    

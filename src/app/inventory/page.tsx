@@ -170,7 +170,7 @@ export default function InventoryPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Inventory</h2>
-        <div className="flex w-full md:w-auto items-center gap-2">
+        <div className="flex w-full flex-col-reverse sm:flex-row md:w-auto items-center gap-2">
            <Input placeholder="Search materials..." className="w-full max-w-sm" />
            <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -178,7 +178,7 @@ export default function InventoryPage() {
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>{editingItem ? 'Edit Item' : 'Add New Item'}</DialogTitle>
                    <DialogDescription>
@@ -187,22 +187,22 @@ export default function InventoryPage() {
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="materialType" className="text-right">
+                  <div className="space-y-2">
+                    <Label htmlFor="materialType">
                       Material
                     </Label>
-                    <Input id="materialType" name="materialType" className="col-span-3" defaultValue={editingItem?.materialType} required />
+                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
                   </div>
                    
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">
+                   <div className="space-y-2">
+                    <Label>
                       Type
                     </Label>
                     <RadioGroup 
                         name="transactionType" 
                         value={formTransactionType}
                         onValueChange={(value) => setFormTransactionType(value as 'GST' | 'Cash')}
-                        className="col-span-3 flex gap-4"
+                        className="flex gap-4 pt-2"
                     >
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="GST" id="r-gst" />
@@ -216,26 +216,26 @@ export default function InventoryPage() {
                   </div>
 
                   {formTransactionType === 'GST' && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="hsnCode" className="text-right">
+                    <div className="space-y-2">
+                        <Label htmlFor="hsnCode">
                         HSN Code
                         </Label>
-                        <Input id="hsnCode" name="hsnCode" className="col-span-3" defaultValue={editingItem?.hsnCode} />
+                        <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
                     </div>
                   )}
 
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quantity" className="text-right">
+                   <div className="space-y-2">
+                    <Label htmlFor="quantity">
                       Quantity
                     </Label>
-                    <Input id="quantity" name="quantity" type="number" className="col-span-3" defaultValue={editingItem?.quantity} required />
+                    <Input id="quantity" name="quantity" type="number" defaultValue={editingItem?.quantity} required />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="unit" className="text-right">
+                  <div className="space-y-2">
+                    <Label htmlFor="unit">
                       Unit
                     </Label>
                      <Select name="unit" required defaultValue={editingItem?.unit || 'kg'}>
-                      <SelectTrigger className="col-span-3" id="unit">
+                      <SelectTrigger id="unit">
                         <SelectValue placeholder="Select a unit" />
                       </SelectTrigger>
                       <SelectContent>
@@ -244,11 +244,11 @@ export default function InventoryPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="price" className="text-right">
+                   <div className="space-y-2">
+                    <Label htmlFor="price">
                       Price/Unit (₹)
                     </Label>
-                    <Input id="price" name="price" type="number" step="0.01" className="col-span-3" defaultValue={editingItem?.price} required />
+                    <Input id="price" name="price" type="number" step="0.01" defaultValue={editingItem?.price} required />
                   </div>
                 </div>
                 <DialogFooter>
@@ -280,3 +280,5 @@ export default function InventoryPage() {
     </div>
   );
 }
+
+    

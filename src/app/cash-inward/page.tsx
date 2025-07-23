@@ -175,7 +175,7 @@ export default function CashInwardPage() {
             <DollarSign className="h-8 w-8 text-primary" />
             <h2 className="text-3xl font-bold tracking-tight">Cash Inward</h2>
         </div>
-        <div className="flex w-full md:w-auto items-center gap-2">
+        <div className="flex w-full flex-col-reverse sm:flex-row md:w-auto items-center gap-2">
            <Button variant="outline" onClick={handleExport} className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" /> Export
           </Button>
@@ -308,3 +308,5 @@ export default function CashInwardPage() {
     </div>
   );
 }
+
+    
