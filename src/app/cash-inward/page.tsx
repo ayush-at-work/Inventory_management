@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useBankBalance } from '@/context/bank-balance-context';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialCashInward = [
     {
@@ -66,6 +67,8 @@ export default function CashInwardPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const totalValue = Number(formData.get('totalValue'));
+    const quantity = formData.get('quantity') as string;
+    const unit = formData.get('unit') as string;
 
     const newEntry = {
       id: String(inwardGoods.length + 1),
@@ -75,7 +78,7 @@ export default function CashInwardPage() {
       hsnCode: formData.get('hsnCode') as string,
       totalValue: `₹${totalValue.toFixed(2)}`,
       materialType: formData.get('materialType') as string,
-      weight: `${formData.get('weight')} kg`,
+      weight: `${quantity} ${unit}`,
     };
     setInwardGoods([newEntry, ...inwardGoods]);
     updateBalance(-totalValue);
@@ -151,9 +154,21 @@ export default function CashInwardPage() {
                     <Label htmlFor="hsnCode">HSN Code (Optional)</Label>
                     <Input id="hsnCode" name="hsnCode" />
                   </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="unit">Unit</Label>
+                     <Select name="unit" required defaultValue="kg">
+                      <SelectTrigger id="unit">
+                        <SelectValue placeholder="Select a unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="NOS">NOS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (kg)</Label>
-                    <Input id="weight" name="weight" type="number" required />
+                    <Label htmlFor="quantity">Quantity</Label>
+                    <Input id="quantity" name="quantity" type="number" required />
                   </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
                     <Label htmlFor="totalValue">Total Value (₹)</Label>
@@ -218,4 +233,3 @@ export default function CashInwardPage() {
     </div>
   );
 }
-
