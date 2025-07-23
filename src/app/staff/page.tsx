@@ -43,30 +43,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useStaff, StaffMember, AttendanceRecord, AttendanceStatus } from '@/context/staff-context';
+import { useLabour, Labourer, AttendanceRecord, AttendanceStatus } from '@/context/labour-context';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const AttendanceCalendar = ({
-  selectedStaffMemberId,
+  selectedLabourerId,
   currentMonth,
   setCurrentMonth
 }: {
-  selectedStaffMemberId: string | null,
+  selectedLabourerId: string | null,
   currentMonth: Date,
   setCurrentMonth: (date: Date) => void
 }) => {
-  const { getAttendanceForStaffMember, markAttendance } = useStaff();
+  const { getAttendanceForLabourer, markAttendance } = useLabour();
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus>('Present');
   const [wages, setWages] = useState(0);
 
   const attendanceMap = useMemo(() => {
-    if (!selectedStaffMemberId) return new Map();
-    const records = getAttendanceForStaffMember(selectedStaffMemberId);
+    if (!selectedLabourerId) return new Map();
+    const records = getAttendanceForLabourer(selectedLabourerId);
     return new Map(records.map(r => [r.date, r]));
-  }, [selectedStaffMemberId, getAttendanceForStaffMember]);
+  }, [selectedLabourerId, getAttendanceForLabourer]);
 
   const start = startOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({
@@ -75,8 +75,8 @@ const AttendanceCalendar = ({
   });
 
   const handleDayClick = (day: Date) => {
-    if (!selectedStaffMemberId) {
-      alert("Please select a staff member first.");
+    if (!selectedLabourerId) {
+      alert("Please select a labourer first.");
       return;
     }
     const dateStr = format(day, 'yyyy-MM-dd');
@@ -88,8 +88,8 @@ const AttendanceCalendar = ({
   };
   
   const handleSaveAttendance = () => {
-    if (selectedDay && selectedStaffMemberId) {
-      markAttendance(selectedStaffMemberId, format(selectedDay, 'yyyy-MM-dd'), attendanceStatus, wages);
+    if (selectedDay && selectedLabourerId) {
+      markAttendance(selectedLabourerId, format(selectedDay, 'yyyy-MM-dd'), attendanceStatus, wages);
     }
     setSelectedDay(null);
   }
@@ -184,41 +184,41 @@ const AttendanceCalendar = ({
 
 
 export default function StaffPage() {
-  const { staffMembers, addStaffMember, updateStaffMember, deleteStaffMember } = useStaff();
-  const [staffMemberOpen, setStaffMemberOpen] = useState(false);
-  const [editingStaffMember, setEditingStaffMember] = useState<StaffMember | null>(null);
-  const [selectedStaffMemberId, setSelectedStaffMemberId] = useState<string | null>(null);
+  const { labourers, addLabourer, updateLabourer, deleteLabourer } = useLabour();
+  const [labourerOpen, setLabourerOpen] = useState(false);
+  const [editingLabourer, setEditingLabourer] = useState<Labourer | null>(null);
+  const [selectedLabourerId, setSelectedLabourerId] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const handleAddStaffMemberClick = () => {
-    setEditingStaffMember(null);
-    setStaffMemberOpen(true);
+  const handleAddLabourerClick = () => {
+    setEditingLabourer(null);
+    setLabourerOpen(true);
   };
   
-  const handleEditStaffMemberClick = (staffMember: StaffMember) => {
-    setEditingStaffMember(staffMember);
-    setStaffMemberOpen(true);
+  const handleEditLabourerClick = (labourer: Labourer) => {
+    setEditingLabourer(labourer);
+    setLabourerOpen(true);
   };
 
-  const handleStaffMemberSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLabourerSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const name = formData.get('name') as string;
     
-    if (editingStaffMember) {
-      updateStaffMember(editingStaffMember.id, name);
+    if (editingLabourer) {
+      updateLabourer(editingLabourer.id, name);
     } else {
-      addStaffMember(name);
+      addLabourer(name);
     }
     
-    setStaffMemberOpen(false);
-    setEditingStaffMember(null);
+    setLabourerOpen(false);
+    setEditingLabourer(null);
   };
   
-  const selectedStaffMemberName = useMemo(() => {
-    if (!selectedStaffMemberId) return "Select a Staff Member";
-    return staffMembers.find(l => l.id === selectedStaffMemberId)?.name || "";
-  }, [selectedStaffMemberId, staffMembers]);
+  const selectedLabourerName = useMemo(() => {
+    if (!selectedLabourerId) return "Select a Staff Member";
+    return labourers.find(l => l.id === selectedLabourerId)?.name || "";
+  }, [selectedLabourerId, labourers]);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -232,44 +232,44 @@ export default function StaffPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">All Staff Members</h3>
-                  <Dialog open={staffMemberOpen} onOpenChange={setStaffMemberOpen}>
+                  <h3 className="text-lg font-semibold">All Staff</h3>
+                  <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
                       <DialogTrigger asChild>
-                        <Button size="sm" onClick={handleAddStaffMemberClick}>
+                        <Button size="sm" onClick={handleAddLabourerClick}>
                           <PlusCircle className="mr-2 h-4 w-4"/> Add 
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
-                          <DialogTitle>{editingStaffMember ? 'Edit Staff Member' : 'Add New Staff Member'}</DialogTitle>
+                          <DialogTitle>{editingLabourer ? 'Edit Staff Member' : 'Add New Staff Member'}</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleStaffMemberSubmit}>
+                        <form onSubmit={handleLabourerSubmit}>
                           <div className="grid gap-4 py-4">
                               <div className="space-y-2">
                               <Label htmlFor="name">
                                   Staff Member Name
                               </Label>
-                              <Input id="name" name="name" defaultValue={editingStaffMember?.name} required />
+                              <Input id="name" name="name" defaultValue={editingLabourer?.name} required />
                               </div>
                           </div>
                           <DialogFooter>
                               <DialogClose asChild>
-                                  <Button type="button" variant="secondary" onClick={() => setEditingStaffMember(null)}>Cancel</Button>
+                                  <Button type="button" variant="secondary" onClick={() => setEditingLabourer(null)}>Cancel</Button>
                               </DialogClose>
-                              <Button type="submit">{editingStaffMember ? 'Save Changes' : 'Save Staff Member'}</Button>
+                              <Button type="submit">{editingLabourer ? 'Save Changes' : 'Save Staff Member'}</Button>
                           </DialogFooter>
                         </form>
                       </DialogContent>
                   </Dialog>
               </div>
               <div className="space-y-2">
-                {staffMembers.map(staffMember => (
-                  <div key={staffMember.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedStaffMemberId === staffMember.id ? 'bg-primary/10' : 'hover:bg-accent')}>
-                     <button onClick={() => setSelectedStaffMemberId(staffMember.id)} className="flex-1 text-left">
-                      {staffMember.name}
+                {labourers.map(labourer => (
+                  <div key={labourer.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedLabourerId === labourer.id ? 'bg-primary/10' : 'hover:bg-accent')}>
+                     <button onClick={() => setSelectedLabourerId(labourer.id)} className="flex-1 text-left">
+                      {labourer.name}
                     </button>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditStaffMemberClick(staffMember)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditLabourerClick(labourer)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
@@ -282,12 +282,12 @@ export default function StaffPage() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will permanently delete {staffMember.name} and all their attendance records. This action cannot be undone.
+                                This will permanently delete {labourer.name} and all their attendance records. This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteStaffMember(staffMember.id)}>Continue</AlertDialogAction>
+                              <AlertDialogAction onClick={() => deleteLabourer(labourer.id)}>Continue</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
@@ -302,11 +302,11 @@ export default function StaffPage() {
            <div className="flex items-center gap-4 mb-4">
             <CalendarIcon className="h-6 w-6 text-primary" />
             <h3 className="text-xl font-bold tracking-tight">
-              Attendance for: <span className="text-primary">{selectedStaffMemberName}</span>
+              Attendance for: <span className="text-primary">{selectedLabourerName}</span>
             </h3>
           </div>
           <AttendanceCalendar 
-            selectedStaffMemberId={selectedStaffMemberId}
+            selectedLabourerId={selectedLabourerId}
             currentMonth={currentMonth}
             setCurrentMonth={setCurrentMonth}
           />

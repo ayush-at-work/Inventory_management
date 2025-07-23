@@ -31,8 +31,8 @@ interface LabourContextType {
 
 const LabourContext = createContext<LabourContextType | undefined>(undefined);
 
-const LABOURERS_STORAGE_KEY = 'labourers';
-const ATTENDANCE_STORAGE_KEY = 'attendanceRecords';
+const LABOURERS_STORAGE_KEY = 'staff';
+const ATTENDANCE_STORAGE_KEY = 'staffAttendanceRecords';
 
 const initialLabourers: Labourer[] = [
     { id: '1', name: 'Ramesh' },
