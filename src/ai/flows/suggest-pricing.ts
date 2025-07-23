@@ -3,7 +3,7 @@
 /**
  * @fileOverview This file defines a Genkit flow for suggesting pricing for scrap materials.
  *
- * - suggestPricing - A function that suggests pricing based on inventory, market trends, and historical data.
+ * - suggestPricing - A function that suggests pricing based on inventory, market trends, and live web search data.
  * - SuggestPricingInput - The input type for the suggestPricing function.
  * - SuggestPricingOutput - The return type for the suggestPricing function.
  */
@@ -15,8 +15,7 @@ import {z} from 'genkit';
 const SuggestPricingInputSchema = z.object({
   materialType: z.string().describe('The type of scrap material.'),
   quantity: z.number().describe('The quantity of scrap material in stock.'),
-  marketTrends: z.string().describe('Current market trends for the material.'),
-  historicalData: z.string().describe('Historical pricing data for the material.'),
+  marketTrends: z.string().describe('Any known market trends for the material.'),
 });
 export type SuggestPricingInput = z.infer<typeof SuggestPricingInputSchema>;
 
@@ -27,38 +26,26 @@ const SuggestPricingOutputSchema = z.object({
 });
 export type SuggestPricingOutput = z.infer<typeof SuggestPricingOutputSchema>;
 
-// Define the tool to get historical pricing data
-const getHistoricalPricingData = ai.defineTool({
-    name: 'getHistoricalPricingData',
-    description: 'Retrieves historical pricing data for a specific scrap material.',
-    inputSchema: z.object({
-      materialType: z.string().describe('The type of scrap material.'),
-    }),
-    outputSchema: z.string(),
-  },
-  async (input) => {
-    // Placeholder implementation - replace with actual data retrieval logic
-    console.log(`Fetching historical data for ${input.materialType}`);
-    return `Historical pricing data for ${input.materialType} - replace with actual data`;
-  }
-);
-
 // Define the prompt
 const suggestPricingPrompt = ai.definePrompt({
   name: 'suggestPricingPrompt',
   input: {schema: SuggestPricingInputSchema},
   output: {schema: SuggestPricingOutputSchema},
-  tools: [getHistoricalPricingData],
-  prompt: `You are an expert in scrap material pricing.
+  tools: [ai.tool.webSearch],
+  prompt: `You are an expert in scrap material pricing. Your task is to suggest a competitive and profitable price for a given scrap material.
 
-  Based on the current inventory, market trends, and historical data, suggest a pricing for the scrap materials to ensure profitability. You must use getHistoricalPricingData to determine historical prices.
+  To do this, you MUST use the web search tool to find the current market price and latest trends for the specified material.
+
+  Base your recommendation on the following information:
+  - Current inventory quantity.
+  - User-provided market trends.
+  - Real-time data obtained from your web search.
 
   Material Type: {{{materialType}}}
-  Quantity: {{{quantity}}}
-  Market Trends: {{{marketTrends}}}
-  Historical Data: {{tool_code tool=getHistoricalPricingData input=this}}
-  
-  Provide the suggested price and the reasoning behind it.
+  Quantity in Stock: {{{quantity}}}
+  Known Market Trends: {{{marketTrends}}}
+
+  Provide a suggested price per unit and a clear reasoning for your suggestion, citing the data you found online.
   `,
 });
 
@@ -76,7 +63,7 @@ const suggestPricingFlow = ai.defineFlow(
 );
 
 /**
- * Suggests pricing for scrap materials based on current inventory, market trends, and historical data.
+ * Suggests pricing for scrap materials based on current inventory and real-time market data.
  * @param input - The input data for suggesting pricing.
  * @returns The suggested price and reasoning.
  */

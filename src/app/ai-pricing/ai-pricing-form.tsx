@@ -32,7 +32,6 @@ export function AiPricingForm() {
         materialType: formData.get('materialType') as string,
         quantity: Number(formData.get('quantity')),
         marketTrends: formData.get('marketTrends') as string,
-        historicalData: '', // This will be handled by the tool in the flow
       });
       return { result, error: null };
     } catch (e: any) {
@@ -52,8 +51,8 @@ export function AiPricingForm() {
           <Input id="quantity" name="quantity" type="number" placeholder="e.g., 500" required />
         </div>
         <div>
-          <Label htmlFor="marketTrends">Market Trends</Label>
-          <Textarea id="marketTrends" name="marketTrends" placeholder="e.g., Prices are currently high due to demand." required />
+          <Label htmlFor="marketTrends">Known Market Trends (Optional)</Label>
+          <Textarea id="marketTrends" name="marketTrends" placeholder="e.g., Prices are currently high due to demand." />
         </div>
         <SubmitButton />
       </form>
