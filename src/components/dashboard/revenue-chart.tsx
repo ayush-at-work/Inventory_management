@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
@@ -32,7 +33,7 @@ const chartConfig = {
   },
   expenses: {
     label: "Expenses",
-    color: "hsl(var(--accent))",
+    color: "hsl(var(--secondary))",
   },
 }
 
