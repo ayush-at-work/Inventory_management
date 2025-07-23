@@ -18,12 +18,12 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart"
 const chartData = [
-  { month: "January", revenue: 18600, expenses: 8000 },
-  { month: "February", revenue: 30500, expenses: 20000 },
-  { month: "March", revenue: 23700, expenses: 12000 },
-  { month: "April", revenue: 7300, expenses: 19000 },
-  { month: "May", revenue: 20900, expenses: 13000 },
-  { month: "June", revenue: 21400, expenses: 14000 },
+  { month: "January", revenue: 0, expenses: 0 },
+  { month: "February", revenue: 0, expenses: 0 },
+  { month: "March", revenue: 0, expenses: 0 },
+  { month: "April", revenue: 0, expenses: 0 },
+  { month: "May", revenue: 0, expenses: 0 },
+  { month: "June", revenue: 0, expenses: 0 },
 ]
 
 const chartConfig = {
@@ -42,7 +42,7 @@ export function RevenueChart() {
     <Card>
       <CardHeader>
         <CardTitle>Revenue vs. Expenses</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardDescription>An overview of your revenue and expenses.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full">

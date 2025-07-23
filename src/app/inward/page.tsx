@@ -45,62 +45,7 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-const initialInwardGoods = [
-  {
-    id: '1',
-    invoiceNumber: 'INV001',
-    date: '2023-10-01',
-    supplier: 'MetalRecyclers Inc.',
-    gstNumber: '29ABCDE1234F1Z5',
-    placeOfSupply: 'Maharashtra',
-    taxableAmount: '₹3200',
-    taxType: 'Inter-state',
-    cgst: '4.5%',
-    sgst: '4.5%',
-    igst: '-',
-    taxAmount: '₹288',
-    totalInvoiceValue: '₹3488',
-    materialType: 'Copper',
-    weight: '500 kg',
-    hsnCode: '74040010',
-  },
-  {
-    id: '2',
-    invoiceNumber: 'INV002',
-    date: '2023-10-02',
-    supplier: 'SteelScrappers Co.',
-    gstNumber: '27FGHIJ5678K1Z4',
-    placeOfSupply: 'Gujarat',
-    taxableAmount: '₹750',
-    taxType: 'Intra-state',
-    cgst: '-',
-    sgst: '-',
-    igst: '5%',
-    taxAmount: '₹37.5',
-    totalInvoiceValue: '₹787.5',
-    materialType: 'Steel',
-    weight: '2000 kg',
-    hsnCode: '72044900',
-  },
-  {
-    id: '3',
-    invoiceNumber: 'INV003',
-    date: '2023-10-03',
-    supplier: 'Alu Source',
-    gstNumber: '36LMNOP9012Q1Z3',
-    placeOfSupply: 'Karnataka',
-    taxableAmount: '₹1650',
-    taxType: 'Inter-state',
-    cgst: '4.5%',
-    sgst: '4.5%',
-    igst: '-',
-    taxAmount: '₹148.5',
-    totalInvoiceValue: '₹1798.5',
-    materialType: 'Aluminum',
-    weight: '1200 kg',
-    hsnCode: '76020010',
-  },
-];
+const initialInwardGoods: any[] = [];
 
 export default function InwardGoodsPage() {
   const [inwardGoods, setInwardGoods] = useState(initialInwardGoods);
@@ -132,7 +77,7 @@ export default function InwardGoodsPage() {
     const pricePerUnit = taxableAmount / weight;
     
     const newEntry = {
-      id: String(inwardGoods.length + 1),
+      id: String(Date.now()),
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
@@ -384,5 +329,3 @@ export default function InwardGoodsPage() {
     </div>
   );
 }
-
-    

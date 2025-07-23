@@ -25,78 +25,7 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 const INVENTORY_STORAGE_KEY = 'inventory';
 
-const initialInventoryData: InventoryItem[] = [
-  {
-    id: '1',
-    materialType: 'Copper',
-    quantity: 5200,
-    unit: 'kg',
-    price: 7,
-    value: 36400,
-    hsnCode: '74040010',
-    transactionType: 'GST'
-  },
-  {
-    id: '2',
-    materialType: 'Steel',
-    quantity: 25000,
-    unit: 'kg',
-    price: 0.4,
-    value: 10000,
-    hsnCode: '72044900',
-    transactionType: 'GST'
-  },
-  {
-    id: '3',
-    materialType: 'Aluminum',
-    quantity: 8500,
-    unit: 'kg',
-    price: 1.5,
-    value: 12750,
-    hsnCode: '76020010',
-    transactionType: 'GST'
-  },
-  {
-    id: '4',
-    materialType: 'Brass',
-    quantity: 1500,
-    unit: 'kg',
-    price: 4,
-    value: 6000,
-    hsnCode: '74040022',
-    transactionType: 'Cash'
-  },
-  {
-    id: '5',
-    materialType: 'Lead',
-    quantity: 900,
-    unit: 'kg',
-    price: 2,
-    value: 1800,
-    hsnCode: '78020010',
-    transactionType: 'GST'
-  },
-  {
-    id: '6',
-    materialType: 'Zinc',
-    quantity: 3200,
-    unit: 'kg',
-    price: 2.5,
-    value: 8000,
-    hsnCode: '79020010',
-    transactionType: 'Cash'
-  },
-  {
-    id: '7',
-    materialType: 'Used Batteries',
-    quantity: 500,
-    unit: 'NOS',
-    price: 10,
-    value: 5000,
-    hsnCode: '85481020',
-    transactionType: 'GST'
-  },
-];
+const initialInventoryData: InventoryItem[] = [];
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventoryData);

@@ -19,11 +19,11 @@ import {
 } from "@/components/ui/chart"
 
 const chartData = [
-  { material: "Copper", quantity: 5200, fill: "var(--color-copper)" },
-  { material: "Steel", quantity: 25000, fill: "var(--color-steel)" },
-  { material: "Aluminum", quantity: 8500, fill: "var(--color-aluminum)" },
-  { material: "Brass", quantity: 1500, fill: "var(--color-brass)" },
-  { material: "Lead", quantity: 900, fill: "var(--color-lead)" },
+  { material: "Copper", quantity: 0, fill: "var(--color-copper)" },
+  { material: "Steel", quantity: 0, fill: "var(--color-steel)" },
+  { material: "Aluminum", quantity: 0, fill: "var(--color-aluminum)" },
+  { material: "Brass", quantity: 0, fill: "var(--color-brass)" },
+  { material: "Lead", quantity: 0, fill: "var(--color-lead)" },
 ]
 
 const chartConfig = {
@@ -55,7 +55,7 @@ const chartConfig = {
 export function InventoryChart() {
   const id = "pie-interactive"
   const [activeMaterial, setActiveMaterial] =
-    React.useState(chartData[0].material)
+    React.useState(chartData[0]?.material)
 
   const activeIndex = React.useMemo(
     () => chartData.findIndex((item) => item.material === activeMaterial),
@@ -76,6 +76,7 @@ export function InventoryChart() {
           config={chartConfig}
           className="mx-auto aspect-square max-h-[300px]"
         >
+        {allQuantity > 0 ? (
           <PieChart>
             <ChartTooltip
               cursor={false}
@@ -106,14 +107,21 @@ export function InventoryChart() {
               }}
             />
           </PieChart>
+           ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              No inventory data
+            </div>
+          )}
         </ChartContainer>
       </CardContent>
+      {allQuantity > 0 && (
       <CardContent className="flex-1 justify-center flex pb-4 text-sm">
         <div
           className="grid grid-cols-2 gap-x-10 gap-y-1 text-sm sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 [&>div]:flex [&>div]:items-center [&>div]:gap-2"
         >
           {chartData.map((item) => {
-            const percentage = ((item.quantity / allQuantity) * 100).toFixed(1)
+            const percentage = allQuantity > 0 ? ((item.quantity / allQuantity) * 100).toFixed(1) : 0
+            if (item.quantity === 0) return null;
             return (
               <div key={item.material}>
                 <div
@@ -129,6 +137,7 @@ export function InventoryChart() {
           })}
         </div>
       </CardContent>
+      )}
     </Card>
   )
 }

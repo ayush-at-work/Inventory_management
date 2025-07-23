@@ -15,26 +15,26 @@ import { Button } from '@/components/ui/button';
 const summaryData = [
   {
     title: 'Total Revenue',
-    value: '₹45,231.89',
-    change: '+20.1% from last month',
+    value: '₹0.00',
+    change: '',
     icon: Banknote,
   },
   {
     title: 'Total Inventory',
-    value: '12,500 kg',
-    change: '+1.5% from last month',
+    value: '0 kg',
+    change: '',
     icon: PlusCircle,
   },
   {
     title: 'Total Expenses',
-    value: '₹12,234.50',
-    change: '+12.1% from last month',
+    value: '₹0.00',
+    change: '',
     icon: MinusCircle,
   },
   {
     title: 'Profit',
-    value: '₹32,997.39',
-    change: '+23.4% from last month',
+    value: '₹0.00',
+    change: '',
     icon: Receipt,
   },
 ];

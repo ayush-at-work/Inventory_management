@@ -11,7 +11,7 @@ interface BankBalanceContextType {
 const BankBalanceContext = createContext<BankBalanceContextType | undefined>(undefined);
 
 const BANK_BALANCE_STORAGE_KEY = 'bankBalance';
-const INITIAL_BALANCE = 123456.78;
+const INITIAL_BALANCE = 0;
 
 export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [balance, setBalanceState] = useState<number>(INITIAL_BALANCE);
@@ -23,6 +23,8 @@ export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const savedBalance = localStorage.getItem(BANK_BALANCE_STORAGE_KEY);
         if (savedBalance !== null) {
             setBalanceState(parseFloat(savedBalance));
+        } else {
+            setBalanceState(INITIAL_BALANCE);
         }
     } catch (error) {
         console.error("Failed to read from localStorage", error);

@@ -46,42 +46,7 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-const initialOutwardGoods = [
-  {
-    id: '1',
-    invoiceNumber: 'SALE001',
-    date: '2023-10-05',
-    customer: 'BuildRight Ltd.',
-    gstNumber: '29ABCDE1234F1Z5',
-    placeOfSupply: 'Maharashtra',
-    taxableAmount: 1200,
-    taxType: 'Inter-state' as const,
-    cgst: 9,
-    sgst: 9,
-    igst: 0,
-    materialType: 'Steel',
-    weight: '1500 kg',
-    hsnCode: '72044900',
-    paymentStatus: 'Paid' as const,
-  },
-  {
-    id: '2',
-    invoiceNumber: 'SALE002',
-    date: '2023-10-06',
-    customer: 'Creative Alloys',
-    gstNumber: '27FGHIJ5678K1Z4',
-    placeOfSupply: 'Gujarat',
-    taxableAmount: 2500,
-    taxType: 'Intra-state' as const,
-    cgst: 0,
-    sgst: 0,
-    igst: 18,
-    materialType: 'Copper',
-    weight: '300 kg',
-    hsnCode: '74040010',
-    paymentStatus: 'Unpaid' as const,
-  },
-];
+const initialOutwardGoods: OutwardGood[] = [];
 
 type OutwardGood = {
   id: string;
@@ -154,7 +119,7 @@ export default function OutwardGoodsPage() {
     const weight = Number(formData.get('weight'));
     
     const newEntry: OutwardGood = {
-      id: editingItem ? editingItem.id : String(outwardGoods.length + 1),
+      id: editingItem ? editingItem.id : String(Date.now()),
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       customer: formData.get('customer') as string,
@@ -418,5 +383,3 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
-
-    

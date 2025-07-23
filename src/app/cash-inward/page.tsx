@@ -46,28 +46,7 @@ import { useCashBalance } from '@/context/cash-balance-context';
 import { useInventory } from '@/context/inventory-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const initialCashInward = [
-    {
-    id: '1',
-    invoiceNumber: 'CASH-001',
-    date: '2023-10-10',
-    supplier: 'Local Seller A',
-    totalValue: 5500,
-    materialType: 'Mixed Scrap',
-    weight: '750 kg',
-    hsnCode: '',
-  },
-   {
-    id: '2',
-    invoiceNumber: 'CASH-002',
-    date: '2023-10-11',
-    supplier: 'Walk-in Supplier',
-    totalValue: 1200,
-    materialType: 'Old Newspapers',
-    weight: '100 kg',
-    hsnCode: '',
-  },
-];
+const initialCashInward: CashInward[] = [];
 
 type CashInward = {
     id: string;
@@ -112,7 +91,7 @@ export default function CashInwardPage() {
     const unit = formData.get('unit') as string;
 
     const newEntry: CashInward = {
-      id: editingItem ? editingItem.id : String(inwardGoods.length + 1),
+      id: editingItem ? editingItem.id : String(Date.now()),
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
@@ -308,5 +287,3 @@ export default function CashInwardPage() {
     </div>
   );
 }
-
-    

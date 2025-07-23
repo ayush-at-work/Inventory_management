@@ -34,17 +34,9 @@ const StaffContext = createContext<StaffContextType | undefined>(undefined);
 const STAFF_MEMBERS_STORAGE_KEY = 'staffMembers';
 const ATTENDANCE_STORAGE_KEY = 'attendanceRecords';
 
-const initialStaffMembers: StaffMember[] = [
-    { id: '1', name: 'Ramesh' },
-    { id: '2', name: 'Suresh' },
-    { id: '3', name: 'Vikas' },
-];
+const initialStaffMembers: StaffMember[] = [];
 
-const initialAttendance: AttendanceRecord[] = [
-    { id: '1', staffMemberId: '1', date: '2023-10-10', status: 'Present', wages: 500 },
-    { id: '2', staffMemberId: '2', date: '2023-10-10', status: 'Half Day', wages: 250 },
-    { id: '3', staffMemberId: '3', date: '2023-10-10', status: 'Absent', wages: 0 },
-];
+const initialAttendance: AttendanceRecord[] = [];
 
 export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(initialStaffMembers);
@@ -57,9 +49,11 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
         const savedStaffMembers = localStorage.getItem(STAFF_MEMBERS_STORAGE_KEY);
         if (savedStaffMembers) setStaffMembers(JSON.parse(savedStaffMembers));
+        else setStaffMembers(initialStaffMembers);
 
         const savedAttendance = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
         if (savedAttendance) setAttendanceRecords(JSON.parse(savedAttendance));
+        else setAttendanceRecords(initialAttendance);
     } catch (error) {
         console.error("Failed to read from localStorage", error);
     }

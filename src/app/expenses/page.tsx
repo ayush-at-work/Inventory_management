@@ -44,29 +44,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useCashBalance } from '@/context/cash-balance-context';
 
-const initialExpenses = [
-  {
-    id: '1',
-    date: '2023-10-01',
-    category: 'Utilities',
-    description: 'Electricity Bill',
-    amount: 350.00,
-  },
-  {
-    id: '2',
-    date: '2023-10-02',
-    category: 'Rent',
-    description: 'Warehouse Rent',
-    amount: 2500.00,
-  },
-  {
-    id: '3',
-    date: '2023-10-03',
-    category: 'Fuel',
-    description: 'Truck Fuel',
-    amount: 400.00,
-  },
-];
+const initialExpenses: Expense[] = [];
 
 type Expense = {
     id: string;

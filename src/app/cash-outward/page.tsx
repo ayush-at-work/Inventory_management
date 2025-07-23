@@ -47,30 +47,7 @@ import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const initialCashOutward = [
-  {
-    id: '1',
-    invoiceNumber: 'CASH-SALE-001',
-    date: '2023-10-12',
-    customer: 'Local Buyer X',
-    totalValue: 8200,
-    materialType: 'Copper Scrap',
-    weight: '100 kg',
-    hsnCode: '74040010',
-    paymentStatus: 'Paid' as const,
-  },
-  {
-    id: '2',
-    invoiceNumber: 'CASH-SALE-002',
-    date: '2023-10-13',
-    customer: 'Small Workshop Y',
-    totalValue: 3000,
-    materialType: 'Aluminum Parts',
-    weight: '200 NOS',
-    hsnCode: '76020010',
-    paymentStatus: 'Unpaid' as const,
-  },
-];
+const initialCashOutward: CashSale[] = [];
 
 type CashSale = {
     id: string;
@@ -121,7 +98,7 @@ export default function CashOutwardPage() {
     const unit = formData.get('unit') as string;
     
     const newEntry: CashSale = {
-      id: editingItem ? editingItem.id : String(outwardGoods.length + 1),
+      id: editingItem ? editingItem.id : String(Date.now()),
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       customer: formData.get('customer') as string,
@@ -348,5 +325,3 @@ export default function CashOutwardPage() {
     </div>
   );
 }
-
-    
