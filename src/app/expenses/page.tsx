@@ -42,23 +42,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
-import { useCashBalance } from '@/context/cash-balance-context';
-
-const initialExpenses: Expense[] = [];
-
-type Expense = {
-    id: string;
-    date: string;
-    category: string;
-    description: string;
-    amount: number;
-}
+import { useExpenses, Expense } from '@/context/expenses-context';
 
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Expense | null>(null);
-  const { updateBalance } = useCashBalance();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
@@ -71,8 +60,7 @@ export default function ExpensesPage() {
   };
 
   const handleDeleteClick = (expenseToDelete: Expense) => {
-    updateBalance(expenseToDelete.amount); // Add amount back
-    setExpenses(expenses.filter(exp => exp.id !== expenseToDelete.id));
+    deleteExpense(expenseToDelete.id);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -80,27 +68,17 @@ export default function ExpensesPage() {
     const formData = new FormData(event.currentTarget);
     const amount = Number(formData.get('amount'));
     
+    const expenseData = {
+        date: formData.get('date') as string,
+        category: formData.get('category') as string,
+        description: formData.get('description') as string,
+        amount: amount,
+    };
+
     if (editingItem) {
-      const updatedExpense = {
-        ...editingItem,
-        date: formData.get('date') as string,
-        category: formData.get('category') as string,
-        description: formData.get('description') as string,
-        amount: amount,
-      };
-      const balanceChange = editingItem.amount - updatedExpense.amount;
-      updateBalance(balanceChange);
-      setExpenses(expenses.map(exp => exp.id === editingItem.id ? updatedExpense : exp));
+      updateExpense(editingItem.id, expenseData);
     } else {
-      const newEntry: Expense = {
-        id: String(Date.now()),
-        date: formData.get('date') as string,
-        category: formData.get('category') as string,
-        description: formData.get('description') as string,
-        amount: amount,
-      };
-      setExpenses([newEntry, ...expenses]);
-      updateBalance(-amount);
+      addExpense(expenseData);
     }
     
     setOpen(false);
@@ -229,5 +207,3 @@ export default function ExpensesPage() {
     </div>
   );
 }
-
-    

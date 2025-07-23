@@ -1,8 +1,8 @@
 
 "use client"
 
+import React, { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-
 import {
   Card,
   CardContent,
@@ -17,14 +17,9 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-const chartData = [
-  { month: "January", revenue: 0, expenses: 0 },
-  { month: "February", revenue: 0, expenses: 0 },
-  { month: "March", revenue: 0, expenses: 0 },
-  { month: "April", revenue: 0, expenses: 0 },
-  { month: "May", revenue: 0, expenses: 0 },
-  { month: "June", revenue: 0, expenses: 0 },
-]
+import { useGst } from '@/context/gst-context';
+import { useExpenses } from '@/context/expenses-context';
+import { format, subMonths } from 'date-fns';
 
 const chartConfig = {
   revenue: {
@@ -38,11 +33,53 @@ const chartConfig = {
 }
 
 export function RevenueChart() {
+  const { inwardGoods, outwardGoods } = useGst();
+  const { expenses } = useExpenses();
+
+  const chartData = useMemo(() => {
+    const dataByMonth: { [key: string]: { revenue: number, expenses: number } } = {};
+    const today = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+        const month = format(subMonths(today, i), 'yyyy-MM');
+        dataByMonth[month] = { revenue: 0, expenses: 0 };
+    }
+
+    outwardGoods.forEach(item => {
+        if (item.paymentStatus === 'Paid') {
+            const month = format(new Date(item.date), 'yyyy-MM');
+            if (dataByMonth[month]) {
+                const tax = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
+                dataByMonth[month].revenue += item.taxableAmount + tax;
+            }
+        }
+    });
+    
+    inwardGoods.forEach(item => {
+        const month = format(new Date(item.date), 'yyyy-MM');
+        if (dataByMonth[month]) {
+            dataByMonth[month].expenses += item.totalInvoiceValue;
+        }
+    });
+
+    expenses.forEach(item => {
+        const month = format(new Date(item.date), 'yyyy-MM');
+        if (dataByMonth[month]) {
+            dataByMonth[month].expenses += item.amount;
+        }
+    });
+
+    return Object.entries(dataByMonth).map(([month, values]) => ({
+      month: format(new Date(month), 'MMM'),
+      ...values,
+    }));
+  }, [inwardGoods, outwardGoods, expenses]);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Revenue vs. Expenses</CardTitle>
-        <CardDescription>An overview of your revenue and expenses.</CardDescription>
+        <CardDescription>An overview of your GST revenue and expenses.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full">
@@ -53,7 +90,6 @@ export function RevenueChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent />} />

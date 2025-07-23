@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Banknote, MinusCircle, PlusCircle, Receipt, IndianRupee } from 'lucide-react';
+import { Banknote, MinusCircle, PlusCircle, Receipt, IndianRupee, Warehouse } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import Link from 'next/link';
@@ -16,56 +16,73 @@ import { Button } from '@/components/ui/button';
 import { useInventory } from '@/context/inventory-context';
 import { useBankBalance } from '@/context/bank-balance-context';
 import { useCashBalance } from '@/context/cash-balance-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useGst } from '@/context/gst-context';
+import { useExpenses } from '@/context/expenses-context';
 
 export default function Home() {
     const { inventory } = useInventory();
     const { balance: bankBalance } = useBankBalance();
     const { balance: cashBalance } = useCashBalance();
     const [isMounted, setIsMounted] = useState(false);
+    const { inwardGoods, outwardGoods } = useGst();
+    const { expenses } = useExpenses();
+    
+    // Note: We can't get cash transactions here as they are local to their pages.
+    // This dashboard will reflect GST transactions and general expenses.
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
+    const { totalRevenue, totalExpenses, profit } = useMemo(() => {
+        const revenue = outwardGoods
+            .filter(item => item.paymentStatus === 'Paid')
+            .reduce((acc, item) => {
+                const tax = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
+                return acc + item.taxableAmount + tax;
+            }, 0);
+
+        const gstPurchases = inwardGoods.reduce((acc, item) => acc + item.totalInvoiceValue, 0);
+        const generalExpenses = expenses.reduce((acc, item) => acc + item.amount, 0);
+
+        const calculatedExpenses = gstPurchases + generalExpenses;
+        const calculatedProfit = revenue - calculatedExpenses;
+        
+        return { totalRevenue: revenue, totalExpenses: calculatedExpenses, profit: calculatedProfit };
+    }, [outwardGoods, inwardGoods, expenses]);
+
     const totalInventoryValue = inventory.reduce((acc, item) => acc + item.value, 0);
     const totalInventoryWeight = inventory.reduce((acc, item) => {
-        // Assuming all weights are in kg for simplicity
         if (item.unit.toLowerCase() === 'kg') {
             return acc + item.quantity;
         }
         return acc;
     }, 0);
 
-    // Note: These are placeholders. You'd need to calculate revenue and expenses
-    // from your transaction data for a real implementation.
-    const totalRevenue = 0; 
-    const totalExpenses = 0;
-    const profit = totalRevenue - totalExpenses;
-
     const summaryData = [
     {
         title: 'Total Revenue',
         value: `₹${totalRevenue.toLocaleString()}`,
-        change: '',
+        change: 'From GST Sales',
         icon: Banknote,
     },
     {
         title: 'Total Inventory Value',
         value: `₹${totalInventoryValue.toLocaleString()}`,
         change: `${totalInventoryWeight.toLocaleString()} kg`,
-        icon: PlusCircle,
+        icon: Warehouse,
     },
     {
         title: 'Total Expenses',
         value: `₹${totalExpenses.toLocaleString()}`,
-        change: '',
+        change: 'GST Purchases + General',
         icon: MinusCircle,
     },
     {
         title: 'Profit',
         value: `₹${profit.toLocaleString()}`,
-        change: '',
+        change: 'Revenue - Expenses',
         icon: Receipt,
     },
     ];
@@ -111,5 +128,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

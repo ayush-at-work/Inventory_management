@@ -9,6 +9,7 @@ import { CashBalanceProvider } from '@/context/cash-balance-context';
 import { InventoryProvider } from '@/context/inventory-context';
 import { StaffProvider } from '@/context/staff-context';
 import { GstProvider } from '@/context/gst-context';
+import { ExpensesProvider } from '@/context/expenses-context';
 
 export const metadata: Metadata = {
   title: 'ScrapFlow',
@@ -39,9 +40,11 @@ export default function RootLayout({
               <InventoryProvider>
                 <StaffProvider>
                   <GstProvider>
-                    <SiteLayout>
-                      {children}
-                    </SiteLayout>
+                    <ExpensesProvider>
+                      <SiteLayout>
+                        {children}
+                      </SiteLayout>
+                    </ExpensesProvider>
                   </GstProvider>
                 </StaffProvider>
               </InventoryProvider>

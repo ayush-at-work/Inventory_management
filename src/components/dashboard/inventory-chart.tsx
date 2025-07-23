@@ -19,45 +19,29 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const initialChartData = [
-  { material: "Copper", quantity: 0, fill: "var(--color-copper)" },
-  { material: "Steel", quantity: 0, fill: "var(--color-steel)" },
-  { material: "Aluminum", quantity: 0, fill: "var(--color-aluminum)" },
-  { material: "Brass", quantity: 0, fill: "var(--color-brass)" },
-  { material: "Lead", quantity: 0, fill: "var(--color-lead)" },
-]
-
-const chartConfig = {
-  quantity: {
-    label: "Quantity (kg)",
-  },
-  copper: {
-    label: "Copper",
-    color: "hsl(var(--chart-1))",
-  },
-  steel: {
-    label: "Steel",
-    color: "hsl(var(--chart-2))",
-  },
-  aluminum: {
-    label: "Aluminum",
-    color: "hsl(var(--chart-3))",
-  },
-  brass: {
-    label: "Brass",
-    color: "hsl(var(--chart-4))",
-  },
-  lead: {
-    label: "Lead",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+const generateChartConfig = (inventory: any[]): ChartConfig => {
+    const config: ChartConfig = {
+        quantity: {
+            label: "Quantity (kg)",
+        },
+    };
+    inventory.forEach((item, index) => {
+        const key = item.materialType.toLowerCase().replace(/\s/g, '');
+        if (!config[key]) {
+            config[key] = {
+                label: item.materialType,
+                color: `hsl(var(--chart-${(index % 5) + 1}))`,
+            };
+        }
+    });
+    return config;
+};
 
 export function InventoryChart() {
   const { inventory } = useInventory();
   
   const chartData = React.useMemo(() => {
-    if (!inventory || inventory.length === 0) return initialChartData;
+    if (!inventory || inventory.length === 0) return [];
 
     const materialMap = new Map<string, number>();
     inventory.forEach(item => {
@@ -66,16 +50,18 @@ export function InventoryChart() {
         }
     });
 
-    return initialChartData.map(d => ({
-        ...d,
-        quantity: materialMap.get(d.material) || 0,
+    return Array.from(materialMap.entries()).map(([material, quantity]) => ({
+        material,
+        quantity,
+        fill: `var(--color-${material.toLowerCase().replace(/\s/g, '')})`,
     })).filter(d => d.quantity > 0);
 
   }, [inventory]);
 
+  const chartConfig = React.useMemo(() => generateChartConfig(inventory), [inventory]);
+
   const id = "pie-interactive"
-  const [activeMaterial, setActiveMaterial] =
-    React.useState(chartData[0]?.material)
+  const [activeMaterial, setActiveMaterial] = React.useState(chartData[0]?.material)
 
   React.useEffect(() => {
     if (chartData.length > 0) {
@@ -83,7 +69,7 @@ export function InventoryChart() {
     } else {
         setActiveMaterial(undefined)
     }
-  }, [chartData])
+  }, [chartData]);
 
   const activeIndex = React.useMemo(
     () => chartData.findIndex((item) => item.material === activeMaterial),
@@ -151,7 +137,7 @@ export function InventoryChart() {
             const percentage = allQuantity > 0 ? ((item.quantity / allQuantity) * 100).toFixed(1) : 0
             if (item.quantity === 0) return null;
             
-            const colorKey = item.material.toLowerCase() as keyof typeof chartConfig;
+            const colorKey = item.material.toLowerCase().replace(/\s/g, '') as keyof typeof chartConfig;
             const itemConfig = chartConfig[colorKey];
 
             return (
