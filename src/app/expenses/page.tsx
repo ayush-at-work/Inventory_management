@@ -42,8 +42,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCashBalance } from '@/context/cash-balance-context';
 
 const initialExpenses = [
@@ -70,12 +68,6 @@ const initialExpenses = [
   },
 ];
 
-const initialLabourAttendance = [
-    { id: '1', date: '2023-10-10', name: 'Ramesh', status: 'Present' as const, wages: 500 },
-    { id: '2', date: '2023-10-10', name: 'Suresh', status: 'Half Day' as const, wages: 250 },
-    { id: '3', date: '2023-10-10', name: 'Vikas', status: 'Absent' as const, wages: 0 },
-];
-
 type Expense = {
     id: string;
     date: string;
@@ -84,59 +76,43 @@ type Expense = {
     amount: number;
 }
 
-type LabourAttendance = {
-    id: string;
-    date: string;
-    name: string;
-    status: 'Present' | 'Absent' | 'Half Day';
-    wages: number;
-}
-
-
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
-  const [labour, setLabour] = useState<LabourAttendance[]>(initialLabourAttendance);
-
-  const [expenseOpen, setExpenseOpen] = useState(false);
-  const [labourOpen, setLabourOpen] = useState(false);
-  
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [editingLabour, setEditingLabour] = useState<LabourAttendance | null>(null);
-  
+  const [open, setOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Expense | null>(null);
   const { updateBalance } = useCashBalance();
 
-  // Expense Handlers
-  const handleAddExpenseClick = () => {
-    setEditingExpense(null);
-    setExpenseOpen(true);
+  const handleAddNewClick = () => {
+    setEditingItem(null);
+    setOpen(true);
   };
   
-  const handleEditExpenseClick = (expense: Expense) => {
-    setEditingExpense(expense);
-    setExpenseOpen(true);
+  const handleEditClick = (expense: Expense) => {
+    setEditingItem(expense);
+    setOpen(true);
   };
 
-  const handleDeleteExpenseClick = (expenseToDelete: Expense) => {
-    setExpenses(expenses.filter(exp => exp.id !== expenseToDelete.id));
+  const handleDeleteClick = (expenseToDelete: Expense) => {
     updateBalance(expenseToDelete.amount); // Add amount back
+    setExpenses(expenses.filter(exp => exp.id !== expenseToDelete.id));
   };
 
-  const handleExpenseSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const amount = Number(formData.get('amount'));
     
-    if (editingExpense) {
+    if (editingItem) {
       const updatedExpense = {
-        ...editingExpense,
+        ...editingItem,
         date: formData.get('date') as string,
         category: formData.get('category') as string,
         description: formData.get('description') as string,
         amount: amount,
       };
-      const balanceChange = editingExpense.amount - updatedExpense.amount;
+      const balanceChange = editingItem.amount - updatedExpense.amount;
       updateBalance(balanceChange);
-      setExpenses(expenses.map(exp => exp.id === editingExpense.id ? updatedExpense : exp));
+      setExpenses(expenses.map(exp => exp.id === editingItem.id ? updatedExpense : exp));
     } else {
       const newEntry: Expense = {
         id: String(Date.now()),
@@ -149,299 +125,121 @@ export default function ExpensesPage() {
       updateBalance(-amount);
     }
     
-    setExpenseOpen(false);
-    setEditingExpense(null);
+    setOpen(false);
+    setEditingItem(null);
   };
-
-  // Labour Handlers
-  const handleAddLabourClick = () => {
-    setEditingLabour(null);
-    setLabourOpen(true);
-  };
-
-  const handleEditLabourClick = (labourEntry: LabourAttendance) => {
-    setEditingLabour(labourEntry);
-    setLabourOpen(true);
-  };
-  
-  const handleDeleteLabourClick = (labourToDelete: LabourAttendance) => {
-    setLabour(labour.filter(l => l.id !== labourToDelete.id));
-    updateBalance(labourToDelete.wages); // Add wages back
-  };
-
-  const handleLabourSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const wages = Number(formData.get('wages'));
-
-    if (editingLabour) {
-      const updatedLabour = {
-        ...editingLabour,
-        date: formData.get('date') as string,
-        name: formData.get('name') as string,
-        status: formData.get('status') as 'Present' | 'Absent' | 'Half Day',
-        wages: wages,
-      };
-      const balanceChange = editingLabour.wages - updatedLabour.wages;
-      updateBalance(balanceChange);
-      setLabour(labour.map(l => l.id === editingLabour.id ? updatedLabour : l));
-    } else {
-      const newEntry: LabourAttendance = {
-          id: String(Date.now()),
-          date: formData.get('date') as string,
-          name: formData.get('name') as string,
-          status: formData.get('status') as 'Present' | 'Absent' | 'Half Day',
-          wages: wages,
-      };
-      setLabour([newEntry, ...labour]);
-      updateBalance(-wages);
-    }
-    
-    setLabourOpen(false);
-    setEditingLabour(null);
-  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-       <div className="flex items-center gap-4">
-        <Receipt className="h-8 w-8 text-primary" />
-        <h2 className="text-3xl font-bold tracking-tight">Expenses</h2>
-      </div>
-
-       <Tabs defaultValue="general" className="space-y-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <TabsList>
-                <TabsTrigger value="general">General Expenses</TabsTrigger>
-                <TabsTrigger value="labour">Labour Attendance</TabsTrigger>
-            </TabsList>
-             <div className="w-full md:w-auto">
-                <Dialog open={expenseOpen} onOpenChange={setExpenseOpen}>
-                <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="general-expense-trigger" onClick={handleAddExpenseClick} />
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                    <DialogTitle>{editingExpense ? 'Edit Expense' : 'Add New Expense'}</DialogTitle>
-                    <DialogDescription>
-                        {editingExpense ? 'Update the details of the expense.' : 'Record a new business expense.'}
-                    </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleExpenseSubmit}>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                        <Label htmlFor="date">
-                            Date
-                        </Label>
-                        <Input id="date" name="date" type="date" defaultValue={editingExpense?.date || new Date().toISOString().substring(0, 10)} required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="category">
-                            Category
-                        </Label>
-                        <Input id="category" name="category" defaultValue={editingExpense?.category} required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="amount">
-                            Amount (₹)
-                        </Label>
-                        <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingExpense?.amount} required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="description">
-                            Description
-                        </Label>
-                        <Textarea id="description" name="description" defaultValue={editingExpense?.description} required />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" onClick={() => setEditingExpense(null)}>Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit">{editingExpense ? 'Save Changes' : 'Save Expense'}</Button>
-                    </DialogFooter>
-                    </form>
-                </DialogContent>
-                </Dialog>
-
-                <Dialog open={labourOpen} onOpenChange={setLabourOpen}>
-                <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto" style={{display: 'none'}} id="labour-expense-trigger" onClick={handleAddLabourClick} />
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                    <DialogTitle>{editingLabour ? 'Edit Labour Entry' : 'Add Labour Entry'}</DialogTitle>
-                    <DialogDescription>
-                        {editingLabour ? 'Update the details of the labour entry.' : 'Record daily labour attendance and wages.'}
-                    </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleLabourSubmit}>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                        <Label htmlFor="date-labour">
-                            Date
-                        </Label>
-                        <Input id="date-labour" name="date" type="date" defaultValue={editingLabour?.date || new Date().toISOString().substring(0, 10)} required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="name">
-                            Labourer Name
-                        </Label>
-                        <Input id="name" name="name" defaultValue={editingLabour?.name} required />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="status">Attendance Status</Label>
-                            <Select name="status" required defaultValue={editingLabour?.status || 'Present'}>
-                            <SelectTrigger id="status">
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Present">Present</SelectItem>
-                                <SelectItem value="Absent">Absent</SelectItem>
-                                <SelectItem value="Half Day">Half Day</SelectItem>
-                            </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="wages">
-                            Wages Paid (₹)
-                        </Label>
-                        <Input id="wages" name="wages" type="number" step="0.01" defaultValue={editingLabour?.wages} required />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" onClick={() => setEditingLabour(null)}>Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit">{editingLabour ? 'Save Changes' : 'Save Entry'}</Button>
-                    </DialogFooter>
-                    </form>
-                </DialogContent>
-                </Dialog>
-                
-                <Button onClick={() => {
-                    const activeTab = document.querySelector('[data-state="active"]')?.getAttribute('data-value');
-                    if (activeTab === 'labour') {
-                        document.getElementById('labour-expense-trigger')?.click();
-                    } else {
-                        document.getElementById('general-expense-trigger')?.click();
-                    }
-                }} className="w-full md:w-auto">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Entry
-                </Button>
-            </div>
+       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <Receipt className="h-8 w-8 text-primary" />
+            <h2 className="text-3xl font-bold tracking-tight">General Expenses</h2>
         </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button onClick={handleAddNewClick} className="w-full md:w-auto">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Expense
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                <DialogTitle>{editingItem ? 'Edit Expense' : 'Add New Expense'}</DialogTitle>
+                <DialogDescription>
+                    {editingItem ? 'Update the details of the expense.' : 'Record a new business expense.'}
+                </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                    <Label htmlFor="date">
+                        Date
+                    </Label>
+                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="category">
+                        Category
+                    </Label>
+                    <Input id="category" name="category" defaultValue={editingItem?.category} required />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="amount">
+                        Amount (₹)
+                    </Label>
+                    <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingItem?.amount} required />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="description">
+                        Description
+                    </Label>
+                    <Textarea id="description" name="description" defaultValue={editingItem?.description} required />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">{editingItem ? 'Save Changes' : 'Save Expense'}</Button>
+                </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+      </div>
        
-        <TabsContent value="general" className="space-y-4">
-            <div className="rounded-md border overflow-x-auto">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {expenses.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                        <TableCell className="font-medium whitespace-nowrap">{item.category}</TableCell>
-                        <TableCell>{item.description}</TableCell>
-                        <TableCell className="text-right whitespace-nowrap">₹{item.amount.toFixed(2)}</TableCell>
-                        <TableCell>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditExpenseClick(item)}>Edit</DropdownMenuItem>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete this expense entry.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteExpenseClick(item)}>Continue</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-                </Table>
-            </div>
-        </TabsContent>
-        <TabsContent value="labour" className="space-y-4">
-             <div className="rounded-md border overflow-x-auto">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Labourer Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Wages Paid</TableHead>
-                    <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {labour.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                        <TableCell className="font-medium whitespace-nowrap">{item.name}</TableCell>
-                        <TableCell>{item.status}</TableCell>
-                        <TableCell className="text-right whitespace-nowrap">₹{item.wages.toFixed(2)}</TableCell>
-                        <TableCell>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditLabourClick(item)}>Edit</DropdownMenuItem>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete this labour entry.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteLabourClick(item)}>Continue</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-                </Table>
-            </div>
-        </TabsContent>
-      </Tabs>
+        <div className="rounded-md border overflow-x-auto">
+            <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Actions</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {expenses.map(item => (
+                <TableRow key={item.id}>
+                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">{item.category}</TableCell>
+                    <TableCell>{item.description}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">₹{item.amount.toFixed(2)}</TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this expense entry and refund the amount to your cash balance.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                            </AlertDialog>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </div>
     </div>
   );
 }

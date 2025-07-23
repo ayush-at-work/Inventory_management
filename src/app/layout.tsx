@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { BankBalanceProvider } from '@/context/bank-balance-context';
 import { CashBalanceProvider } from '@/context/cash-balance-context';
 import { InventoryProvider } from '@/context/inventory-context';
+import { LabourProvider } from '@/context/labour-context';
 
 export const metadata: Metadata = {
   title: 'ScrapFlow',
@@ -34,9 +35,11 @@ export default function RootLayout({
           <BankBalanceProvider>
             <CashBalanceProvider>
               <InventoryProvider>
-                <SiteLayout>
-                  {children}
-                </SiteLayout>
+                <LabourProvider>
+                  <SiteLayout>
+                    {children}
+                  </SiteLayout>
+                </LabourProvider>
               </InventoryProvider>
             </CashBalanceProvider>
           </BankBalanceProvider>

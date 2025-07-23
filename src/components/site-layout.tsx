@@ -36,6 +36,7 @@ import {
   DollarSign,
   FileDigit,
   Coins,
+  Users,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -57,6 +58,7 @@ const cashNavItems = [
 const mainNavItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/inventory', label: 'Inventory', icon: Warehouse },
+  { href: '/labour', label: 'Labour', icon: Users },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
@@ -70,6 +72,7 @@ function NavLink({ href, label, icon: Icon, onClick }: { href: string, label: st
                 <SidebarMenuButton
                     isActive={pathname === href}
                     tooltip={label}
+                    variant="default"
                 >
                     <Icon />
                     <span>{label}</span>
