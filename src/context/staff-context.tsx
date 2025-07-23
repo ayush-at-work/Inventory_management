@@ -1,0 +1,159 @@
+
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useCashBalance } from './cash-balance-context';
+
+export type StaffMember = {
+    id: string;
+    name: string;
+};
+
+export type AttendanceStatus = 'Present' | 'Absent' | 'Half Day';
+
+export type AttendanceRecord = {
+    id: string;
+    staffMemberId: string;
+    date: string; // YYYY-MM-DD
+    status: AttendanceStatus;
+    wages: number;
+};
+
+interface StaffContextType {
+  staffMembers: StaffMember[];
+  attendanceRecords: AttendanceRecord[];
+  addStaffMember: (name: string) => void;
+  updateStaffMember: (id: string, name: string) => void;
+  deleteStaffMember: (id: string) => void;
+  getAttendanceForStaffMember: (staffMemberId: string) => AttendanceRecord[];
+  markAttendance: (staffMemberId: string, date: string, status: AttendanceStatus, wages: number) => void;
+}
+
+const StaffContext = createContext<StaffContextType | undefined>(undefined);
+
+const STAFF_MEMBERS_STORAGE_KEY = 'staffMembers';
+const ATTENDANCE_STORAGE_KEY = 'attendanceRecords';
+
+const initialStaffMembers: StaffMember[] = [
+    { id: '1', name: 'Ramesh' },
+    { id: '2', name: 'Suresh' },
+    { id: '3', name: 'Vikas' },
+];
+
+const initialAttendance: AttendanceRecord[] = [
+    { id: '1', staffMemberId: '1', date: '2023-10-10', status: 'Present', wages: 500 },
+    { id: '2', staffMemberId: '2', date: '2023-10-10', status: 'Half Day', wages: 250 },
+    { id: '3', staffMemberId: '3', date: '2023-10-10', status: 'Absent', wages: 0 },
+];
+
+export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>(initialStaffMembers);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(initialAttendance);
+  const [isMounted, setIsMounted] = useState(false);
+  const { updateBalance } = useCashBalance();
+
+  useEffect(() => {
+    setIsMounted(true);
+    try {
+        const savedStaffMembers = localStorage.getItem(STAFF_MEMBERS_STORAGE_KEY);
+        if (savedStaffMembers) setStaffMembers(JSON.parse(savedStaffMembers));
+
+        const savedAttendance = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
+        if (savedAttendance) setAttendanceRecords(JSON.parse(savedAttendance));
+    } catch (error) {
+        console.error("Failed to read from localStorage", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(STAFF_MEMBERS_STORAGE_KEY, JSON.stringify(staffMembers));
+        localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(attendanceRecords));
+      } catch (error) {
+        console.error("Failed to write to localStorage", error);
+      }
+    }
+  }, [staffMembers, attendanceRecords, isMounted]);
+
+  const addStaffMember = (name: string) => {
+    const newStaffMember: StaffMember = { id: String(Date.now()), name };
+    setStaffMembers(prev => [...prev, newStaffMember]);
+  };
+
+  const updateStaffMember = (id: string, name: string) => {
+    setStaffMembers(prev => prev.map(l => (l.id === id ? { ...l, name } : l)));
+  };
+
+  const deleteStaffMember = (id: string) => {
+    // Also remove their attendance records and refund any wages
+    const recordsToDelete = attendanceRecords.filter(r => r.staffMemberId === id);
+    const totalWagesToRefund = recordsToDelete.reduce((acc, r) => acc + r.wages, 0);
+    updateBalance(totalWagesToRefund);
+
+    setStaffMembers(prev => prev.filter(l => l.id !== id));
+    setAttendanceRecords(prev => prev.filter(r => r.staffMemberId !== id));
+  };
+  
+  const getAttendanceForStaffMember = (staffMemberId: string) => {
+    return attendanceRecords.filter(record => record.staffMemberId === staffMemberId);
+  }
+
+  const markAttendance = (staffMemberId: string, date: string, status: AttendanceStatus, wages: number) => {
+    setAttendanceRecords(prev => {
+        const existingRecordIndex = prev.findIndex(r => r.staffMemberId === staffMemberId && r.date === date);
+        let balanceChange = 0;
+
+        if (existingRecordIndex > -1) {
+            // Update existing record
+            const updatedRecords = [...prev];
+            const oldRecord = updatedRecords[existingRecordIndex];
+            balanceChange = oldRecord.wages - wages; // Refund old wage, subtract new one
+            updatedRecords[existingRecordIndex] = { ...oldRecord, status, wages };
+            updateBalance(balanceChange);
+            return updatedRecords;
+        } else {
+            // Add new record
+            const newRecord: AttendanceRecord = {
+                id: String(Date.now()),
+                staffMemberId,
+                date,
+                status,
+                wages,
+            };
+            updateBalance(-wages); // Subtract new wage from balance
+            return [...prev, newRecord];
+        }
+    });
+  }
+
+  if (!isMounted) {
+      return (
+        <StaffContext.Provider value={{
+            staffMembers: initialStaffMembers,
+            attendanceRecords: initialAttendance,
+            addStaffMember,
+            updateStaffMember,
+            deleteStaffMember,
+            getAttendanceForStaffMember,
+            markAttendance
+        }}>
+            {children}
+        </StaffContext.Provider>
+      );
+  }
+
+  return (
+    <StaffContext.Provider value={{ staffMembers, attendanceRecords, addStaffMember, updateStaffMember, deleteStaffMember, getAttendanceForStaffMember, markAttendance }}>
+      {children}
+    </StaffContext.Provider>
+  );
+};
+
+export const useStaff = () => {
+  const context = useContext(StaffContext);
+  if (context === undefined) {
+    throw new Error('useStaff must be used within a StaffProvider');
+  }
+  return context;
+};
