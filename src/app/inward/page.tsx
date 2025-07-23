@@ -290,42 +290,52 @@ export default function InwardGoodsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inwardGoods.map(item => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
-                <TableCell>{item.gstNumber}</TableCell>
-                <TableCell>{item.placeOfSupply}</TableCell>
-                <TableCell>{item.materialType}</TableCell>
-                <TableCell>{item.hsnCode}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                <TableCell className="text-right whitespace-nowrap">{item.taxableAmount}</TableCell>
-                <TableCell>{item.taxType}</TableCell>
-                <TableCell className="text-right">{item.cgst}</TableCell>
-                <TableCell className="text-right">{item.sgst}</TableCell>
-                <TableCell className="text-right">{item.igst}</TableCell>
-                <TableCell className="text-right whitespace-nowrap">{item.taxAmount}</TableCell>
-                <TableCell className="text-right font-bold whitespace-nowrap">{item.totalInvoiceValue}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+             {inwardGoods.length > 0 ? (
+                inwardGoods.map(item => (
+                <TableRow key={item.id}>
+                    <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
+                    <TableCell>{item.gstNumber}</TableCell>
+                    <TableCell>{item.placeOfSupply}</TableCell>
+                    <TableCell>{item.materialType}</TableCell>
+                    <TableCell>{item.hsnCode}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">{item.taxableAmount}</TableCell>
+                    <TableCell>{item.taxType}</TableCell>
+                    <TableCell className="text-right">{item.cgst}</TableCell>
+                    <TableCell className="text-right">{item.sgst}</TableCell>
+                    <TableCell className="text-right">{item.igst}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">{item.taxAmount}</TableCell>
+                    <TableCell className="text-right font-bold whitespace-nowrap">{item.totalInvoiceValue}</TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))
+             ) : (
+                <TableRow>
+                    <TableCell colSpan={16} className="h-24 text-center">
+                        No inward goods recorded yet.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     </div>
   );
 }
+
+    

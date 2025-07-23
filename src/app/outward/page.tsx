@@ -341,45 +341,55 @@ export default function OutwardGoodsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {outwardGoods.map(item => {
-                const itemTaxAmount = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
-                const itemTotalValue = item.taxableAmount + itemTaxAmount;
-              return (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
-                <TableCell>{item.gstNumber}</TableCell>
-                <TableCell>{item.materialType}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                <TableCell className="text-right font-bold whitespace-nowrap">₹{itemTotalValue.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
-                    className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
-                  >
-                    {item.paymentStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )})}
+            {outwardGoods.length > 0 ? (
+                outwardGoods.map(item => {
+                    const itemTaxAmount = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
+                    const itemTotalValue = item.taxableAmount + itemTaxAmount;
+                return (
+                <TableRow key={item.id}>
+                    <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
+                    <TableCell>{item.gstNumber}</TableCell>
+                    <TableCell>{item.materialType}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                    <TableCell className="text-right font-bold whitespace-nowrap">₹{itemTotalValue.toFixed(2)}</TableCell>
+                    <TableCell>
+                    <Badge
+                        variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
+                        className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
+                    >
+                        {item.paymentStatus}
+                    </Badge>
+                    </TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                )})
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={9} className="h-24 text-center">
+                        No outward goods recorded yet.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     </div>
   );
 }
+
+    

@@ -1,4 +1,6 @@
 
+"use client";
+
 import {
   Card,
   CardContent,
@@ -11,35 +13,67 @@ import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-
-const summaryData = [
-  {
-    title: 'Total Revenue',
-    value: '₹0.00',
-    change: '',
-    icon: Banknote,
-  },
-  {
-    title: 'Total Inventory',
-    value: '0 kg',
-    change: '',
-    icon: PlusCircle,
-  },
-  {
-    title: 'Total Expenses',
-    value: '₹0.00',
-    change: '',
-    icon: MinusCircle,
-  },
-  {
-    title: 'Profit',
-    value: '₹0.00',
-    change: '',
-    icon: Receipt,
-  },
-];
+import { useInventory } from '@/context/inventory-context';
+import { useBankBalance } from '@/context/bank-balance-context';
+import { useCashBalance } from '@/context/cash-balance-context';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+    const { inventory } = useInventory();
+    const { balance: bankBalance } = useBankBalance();
+    const { balance: cashBalance } = useCashBalance();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const totalInventoryValue = inventory.reduce((acc, item) => acc + item.value, 0);
+    const totalInventoryWeight = inventory.reduce((acc, item) => {
+        // Assuming all weights are in kg for simplicity
+        if (item.unit.toLowerCase() === 'kg') {
+            return acc + item.quantity;
+        }
+        return acc;
+    }, 0);
+
+    // Note: These are placeholders. You'd need to calculate revenue and expenses
+    // from your transaction data for a real implementation.
+    const totalRevenue = 0; 
+    const totalExpenses = 0;
+    const profit = totalRevenue - totalExpenses;
+
+    const summaryData = [
+    {
+        title: 'Total Revenue',
+        value: `₹${totalRevenue.toLocaleString()}`,
+        change: '',
+        icon: Banknote,
+    },
+    {
+        title: 'Total Inventory Value',
+        value: `₹${totalInventoryValue.toLocaleString()}`,
+        change: `${totalInventoryWeight.toLocaleString()} kg`,
+        icon: PlusCircle,
+    },
+    {
+        title: 'Total Expenses',
+        value: `₹${totalExpenses.toLocaleString()}`,
+        change: '',
+        icon: MinusCircle,
+    },
+    {
+        title: 'Profit',
+        value: `₹${profit.toLocaleString()}`,
+        change: '',
+        icon: Receipt,
+    },
+    ];
+
+    if (!isMounted) {
+        return null;
+    }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -77,3 +111,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

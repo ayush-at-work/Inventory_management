@@ -269,59 +269,69 @@ export default function CashOutwardPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {outwardGoods.map(item => {
-              return (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
-                <TableCell>{item.materialType}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
-                    className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
-                  >
-                    {item.paymentStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                           <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete this entry
-                              and update the bank balance accordingly.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )})}
+             {outwardGoods.length > 0 ? (
+                outwardGoods.map(item => {
+                return (
+                <TableRow key={item.id}>
+                    <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.customer}</TableCell>
+                    <TableCell>{item.materialType}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                    <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
+                    <TableCell>
+                    <Badge
+                        variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
+                        className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
+                    >
+                        {item.paymentStatus}
+                    </Badge>
+                    </TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this entry
+                                and update the bank balance accordingly.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                )})
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={8} className="h-24 text-center">
+                        No cash sales yet.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     </div>
   );
 }
+
+    

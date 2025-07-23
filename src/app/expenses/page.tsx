@@ -177,47 +177,57 @@ export default function ExpensesPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {expenses.map(item => (
-                <TableRow key={item.id}>
-                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                    <TableCell className="font-medium whitespace-nowrap">{item.category}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell className="text-right whitespace-nowrap">₹{item.amount.toFixed(2)}</TableCell>
-                    <TableCell>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete this expense entry and refund the amount to your cash balance.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                            </AlertDialog>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    </TableCell>
-                </TableRow>
-                ))}
+                {expenses.length > 0 ? (
+                    expenses.map(item => (
+                    <TableRow key={item.id}>
+                        <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                        <TableCell className="font-medium whitespace-nowrap">{item.category}</TableCell>
+                        <TableCell>{item.description}</TableCell>
+                        <TableCell className="text-right whitespace-nowrap">₹{item.amount.toFixed(2)}</TableCell>
+                        <TableCell>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete this expense entry and refund the amount to your cash balance.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                                </AlertDialog>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                            No expenses recorded yet.
+                        </TableCell>
+                    </TableRow>
+                )}
             </TableBody>
             </Table>
         </div>
     </div>
   );
 }
+
+    

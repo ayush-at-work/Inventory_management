@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -25,6 +26,7 @@ export const CashBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
             setBalanceState(parseFloat(savedBalance));
         } else {
             setBalanceState(INITIAL_BALANCE);
+            localStorage.setItem(CASH_BALANCE_STORAGE_KEY, String(INITIAL_BALANCE));
         }
     } catch (error) {
         console.error("Failed to read from localStorage", error);
@@ -50,7 +52,6 @@ export const CashBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   if (!isMounted) {
-      // Render a placeholder or nothing on the server/initial client render
       return (
         <CashBalanceContext.Provider value={{ balance: INITIAL_BALANCE, setBalance, updateBalance }}>
             {children}
@@ -72,3 +73,5 @@ export const useCashBalance = () => {
   }
   return context;
 };
+
+    

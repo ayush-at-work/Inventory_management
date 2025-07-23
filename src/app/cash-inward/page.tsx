@@ -240,50 +240,60 @@ export default function CashInwardPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inwardGoods.map(item => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.date}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
-                <TableCell>{item.materialType}</TableCell>
-                <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
-                <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
-                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                           <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete this entry
-                              and update the bank balance.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {inwardGoods.length > 0 ? (
+                inwardGoods.map(item => (
+                <TableRow key={item.id}>
+                    <TableCell className="font-medium whitespace-nowrap">{item.invoiceNumber}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.date}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.supplier}</TableCell>
+                    <TableCell>{item.materialType}</TableCell>
+                    <TableCell className="whitespace-nowrap">{item.weight}</TableCell>
+                    <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalValue.toFixed(2)}</TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this entry
+                                and update the bank balance.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                        No cash entries yet.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     </div>
   );
 }
+
+    

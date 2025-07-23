@@ -35,7 +35,6 @@ const STAFF_MEMBERS_STORAGE_KEY = 'staffMembers';
 const ATTENDANCE_STORAGE_KEY = 'attendanceRecords';
 
 const initialStaffMembers: StaffMember[] = [];
-
 const initialAttendance: AttendanceRecord[] = [];
 
 export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -49,11 +48,17 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
         const savedStaffMembers = localStorage.getItem(STAFF_MEMBERS_STORAGE_KEY);
         if (savedStaffMembers) setStaffMembers(JSON.parse(savedStaffMembers));
-        else setStaffMembers(initialStaffMembers);
+        else {
+            setStaffMembers(initialStaffMembers);
+            localStorage.setItem(STAFF_MEMBERS_STORAGE_KEY, JSON.stringify(initialStaffMembers));
+        }
 
         const savedAttendance = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
         if (savedAttendance) setAttendanceRecords(JSON.parse(savedAttendance));
-        else setAttendanceRecords(initialAttendance);
+        else {
+            setAttendanceRecords(initialAttendance);
+            localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(initialAttendance));
+        }
     } catch (error) {
         console.error("Failed to read from localStorage", error);
     }
@@ -80,7 +85,6 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteStaffMember = (id: string) => {
-    // Also remove their attendance records and refund any wages
     const recordsToDelete = attendanceRecords.filter(r => r.staffMemberId === id);
     const totalWagesToRefund = recordsToDelete.reduce((acc, r) => acc + r.wages, 0);
     updateBalance(totalWagesToRefund);
@@ -99,15 +103,13 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         let balanceChange = 0;
 
         if (existingRecordIndex > -1) {
-            // Update existing record
             const updatedRecords = [...prev];
             const oldRecord = updatedRecords[existingRecordIndex];
-            balanceChange = oldRecord.wages - wages; // Refund old wage, subtract new one
+            balanceChange = oldRecord.wages - wages;
             updatedRecords[existingRecordIndex] = { ...oldRecord, status, wages };
             updateBalance(balanceChange);
             return updatedRecords;
         } else {
-            // Add new record
             const newRecord: AttendanceRecord = {
                 id: String(Date.now()),
                 staffMemberId,
@@ -115,7 +117,7 @@ export const StaffProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 status,
                 wages,
             };
-            updateBalance(-wages); // Subtract new wage from balance
+            updateBalance(-wages);
             return [...prev, newRecord];
         }
     });
@@ -151,3 +153,5 @@ export const useStaff = () => {
   }
   return context;
 };
+
+    

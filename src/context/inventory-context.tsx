@@ -39,6 +39,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setInventory(JSON.parse(savedInventory));
         } else {
             setInventory(initialInventoryData);
+            localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(initialInventoryData));
         }
     } catch (error) {
         console.error("Failed to read inventory from localStorage", error);
@@ -70,7 +71,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const existingItem = updatedInventory[existingItemIndex];
             const newQuantity = existingItem.quantity + item.quantity;
             const newValue = existingItem.value + (item.price * item.quantity);
-            const newPrice = newValue / newQuantity;
+            const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
 
             updatedInventory[existingItemIndex] = {
                 ...existingItem,
@@ -141,3 +142,5 @@ export const useInventory = () => {
   }
   return context;
 };
+
+    
