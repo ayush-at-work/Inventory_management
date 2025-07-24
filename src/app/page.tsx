@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Banknote, MinusCircle, PlusCircle, Receipt, IndianRupee, Warehouse } from 'lucide-react';
+import { Banknote, MinusCircle, Receipt, Warehouse, IndianRupee } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
 import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import Link from 'next/link';
@@ -88,7 +88,7 @@ export default function Home() {
     ];
 
     if (!isMounted) {
-        return null;
+        return null; // Return null on the server and initial client render
     }
 
   return (
