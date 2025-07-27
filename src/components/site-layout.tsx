@@ -38,6 +38,7 @@ import {
   Coins,
   Users,
   ShoppingCart,
+  UserCog,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -45,6 +46,7 @@ import { useCashBalance } from '@/context/cash-balance-context';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
+import { useAuth } from '@/context/auth-context';
 
 const gstNavItems = [
   { href: '/inward', label: 'Inward Goods', icon: ArrowDownCircle },
@@ -65,6 +67,10 @@ const mainNavItems = [
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
 ];
+
+const adminNavItems = [
+    { href: '/users', label: 'Users', icon: UserCog },
+]
 
 function NavLink({ href, label, icon: Icon, onClick }: { href: string, label: string, icon: React.ElementType, onClick: () => void }) {
     const pathname = usePathname();
@@ -106,6 +112,7 @@ function SiteLayoutContent({ children }: { children: React.ReactNode }) {
   const { isMobile, setOpenMobile } = useSidebar();
   const { balance: bankBalance, setBalance: setBankBalance } = useBankBalance();
   const { balance: cashBalance, setBalance: setCashBalance } = useCashBalance();
+  const { user } = useAuth();
   
   const [newBankBalance, setNewBankBalance] = React.useState(bankBalance);
   const [openBankDialog, setOpenBankDialog] = React.useState(false);
@@ -176,6 +183,22 @@ function SiteLayoutContent({ children }: { children: React.ReactNode }) {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
+            
+            {user?.role === 'Admin' && (
+                 <>
+                    <Separator className='my-4' />
+                     <SidebarGroup>
+                        <SidebarGroupLabel className='flex items-center gap-2'><Settings /> Admin</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                            {adminNavItems.map(item => (
+                                <NavLinkOutline key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={handleLinkClick} />
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                 </>
+            )}
 
         </SidebarContent>
         <SidebarFooter>

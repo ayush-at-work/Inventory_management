@@ -11,8 +11,9 @@ import { LabourProvider } from '@/context/labour-context';
 import { GstProvider } from '@/context/gst-context';
 import { ExpensesProvider } from '@/context/expenses-context';
 import { PurchaseOrderProvider } from '@/context/purchase-order-context';
+import { AuthProvider } from '@/context/auth-context';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'ScrapFlow',
   description: 'Inventory and financial management for scrap businesses.',
 };
@@ -36,23 +37,25 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          <BankBalanceProvider>
-            <CashBalanceProvider>
-              <InventoryProvider>
-                <LabourProvider>
-                  <GstProvider>
-                    <ExpensesProvider>
-                      <PurchaseOrderProvider>
-                        <SiteLayout>
-                          {children}
-                        </SiteLayout>
-                      </PurchaseOrderProvider>
-                    </ExpensesProvider>
-                  </GstProvider>
-                </LabourProvider>
-              </InventoryProvider>
-            </CashBalanceProvider>
-          </BankBalanceProvider>
+          <AuthProvider>
+            <BankBalanceProvider>
+              <CashBalanceProvider>
+                <InventoryProvider>
+                  <LabourProvider>
+                    <GstProvider>
+                      <ExpensesProvider>
+                        <PurchaseOrderProvider>
+                          <SiteLayout>
+                            {children}
+                          </SiteLayout>
+                        </PurchaseOrderProvider>
+                      </ExpensesProvider>
+                    </GstProvider>
+                  </LabourProvider>
+                </InventoryProvider>
+              </CashBalanceProvider>
+            </BankBalanceProvider>
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
