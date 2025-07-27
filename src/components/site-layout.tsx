@@ -39,6 +39,7 @@ import {
   Users,
   ShoppingCart,
   UserCog,
+  Settings,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
