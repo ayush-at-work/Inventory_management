@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/dashboard/date-range-picker";
-import { Download } from "lucide-react";
+import { Download, TrendingUp } from "lucide-react";
+import Link from "next/link";
 
 export default function ReportsPage() {
   return (
@@ -26,6 +28,12 @@ export default function ReportsPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Profit & Loss</TabsTrigger>
+           <Link href="/reports/forecasting">
+            <TabsTrigger value="forecasting">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Demand Forecasting
+            </TabsTrigger>
+          </Link>
           <TabsTrigger value="analytics" disabled>
             Balance Sheet
           </TabsTrigger>

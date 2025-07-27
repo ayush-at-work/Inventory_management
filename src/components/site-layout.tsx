@@ -40,6 +40,7 @@ import {
   ShoppingCart,
   UserCog,
   Settings,
+  TrendingUp,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -65,12 +66,17 @@ const mainNavItems = [
   { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
   { href: '/labour', label: 'Labour', icon: Users },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
 ];
 
+const reportsNavItems = [
+    { href: '/reports', label: 'P&L Statement', icon: FileText },
+    { href: '/reports/forecasting', label: 'Demand Forecasting', icon: TrendingUp },
+]
+
 const adminNavItems = [
     { href: '/users', label: 'Users', icon: UserCog },
+    { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
 function NavLink({ href, label, icon: Icon, onClick }: { href: string, label: string, icon: React.ElementType, onClick: () => void }) {
@@ -162,6 +168,17 @@ function SiteLayoutContent({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
 
             <Separator className='my-4' />
+            
+            <SidebarGroup>
+                <SidebarGroupLabel className='flex items-center gap-2'><FileText /> Reports</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                    {reportsNavItems.map(item => (
+                       <NavLinkOutline key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={handleLinkClick} />
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
 
             <SidebarGroup>
                 <SidebarGroupLabel className='flex items-center gap-2'><FileDigit /> GST Transactions</SidebarGroupLabel>
