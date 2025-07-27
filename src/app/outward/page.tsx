@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, MoreHorizontal, Download } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Download, FileText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -162,7 +162,7 @@ export default function OutwardGoodsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "outward_goods.csv");
+    link.setAttribute("download", "sales_invoices.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -171,7 +171,10 @@ export default function OutwardGoodsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h2 className="text-3xl font-bold tracking-tight">Outward Goods</h2>
+        <div className="flex items-center gap-4">
+            <FileText className="h-8 w-8 text-primary" />
+            <h2 className="text-3xl font-bold tracking-tight">Sales Invoices</h2>
+        </div>
         <div className="flex w-full flex-col-reverse sm:flex-row md:w-auto items-center gap-2">
            <Button variant="outline" onClick={handleExport} className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" /> Export
@@ -179,14 +182,14 @@ export default function OutwardGoodsPage() {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button onClick={handleAddNewClick} className="w-full md:w-auto">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add New Sale
+                <PlusCircle className="mr-2 h-4 w-4" /> Create New Invoice
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
-                <DialogTitle>{editingItem ? 'Edit Outward Entry' : 'Add New Outward Entry'}</DialogTitle>
+                <DialogTitle>{editingItem ? 'Edit Invoice' : 'Create New Invoice'}</DialogTitle>
                 <DialogDescription>
-                  {editingItem ? 'Update the details of the sale.' : 'Log a new sale of scrap material.'}
+                  {editingItem ? 'Update the details of the sales invoice.' : 'Log a new sale and generate an invoice.'}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
@@ -297,7 +300,7 @@ export default function OutwardGoodsPage() {
                   <DialogClose asChild>
                     <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                   </DialogClose>
-                  <Button type="submit">{editingItem ? 'Save Changes' : 'Save Sale'}</Button>
+                  <Button type="submit">{editingItem ? 'Save Changes' : 'Create Invoice'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -361,7 +364,7 @@ export default function OutwardGoodsPage() {
             ) : (
                 <TableRow>
                     <TableCell colSpan={9} className="h-24 text-center">
-                        No outward goods recorded yet.
+                        No invoices recorded yet.
                     </TableCell>
                 </TableRow>
             )}

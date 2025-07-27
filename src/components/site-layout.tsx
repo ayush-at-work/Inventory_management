@@ -25,7 +25,6 @@ import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   ArrowDownCircle,
-  ArrowUpCircle,
   Warehouse,
   FileText,
   Sparkles,
@@ -54,12 +53,12 @@ import { useAuth } from '@/context/auth-context';
 
 const gstNavItems = [
   { href: '/inward', label: 'Inward Goods', icon: ArrowDownCircle },
-  { href: '/outward', label: 'Outward Goods', icon: ArrowUpCircle },
+  { href: '/outward', label: 'Sales Invoices', icon: FileText },
 ];
 
 const cashNavItems = [
     { href: '/cash-inward', label: 'Cash Inward', icon: ArrowDownCircle },
-    { href: '/cash-outward', label: 'Cash Outward', icon: ArrowUpCircle },
+    { href: '/cash-outward', label: 'Cash Outward', icon: DollarSign },
 ]
 
 const mainNavItems = [
