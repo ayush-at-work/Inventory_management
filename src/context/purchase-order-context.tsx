@@ -38,7 +38,6 @@ export const PurchaseOrderProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     try {
       const savedPOs = localStorage.getItem(PO_STORAGE_KEY);
       if (savedPOs) {
@@ -47,6 +46,7 @@ export const PurchaseOrderProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Failed to read POs from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -80,15 +80,7 @@ export const PurchaseOrderProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = { purchaseOrders, addPurchaseOrder, updatePurchaseOrderStatus };
 
   if (!isMounted) {
-      return (
-        <PurchaseOrderContext.Provider value={{
-            purchaseOrders: [],
-            addPurchaseOrder,
-            updatePurchaseOrderStatus
-        }}>
-            {children}
-        </PurchaseOrderContext.Provider>
-      )
+      return null;
   }
 
   return (

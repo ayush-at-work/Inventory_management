@@ -32,7 +32,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     try {
         const savedInventory = localStorage.getItem(INVENTORY_STORAGE_KEY);
         if (savedInventory) {
@@ -45,6 +44,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         console.error("Failed to read inventory from localStorage", error);
         setInventory(initialInventoryData);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -121,11 +121,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }
 
   if (!isMounted) {
-      return (
-        <InventoryContext.Provider value={{ inventory: initialInventoryData, addInventoryItem, updateInventoryItem, decreaseInventory }}>
-            {children}
-        </InventoryContext.Provider>
-      )
+      return null;
   }
 
   return (
@@ -142,5 +138,3 @@ export const useInventory = () => {
   }
   return context;
 };
-
-    

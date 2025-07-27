@@ -30,7 +30,6 @@ export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { updateBalance } = useCashBalance();
 
   useEffect(() => {
-    setIsMounted(true);
     try {
       const savedExpenses = localStorage.getItem(EXPENSES_STORAGE_KEY);
       if (savedExpenses) {
@@ -41,6 +40,7 @@ export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (error) {
       console.error("Failed to read expenses from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -79,11 +79,7 @@ export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   if (!isMounted) {
-    return (
-      <ExpensesContext.Provider value={{ expenses: initialExpenses, addExpense, updateExpense, deleteExpense }}>
-        {children}
-      </ExpensesContext.Provider>
-    );
+    return null;
   }
 
   return (

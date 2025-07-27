@@ -40,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
-    setIsMounted(true);
     try {
       const savedUsers = localStorage.getItem(USERS_STORAGE_KEY);
       const userList = savedUsers ? JSON.parse(savedUsers) : initialUsers;
@@ -60,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error("Failed to read auth data from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {

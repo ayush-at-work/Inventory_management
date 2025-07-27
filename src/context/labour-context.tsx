@@ -44,7 +44,6 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { updateBalance } = useCashBalance();
 
   useEffect(() => {
-    setIsMounted(true);
     try {
         const savedLabourers = localStorage.getItem(LABOURERS_STORAGE_KEY);
         if (savedLabourers) setLabourers(JSON.parse(savedLabourers));
@@ -56,6 +55,7 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch (error) {
         console.error("Failed to read from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -118,19 +118,7 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   if (!isMounted) {
-      return (
-        <LabourContext.Provider value={{
-            labourers: initialLabourers,
-            attendanceRecords: initialAttendance,
-            addLabourer,
-            updateLabourer,
-            deleteLabourer,
-            getAttendanceForLabourer,
-            markAttendance
-        }}>
-            {children}
-        </LabourContext.Provider>
-      );
+      return null;
   }
 
   return (

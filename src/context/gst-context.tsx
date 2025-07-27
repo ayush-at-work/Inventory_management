@@ -62,7 +62,6 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     try {
       const savedInward = localStorage.getItem(INWARD_GOODS_STORAGE_KEY);
       if (savedInward) {
@@ -75,6 +74,7 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (error) {
       console.error("Failed to read GST data from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -106,16 +106,7 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
   
   if (!isMounted) {
-      return (
-        <GstContext.Provider value={{
-            inwardGoods: [],
-            outwardGoods: [],
-            addInwardGood,
-            addOutwardGood,
-        }}>
-            {children}
-        </GstContext.Provider>
-      )
+      return null;
   }
 
   return (

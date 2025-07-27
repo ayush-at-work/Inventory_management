@@ -19,7 +19,6 @@ export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     try {
         const savedBalance = localStorage.getItem(BANK_BALANCE_STORAGE_KEY);
         if (savedBalance !== null) {
@@ -31,6 +30,7 @@ export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (error) {
         console.error("Failed to read from localStorage", error);
     }
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -52,11 +52,7 @@ export const BankBalanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   if (!isMounted) {
-      return (
-        <BankBalanceContext.Provider value={{ balance: INITIAL_BALANCE, setBalance, updateBalance }}>
-            {children}
-        </BankBalanceContext.Provider>
-      )
+      return null;
   }
 
   return (
@@ -73,5 +69,3 @@ export const useBankBalance = () => {
   }
   return context;
 };
-
-    
