@@ -31,20 +31,11 @@ interface LabourContextType {
 
 const LabourContext = createContext<LabourContextType | undefined>(undefined);
 
-const LABOURERS_STORAGE_KEY = 'staff';
-const ATTENDANCE_STORAGE_KEY = 'staffAttendanceRecords';
+const LABOURERS_STORAGE_KEY = 'labourers';
+const ATTENDANCE_STORAGE_KEY = 'labourerAttendanceRecords';
 
-const initialLabourers: Labourer[] = [
-    { id: '1', name: 'Ramesh' },
-    { id: '2', name: 'Suresh' },
-    { id: '3', name: 'Vikas' },
-];
-
-const initialAttendance: AttendanceRecord[] = [
-    { id: '1', labourerId: '1', date: '2023-10-10', status: 'Present', wages: 500 },
-    { id: '2', labourerId: '2', date: '2023-10-10', status: 'Half Day', wages: 250 },
-    { id: '3', labourerId: '3', date: '2023-10-10', status: 'Absent', wages: 0 },
-];
+const initialLabourers: Labourer[] = [];
+const initialAttendance: AttendanceRecord[] = [];
 
 export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [labourers, setLabourers] = useState<Labourer[]>(initialLabourers);
@@ -57,9 +48,11 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
         const savedLabourers = localStorage.getItem(LABOURERS_STORAGE_KEY);
         if (savedLabourers) setLabourers(JSON.parse(savedLabourers));
+        else localStorage.setItem(LABOURERS_STORAGE_KEY, JSON.stringify(initialLabourers));
 
         const savedAttendance = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
         if (savedAttendance) setAttendanceRecords(JSON.parse(savedAttendance));
+        else localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(initialAttendance));
     } catch (error) {
         console.error("Failed to read from localStorage", error);
     }
@@ -86,7 +79,6 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const deleteLabourer = (id: string) => {
-    // Also remove their attendance records and refund any wages
     const recordsToDelete = attendanceRecords.filter(r => r.labourerId === id);
     const totalWagesToRefund = recordsToDelete.reduce((acc, r) => acc + r.wages, 0);
     updateBalance(totalWagesToRefund);
@@ -105,15 +97,13 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         let balanceChange = 0;
 
         if (existingRecordIndex > -1) {
-            // Update existing record
             const updatedRecords = [...prev];
             const oldRecord = updatedRecords[existingRecordIndex];
-            balanceChange = oldRecord.wages - wages; // Refund old wage, subtract new one
+            balanceChange = oldRecord.wages - wages;
             updatedRecords[existingRecordIndex] = { ...oldRecord, status, wages };
             updateBalance(balanceChange);
             return updatedRecords;
         } else {
-            // Add new record
             const newRecord: AttendanceRecord = {
                 id: String(Date.now()),
                 labourerId,
@@ -121,7 +111,7 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 status,
                 wages,
             };
-            updateBalance(-wages); // Subtract new wage from balance
+            updateBalance(-wages);
             return [...prev, newRecord];
         }
     });

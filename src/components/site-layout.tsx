@@ -37,6 +37,7 @@ import {
   FileDigit,
   Coins,
   Users,
+  ShoppingCart,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -58,7 +59,8 @@ const cashNavItems = [
 const mainNavItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/inventory', label: 'Inventory', icon: Warehouse },
-  { href: '/staff', label: 'Staff', icon: Users },
+  { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+  { href: '/labour', label: 'Labour', icon: Users },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
