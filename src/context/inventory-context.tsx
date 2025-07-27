@@ -25,7 +25,48 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 const INVENTORY_STORAGE_KEY = 'inventory';
 
-const initialInventoryData: InventoryItem[] = [];
+const initialInventoryData: InventoryItem[] = [
+    {
+        id: '1',
+        materialType: 'Copper Wire',
+        hsnCode: '7408',
+        quantity: 2500,
+        unit: 'kg',
+        price: 700,
+        value: 1750000,
+        transactionType: 'GST'
+    },
+    {
+        id: '2',
+        materialType: 'Aluminum Scrap',
+        hsnCode: '7602',
+        quantity: 5000,
+        unit: 'kg',
+        price: 150,
+        value: 750000,
+        transactionType: 'GST'
+    },
+     {
+        id: '3',
+        materialType: 'Steel Scrap',
+        hsnCode: '7204',
+        quantity: 10000,
+        unit: 'kg',
+        price: 40,
+        value: 400000,
+        transactionType: 'GST'
+    },
+    {
+        id: '4',
+        materialType: 'Brass Scrap',
+        hsnCode: '7404',
+        quantity: 1500,
+        unit: 'kg',
+        price: 450,
+        value: 675000,
+        transactionType: 'Cash'
+    }
+];
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventoryData);
@@ -35,7 +76,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
         const savedInventory = localStorage.getItem(INVENTORY_STORAGE_KEY);
         if (savedInventory) {
-            setInventory(JSON.parse(savedInventory));
+            const parsed = JSON.parse(savedInventory);
+            if (parsed.length > 0) {
+              setInventory(parsed);
+            }
         } else {
             setInventory(initialInventoryData);
             localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(initialInventoryData));

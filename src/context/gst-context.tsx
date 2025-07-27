@@ -54,7 +54,111 @@ const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods';
 const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods';
 
 const initialInwardGoods: GstInward[] = [];
-const initialOutwardGoods: GstOutward[] = [];
+const initialOutwardGoods: GstOutward[] = [
+    {
+        id: '1',
+        invoiceNumber: 'SALE-001',
+        date: '2024-05-10',
+        customer: 'Reliable Metals Co.',
+        gstNumber: '22AAAAA0000A1Z5',
+        placeOfSupply: 'Maharashtra',
+        materialType: 'Copper Wire',
+        hsnCode: '7408',
+        weight: 150,
+        taxableAmount: 105000,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Paid'
+    },
+    {
+        id: '2',
+        invoiceNumber: 'SALE-002',
+        date: '2024-05-25',
+        customer: 'Green Scrap Traders',
+        gstNumber: '29BBBBB0000B1Z5',
+        placeOfSupply: 'Karnataka',
+        materialType: 'Aluminum Scrap',
+        hsnCode: '7602',
+        weight: 500,
+        taxableAmount: 75000,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Paid'
+    },
+    {
+        id: '3',
+        invoiceNumber: 'SALE-003',
+        date: '2024-06-12',
+        customer: 'Reliable Metals Co.',
+        gstNumber: '22AAAAA0000A1Z5',
+        placeOfSupply: 'Maharashtra',
+        materialType: 'Copper Wire',
+        hsnCode: '7408',
+        weight: 200,
+        taxableAmount: 144000,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Paid'
+    },
+    {
+        id: '4',
+        invoiceNumber: 'SALE-004',
+        date: '2024-06-28',
+        customer: 'Eco Recyclers',
+        gstNumber: '27CCCCC0000C1Z5',
+        placeOfSupply: 'Maharashtra',
+        materialType: 'Steel Scrap',
+        hsnCode: '7204',
+        weight: 1200,
+        taxableAmount: 48000,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Unpaid'
+    },
+    {
+        id: '5',
+        invoiceNumber: 'SALE-005',
+        date: '2024-07-05',
+        customer: 'Green Scrap Traders',
+        gstNumber: '29BBBBB0000B1Z5',
+        placeOfSupply: 'Karnataka',
+        materialType: 'Aluminum Scrap',
+        hsnCode: '7602',
+        weight: 450,
+        taxableAmount: 69750,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Paid'
+    },
+     {
+        id: '6',
+        invoiceNumber: 'SALE-006',
+        date: '2024-07-15',
+        customer: 'Reliable Metals Co.',
+        gstNumber: '22AAAAA0000A1Z5',
+        placeOfSupply: 'Maharashtra',
+        materialType: 'Copper Wire',
+        hsnCode: '7408',
+        weight: 250,
+        taxableAmount: 187500,
+        taxType: 'Inter-state',
+        cgst: 9,
+        sgst: 9,
+        igst: 0,
+        paymentStatus: 'Paid'
+    }
+];
+
 
 export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [inwardGoods, setInwardGoods] = useState<GstInward[]>(initialInwardGoods);
@@ -80,8 +184,12 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem(INWARD_GOODS_STORAGE_KEY, JSON.stringify(inwardGoods));
-        localStorage.setItem(OUTWARD_GOODS_STORAGE_KEY, JSON.stringify(outwardGoods));
+        if(inwardGoods.length > 0) {
+            localStorage.setItem(INWARD_GOODS_STORAGE_KEY, JSON.stringify(inwardGoods));
+        }
+        if (outwardGoods.length > 0) {
+            localStorage.setItem(OUTWARD_GOODS_STORAGE_KEY, JSON.stringify(outwardGoods));
+        }
       } catch (error) {
         console.error("Failed to write GST data to localStorage", error);
       }
