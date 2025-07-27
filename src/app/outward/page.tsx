@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, MoreHorizontal, Download, FileText } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Download, FileText, FileDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +36,13 @@ import { useBankBalance } from '@/context/bank-balance-context';
 import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
 import { useGst, GstOutward } from '@/context/gst-context';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
+interface jsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: any) => jsPDF;
+}
+
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -167,6 +174,87 @@ export default function OutwardGoodsPage() {
     link.click();
     document.body.removeChild(link);
   };
+  
+    const handleDownloadPdf = (invoice: GstOutward) => {
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+        const taxAmount = (invoice.taxableAmount * (invoice.cgst + invoice.sgst + invoice.igst)) / 100;
+        const totalValue = invoice.taxableAmount + taxAmount;
+
+        // Company Info
+        doc.setFontSize(20);
+        doc.text('ScrapFlow Inc.', 14, 22);
+        doc.setFontSize(10);
+        doc.text('123 Scrap Yard, Metal City, 110011', 14, 30);
+        doc.text('Email: contact@scrapflow.com', 14, 35);
+        doc.text('GSTIN: 07ABCDE1234F1Z5', 14, 40);
+
+        // Invoice Info
+        doc.setFontSize(12);
+        doc.text('Tax Invoice', 205, 22, { align: 'right' });
+        doc.setFontSize(10);
+        doc.text(`Invoice #: ${invoice.invoiceNumber}`, 205, 30, { align: 'right' });
+        doc.text(`Date: ${invoice.date}`, 205, 35, { align: 'right' });
+
+        // Customer Info
+        doc.setFontSize(10);
+        doc.text('Bill To:', 14, 55);
+        doc.text(invoice.customer, 14, 60);
+        doc.text(`GSTIN: ${invoice.gstNumber}`, 14, 65);
+        doc.text(`Place of Supply: ${invoice.placeOfSupply}`, 14, 70);
+
+        // Table
+        const tableColumn = ["#", "Material", "HSN", "Weight (kg)", "Rate", "Amount"];
+        const tableRows = [];
+
+        const rate = invoice.weight > 0 ? invoice.taxableAmount / invoice.weight : 0;
+        tableRows.push([
+            1,
+            invoice.materialType,
+            invoice.hsnCode,
+            invoice.weight.toFixed(2),
+            `₹${rate.toFixed(2)}`,
+            `₹${invoice.taxableAmount.toFixed(2)}`
+        ]);
+        
+        const finalY = (doc as any).lastAutoTable.finalY || 80;
+        doc.autoTable({
+            startY: finalY,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'striped',
+            headStyles: { fillColor: [38, 109, 211] }, // A shade of blue
+        });
+
+        // Totals
+        const summaryY = (doc as any).lastAutoTable.finalY + 10;
+        doc.setFontSize(10);
+        doc.text('Subtotal', 145, summaryY, { align: 'right' });
+        doc.text(`₹${invoice.taxableAmount.toFixed(2)}`, 200, summaryY, { align: 'right' });
+
+        if (invoice.taxType === 'Inter-state') {
+            const cgstAmount = (invoice.taxableAmount * invoice.cgst) / 100;
+            const sgstAmount = (invoice.taxableAmount * invoice.sgst) / 100;
+            doc.text(`CGST @ ${invoice.cgst}%`, 145, summaryY + 5, { align: 'right' });
+            doc.text(`₹${cgstAmount.toFixed(2)}`, 200, summaryY + 5, { align: 'right' });
+            doc.text(`SGST @ ${invoice.sgst}%`, 145, summaryY + 10, { align: 'right' });
+            doc.text(`₹${sgstAmount.toFixed(2)}`, 200, summaryY + 10, { align: 'right' });
+        } else {
+            const igstAmount = (invoice.taxableAmount * invoice.igst) / 100;
+            doc.text(`IGST @ ${invoice.igst}%`, 145, summaryY + 5, { align: 'right' });
+            doc.text(`₹${igstAmount.toFixed(2)}`, 200, summaryY + 5, { align: 'right' });
+        }
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Total', 145, summaryY + 20, { align: 'right' });
+        doc.text(`₹${totalValue.toFixed(2)}`, 200, summaryY + 20, { align: 'right' });
+
+        // Footer
+        doc.setFontSize(8);
+        doc.text('This is a computer-generated invoice.', 14, 285);
+        
+        doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
+    };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -355,6 +443,10 @@ export default function OutwardGoodsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDownloadPdf(item)}>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Download PDF
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
