@@ -41,6 +41,8 @@ import {
   UserCog,
   Settings,
   TrendingUp,
+  Scale,
+  BarChart,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -70,7 +72,10 @@ const mainNavItems = [
 ];
 
 const reportsNavItems = [
-    { href: '/reports', label: 'P&L Statement', icon: FileText },
+    { href: '/reports', label: 'Profit & Loss', icon: FileText },
+    { href: '/reports/sales', label: 'Sales Report', icon: BarChart },
+    { href: '/reports/expenses', label: 'Expense Report', icon: Receipt },
+    { href: '/reports/balance-sheet', label: 'Balance Sheet', icon: Scale },
     { href: '/reports/forecasting', label: 'Demand Forecasting', icon: TrendingUp },
 ]
 
@@ -99,11 +104,12 @@ function NavLink({ href, label, icon: Icon, onClick }: { href: string, label: st
 
 function NavLinkOutline({ href, label, icon: Icon, onClick }: { href: string, label: string, icon: React.ElementType, onClick: () => void }) {
     const pathname = usePathname();
+    const isActive = pathname === href || (href === '/reports' && pathname.startsWith('/reports/'));
     return (
         <SidebarMenuItem>
             <Link href={href} onClick={onClick}>
             <SidebarMenuButton
-                isActive={pathname === href}
+                isActive={isActive}
                 tooltip={label}
                 variant="outline"
             >
