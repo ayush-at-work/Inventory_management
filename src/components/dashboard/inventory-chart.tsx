@@ -30,7 +30,8 @@ const generateChartConfig = (inventory: any[]): ChartConfig => {
         if (!config[key]) {
             config[key] = {
                 label: item.materialType,
-                color: `hsl(var(--chart-${(index % 5) + 1}))`,
+                // Generate a dynamic and vibrant color for each item
+                color: `hsl(${index * 137.5}, 70%, 50%)`,
             };
         }
     });
@@ -50,11 +51,16 @@ export function InventoryChart() {
         }
     });
 
-    return Array.from(materialMap.entries()).map(([material, quantity]) => ({
+    const config = generateChartConfig(Array.from(materialMap.keys()).map(material => ({ materialType: material })));
+    
+    return Array.from(materialMap.entries()).map(([material, quantity]) => {
+      const key = material.toLowerCase().replace(/\s/g, '');
+      return {
         material,
         quantity,
-        fill: `var(--color-${material.toLowerCase().replace(/\s/g, '')})`,
-    })).filter(d => d.quantity > 0);
+        fill: config[key]?.color || 'hsl(var(--muted))',
+      }
+    }).filter(d => d.quantity > 0);
 
   }, [inventory]);
 
@@ -64,12 +70,10 @@ export function InventoryChart() {
   const [activeMaterial, setActiveMaterial] = React.useState(chartData[0]?.material)
 
   React.useEffect(() => {
-    if (chartData.length > 0) {
+    if (chartData.length > 0 && !activeMaterial) {
       setActiveMaterial(chartData[0].material)
-    } else {
-        setActiveMaterial(undefined)
     }
-  }, [chartData]);
+  }, [chartData, activeMaterial]);
 
   const activeIndex = React.useMemo(
     () => chartData.findIndex((item) => item.material === activeMaterial),
