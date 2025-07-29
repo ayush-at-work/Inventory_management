@@ -54,6 +54,36 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
+// Function to convert number to words
+function numberToWords(num: number): string {
+    const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+    const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function inWords(n: number): string {
+        let str = '';
+        if (n > 99) {
+            str += a[Math.floor(n / 100)] + 'hundred ';
+            n %= 100;
+        }
+        if (n > 19) {
+            str += b[Math.floor(n / 10)] + ' ' + a[n % 10];
+        } else {
+            str += a[n];
+        }
+        return str;
+    }
+
+    const rupees = Math.floor(num);
+    const paise = Math.round((num - rupees) * 100);
+    
+    let words = inWords(rupees) + 'rupees';
+    if (paise > 0) {
+        words += ' and ' + inWords(paise) + 'paise';
+    }
+    return words.replace(/\s+/g, ' ').trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+
 export default function OutwardGoodsPage() {
   const { outwardGoods, addOutwardGood } = useGst();
   const [open, setOpen] = useState(false);
@@ -179,79 +209,122 @@ export default function OutwardGoodsPage() {
         const doc = new jsPDF() as jsPDFWithAutoTable;
         const taxAmount = (invoice.taxableAmount * (invoice.cgst + invoice.sgst + invoice.igst)) / 100;
         const totalValue = invoice.taxableAmount + taxAmount;
-
-        // Company Info
+        const pageWidth = doc.internal.pageSize.getWidth();
+        
+        // --- Header ---
         doc.setFontSize(20);
-        doc.text('ScrapFlow Inc.', 14, 22);
-        doc.setFontSize(10);
-        doc.text('123 Scrap Yard, Metal City, 110011', 14, 30);
-        doc.text('Email: contact@scrapflow.com', 14, 35);
-        doc.text('GSTIN: 07ABCDE1234F1Z5', 14, 40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Tax Invoice', pageWidth / 2, 20, { align: 'center' });
 
-        // Invoice Info
-        doc.setFontSize(12);
-        doc.text('Tax Invoice', 205, 22, { align: 'right' });
-        doc.setFontSize(10);
-        doc.text(`Invoice #: ${invoice.invoiceNumber}`, 205, 30, { align: 'right' });
-        doc.text(`Date: ${invoice.date}`, 205, 35, { align: 'right' });
+        // --- Bill From ---
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Bill From:', 14, 30);
+        doc.setFont('helvetica', 'normal');
+        doc.text('ScrapFlow Inc.', 14, 36);
+        doc.text('123 Scrap Yard, Metal City, 110011', 14, 42);
+        doc.text('GSTIN: 07ABCDE1234F1Z5', 14, 48);
 
-        // Customer Info
-        doc.setFontSize(10);
-        doc.text('Bill To:', 14, 55);
-        doc.text(invoice.customer, 14, 60);
-        doc.text(`GSTIN: ${invoice.gstNumber}`, 14, 65);
-        doc.text(`Place of Supply: ${invoice.placeOfSupply}`, 14, 70);
+        // --- Invoice Details ---
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Invoice Number:`, 130, 30);
+        doc.text(`Date:`, 130, 36);
+        doc.text(`Payment Terms:`, 130, 42);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${invoice.invoiceNumber}`, 165, 30);
+        doc.text(`${invoice.date}`, 165, 36);
+        doc.text(`Due on receipt`, 165, 42);
+        
+        doc.setLineWidth(0.5);
+        doc.line(14, 55, pageWidth - 14, 55);
 
-        // Table
-        const tableColumn = ["#", "Material", "HSN", "Weight (kg)", "Rate", "Amount"];
+        // --- Bill To & Ship To ---
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Bill To:', 14, 62);
+        doc.text('Ship To:', 110, 62);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text(invoice.customer, 14, 68);
+        doc.text(`GSTIN: ${invoice.gstNumber}`, 14, 74);
+        doc.text(invoice.placeOfSupply, 14, 80);
+
+        doc.text(invoice.customer, 110, 68);
+        doc.text(invoice.placeOfSupply, 110, 74); // Using place of supply as shipping address for now
+
+        doc.line(14, 90, pageWidth - 14, 90);
+
+        // --- Items Table ---
+        const tableColumn = ["Description of Goods", "HSN Code", "Quantity", "Price", "Taxable Value"];
         const tableRows = [];
 
         const rate = invoice.weight > 0 ? invoice.taxableAmount / invoice.weight : 0;
         tableRows.push([
-            1,
             invoice.materialType,
             invoice.hsnCode,
-            invoice.weight.toFixed(2),
+            `${invoice.weight.toFixed(2)} kg`,
             `₹${rate.toFixed(2)}`,
             `₹${invoice.taxableAmount.toFixed(2)}`
         ]);
         
-        const finalY = (doc as any).lastAutoTable.finalY || 80;
         doc.autoTable({
-            startY: finalY,
+            startY: 95,
             head: [tableColumn],
             body: tableRows,
-            theme: 'striped',
-            headStyles: { fillColor: [38, 109, 211] }, // A shade of blue
+            theme: 'grid',
+            headStyles: { fillColor: [22, 163, 74], textColor: 255 }, // Green header
         });
 
-        // Totals
-        const summaryY = (doc as any).lastAutoTable.finalY + 10;
+        // --- Totals Section ---
+        let finalY = (doc as any).lastAutoTable.finalY + 10;
+        const rightAlign = pageWidth - 14;
         doc.setFontSize(10);
-        doc.text('Subtotal', 145, summaryY, { align: 'right' });
-        doc.text(`₹${invoice.taxableAmount.toFixed(2)}`, 200, summaryY, { align: 'right' });
+        
+        doc.text('Subtotal:', 130, finalY);
+        doc.text(`₹${invoice.taxableAmount.toFixed(2)}`, rightAlign, finalY, { align: 'right' });
+        finalY += 6;
 
         if (invoice.taxType === 'Inter-state') {
             const cgstAmount = (invoice.taxableAmount * invoice.cgst) / 100;
             const sgstAmount = (invoice.taxableAmount * invoice.sgst) / 100;
-            doc.text(`CGST @ ${invoice.cgst}%`, 145, summaryY + 5, { align: 'right' });
-            doc.text(`₹${cgstAmount.toFixed(2)}`, 200, summaryY + 5, { align: 'right' });
-            doc.text(`SGST @ ${invoice.sgst}%`, 145, summaryY + 10, { align: 'right' });
-            doc.text(`₹${sgstAmount.toFixed(2)}`, 200, summaryY + 10, { align: 'right' });
+            doc.text(`CGST @ ${invoice.cgst}%:`, 130, finalY);
+            doc.text(`₹${cgstAmount.toFixed(2)}`, rightAlign, finalY, { align: 'right' });
+            finalY += 6;
+            doc.text(`SGST @ ${invoice.sgst}%:`, 130, finalY);
+            doc.text(`₹${sgstAmount.toFixed(2)}`, rightAlign, finalY, { align: 'right' });
+            finalY += 6;
         } else {
             const igstAmount = (invoice.taxableAmount * invoice.igst) / 100;
-            doc.text(`IGST @ ${invoice.igst}%`, 145, summaryY + 5, { align: 'right' });
-            doc.text(`₹${igstAmount.toFixed(2)}`, 200, summaryY + 5, { align: 'right' });
+            doc.text(`IGST @ ${invoice.igst}%:`, 130, finalY);
+            doc.text(`₹${igstAmount.toFixed(2)}`, rightAlign, finalY, { align: 'right' });
+            finalY += 6;
         }
+
+        doc.setLineWidth(0.2);
+        doc.line(125, finalY, rightAlign, finalY);
+        finalY += 6;
 
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text('Total', 145, summaryY + 20, { align: 'right' });
-        doc.text(`₹${totalValue.toFixed(2)}`, 200, summaryY + 20, { align: 'right' });
+        doc.text('Total Invoice Value:', 130, finalY);
+        doc.text(`₹${totalValue.toFixed(2)}`, rightAlign, finalY, { align: 'right' });
 
-        // Footer
-        doc.setFontSize(8);
-        doc.text('This is a computer-generated invoice.', 14, 285);
+        // --- Amount in Words ---
+        finalY += 10;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Amount in Words:', 14, finalY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${numberToWords(totalValue)} Only`, 14, finalY + 6);
+        
+        // --- Footer / Signature ---
+        const pageHeight = doc.internal.pageSize.getHeight();
+        doc.line(14, pageHeight - 40, pageWidth - 14, pageHeight - 40);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('For ScrapFlow Inc.', rightAlign, pageHeight - 32, { align: 'right' });
+        doc.text('Authorized Signatory', rightAlign, pageHeight - 15, { align: 'right' });
         
         doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
     };
@@ -466,3 +539,5 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
+
+    
