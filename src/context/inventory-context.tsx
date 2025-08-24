@@ -35,10 +35,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
         const savedInventory = localStorage.getItem(INVENTORY_STORAGE_KEY);
         if (savedInventory) {
-            const parsed = JSON.parse(savedInventory);
-            if (parsed.length > 0) {
-              setInventory(parsed);
-            }
+            setInventory(JSON.parse(savedInventory));
         } else {
             setInventory(initialInventoryData);
             localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(initialInventoryData));
