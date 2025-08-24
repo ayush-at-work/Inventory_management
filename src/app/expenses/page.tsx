@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, MoreHorizontal, Receipt } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Receipt, ChevronsUpDown, Check } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,19 +43,94 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { useExpenses, Expense } from '@/context/expenses-context';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+
+
+function CategoryCombobox({ value, onChange, categories }: { value: string, onChange: (value: string) => void, categories: string[] }) {
+    const [open, setOpen] = useState(false)
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                >
+                    {value ? value : "Select category..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+                <Command>
+                    <CommandInput 
+                        placeholder="Search or create category..." 
+                        onValueChange={onChange}
+                     />
+                    <CommandList>
+                        <CommandEmpty>
+                             <Button variant="ghost" className="w-full justify-start" onClick={() => {
+                                onChange(
+                                    // Get the input value from the Command component
+                                    (document.querySelector(`[cmdk-input]`) as HTMLInputElement)?.value || ''
+                                )
+                                setOpen(false)
+                            }}>
+                                Create "{
+                                    (document.querySelector(`[cmdk-input]`) as HTMLInputElement)?.value
+                                }"
+                            </Button>
+                        </CommandEmpty>
+                        <CommandGroup>
+                            {categories.map((category) => (
+                                <CommandItem
+                                    key={category}
+                                    value={category}
+                                    onSelect={(currentValue) => {
+                                        onChange(currentValue === value ? "" : currentValue)
+                                        setOpen(false)
+                                    }}
+                                >
+                                    <Check
+                                        className={cn(
+                                            "mr-2 h-4 w-4",
+                                            value === category ? "opacity-100" : "opacity-0"
+                                        )}
+                                    />
+                                    {category}
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    )
+}
 
 export default function ExpensesPage() {
   const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Expense | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
+  const uniqueCategories = useMemo(() => {
+    const categorySet = new Set(expenses.map(e => e.category));
+    return Array.from(categorySet).sort();
+  }, [expenses]);
+  
   const handleAddNewClick = () => {
     setEditingItem(null);
+    setSelectedCategory('');
     setOpen(true);
   };
   
   const handleEditClick = (expense: Expense) => {
     setEditingItem(expense);
+    setSelectedCategory(expense.category);
     setOpen(true);
   };
 
@@ -68,9 +143,14 @@ export default function ExpensesPage() {
     const formData = new FormData(event.currentTarget);
     const amount = Number(formData.get('amount'));
     
+    if(!selectedCategory) {
+        alert("Please select or create a category.");
+        return;
+    }
+
     const expenseData = {
         date: formData.get('date') as string,
-        category: formData.get('category') as string,
+        category: selectedCategory,
         description: formData.get('description') as string,
         amount: amount,
     };
@@ -83,6 +163,7 @@ export default function ExpensesPage() {
     
     setOpen(false);
     setEditingItem(null);
+    setSelectedCategory('');
   };
 
   return (
@@ -114,10 +195,12 @@ export default function ExpensesPage() {
                     <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
                     </div>
                     <div className="space-y-2">
-                    <Label htmlFor="category">
-                        Category
-                    </Label>
-                    <Input id="category" name="category" defaultValue={editingItem?.category} required />
+                        <Label>Category</Label>
+                        <CategoryCombobox 
+                            value={selectedCategory}
+                            onChange={setSelectedCategory}
+                            categories={uniqueCategories}
+                        />
                     </div>
                     <div className="space-y-2">
                     <Label htmlFor="amount">
