@@ -22,6 +22,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Download, FileText, FileDown } from 'lucide-react';
@@ -85,7 +96,7 @@ function numberToWords(num: number): string {
 
 
 export default function OutwardGoodsPage() {
-  const { outwardGoods, addOutwardGood } = useGst();
+  const { outwardGoods, addOutwardGood, deleteOutwardGood } = useGst();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<GstOutward | null>(null);
 
@@ -95,7 +106,7 @@ export default function OutwardGoodsPage() {
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
   const { updateBalance } = useBankBalance();
-  const { decreaseInventory } = useInventory();
+  const { decreaseInventory, addInventoryItem } = useInventory();
 
   const taxAmount = React.useMemo(() => {
     if (taxType === 'Inter-state') {
@@ -127,6 +138,25 @@ export default function OutwardGoodsPage() {
     setSgst(item.sgst);
     setIgst(item.igst);
     setOpen(true);
+  };
+  
+  const handleDeleteClick = (id: string) => {
+    const deletedInfo = deleteOutwardGood(id);
+    if (deletedInfo) {
+      // If sale was paid, subtract from bank balance
+      if (deletedInfo.status === 'Paid') {
+        updateBalance(-deletedInfo.totalValue);
+      }
+      // Add the inventory back
+      addInventoryItem({
+          materialType: deletedInfo.materialType,
+          hsnCode: '', // HSN code isn't stored with deleted info, might need adjustment
+          quantity: deletedInfo.weight,
+          unit: 'kg', // Assuming kg
+          price: deletedInfo.totalValue / deletedInfo.weight, // Recalculate price
+          transactionType: 'GST',
+      });
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -520,7 +550,24 @@ export default function OutwardGoodsPage() {
                             <FileDown className="mr-2 h-4 w-4" />
                             Download PDF
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this invoice
+                                and reverse any impact on your bank balance and inventory.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item.id)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         </DropdownMenuContent>
                     </DropdownMenu>
                     </TableCell>
@@ -539,5 +586,3 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
-
-    
