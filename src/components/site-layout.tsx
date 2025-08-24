@@ -67,7 +67,7 @@ const mainNavItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/inventory', label: 'Inventory', icon: Warehouse },
   { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
-  { href: '/labour', label: 'Labour', icon: Users },
+  { href: '/staff', label: 'Staff Management', icon: Users },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/ai-pricing', label: 'AI Pricing', icon: Sparkles },
 ];
