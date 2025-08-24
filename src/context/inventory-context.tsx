@@ -25,48 +25,7 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 const INVENTORY_STORAGE_KEY = 'inventory';
 
-const initialInventoryData: InventoryItem[] = [
-    {
-        id: '1',
-        materialType: 'Copper Wire',
-        hsnCode: '7408',
-        quantity: 2500,
-        unit: 'kg',
-        price: 700,
-        value: 1750000,
-        transactionType: 'GST'
-    },
-    {
-        id: '2',
-        materialType: 'Aluminum Scrap',
-        hsnCode: '7602',
-        quantity: 5000,
-        unit: 'kg',
-        price: 150,
-        value: 750000,
-        transactionType: 'GST'
-    },
-     {
-        id: '3',
-        materialType: 'Steel Scrap',
-        hsnCode: '7204',
-        quantity: 10000,
-        unit: 'kg',
-        price: 40,
-        value: 400000,
-        transactionType: 'GST'
-    },
-    {
-        id: '4',
-        materialType: 'Brass Scrap',
-        hsnCode: '7404',
-        quantity: 1500,
-        unit: 'kg',
-        price: 450,
-        value: 675000,
-        transactionType: 'Cash'
-    }
-];
+const initialInventoryData: InventoryItem[] = [];
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventoryData);
