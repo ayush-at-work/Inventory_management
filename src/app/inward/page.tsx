@@ -22,6 +22,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Download } from 'lucide-react';
@@ -47,16 +58,14 @@ const indianStates = [
 ];
 
 export default function InwardGoodsPage() {
-  const { inwardGoods, addInwardGood } = useGst();
+  const { inwardGoods, addInwardGood, deleteInwardGood } = useGst();
   const [open, setOpen] = useState(false);
   const [taxableAmount, setTaxableAmount] = useState(0);
   const [taxType, setTaxType] = useState<'inter-state' | 'intra-state' | ''>('');
   const [cgst, setCgst] = useState(0);
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
-  const { updateBalance } = useBankBalance();
-  const { addInventoryItem } = useInventory();
-
+  
   const taxAmount = React.useMemo(() => {
     if (taxType === 'inter-state') {
       return (taxableAmount * (cgst + sgst)) / 100;
@@ -73,7 +82,6 @@ export default function InwardGoodsPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const weight = Number(formData.get('weight'));
-    const pricePerUnit = taxableAmount / weight;
     
     const newEntry: Omit<GstInward, 'id'> = {
       invoiceNumber: formData.get('invoiceNumber') as string,
@@ -94,18 +102,6 @@ export default function InwardGoodsPage() {
     };
     
     addInwardGood(newEntry);
-    updateBalance(-totalInvoiceValue);
-
-    // Add to inventory
-    addInventoryItem({
-        materialType: newEntry.materialType,
-        hsnCode: newEntry.hsnCode,
-        quantity: weight,
-        unit: 'kg',
-        price: pricePerUnit,
-        value: taxableAmount,
-        transactionType: 'GST',
-    });
 
     setOpen(false);
     // Reset form state
@@ -115,6 +111,10 @@ export default function InwardGoodsPage() {
     setSgst(0);
     setIgst(0);
   };
+  
+  const handleDeleteClick = (id: string) => {
+    deleteInwardGood(id);
+  }
 
   const handleExport = () => {
     const headers = [
@@ -320,7 +320,24 @@ export default function InwardGoodsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this entry
+                                and reverse its impact on your bank balance and inventory.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item.id)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         </DropdownMenuContent>
                     </DropdownMenu>
                     </TableCell>
@@ -339,5 +356,3 @@ export default function InwardGoodsPage() {
     </div>
   );
 }
-
-    

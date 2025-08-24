@@ -2,6 +2,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useBankBalance } from './bank-balance-context';
+import { useInventory } from './inventory-context';
 
 export type GstInward = {
   id: string;
@@ -45,8 +47,9 @@ interface GstContextType {
   inwardGoods: GstInward[];
   outwardGoods: GstOutward[];
   addInwardGood: (item: Omit<GstInward, 'id'>) => void;
+  deleteInwardGood: (id: string) => void;
   addOutwardGood: (item: Omit<GstOutward, 'id'>) => void;
-  deleteOutwardGood: (id: string) => { taxAmount: number, totalValue: number, status: 'Paid' | 'Unpaid', materialType: string, weight: number } | null;
+  deleteOutwardGood: (id: string) => void;
 }
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
@@ -62,6 +65,8 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [inwardGoods, setInwardGoods] = useState<GstInward[]>(initialInwardGoods);
   const [outwardGoods, setOutwardGoods] = useState<GstOutward[]>(initialOutwardGoods);
   const [isMounted, setIsMounted] = useState(false);
+  const { updateBalance: updateBankBalance } = useBankBalance();
+  const { addInventoryItem, decreaseInventory } = useInventory();
 
   useEffect(() => {
     try {
@@ -101,38 +106,79 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addInwardGood = (item: Omit<GstInward, 'id'>) => {
     const newItem = { ...item, id: String(Date.now()) };
     setInwardGoods(prev => [newItem, ...prev]);
+
+    // Update bank balance
+    updateBankBalance(-newItem.totalInvoiceValue);
+
+    // Add to inventory
+    const pricePerUnit = item.weight > 0 ? item.taxableAmount / item.weight : 0;
+    addInventoryItem({
+        materialType: newItem.materialType,
+        hsnCode: newItem.hsnCode,
+        quantity: newItem.weight,
+        unit: 'kg',
+        price: pricePerUnit,
+        transactionType: 'GST',
+    });
   };
+
+  const deleteInwardGood = (id: string) => {
+    const itemToDelete = inwardGoods.find(item => item.id === id);
+    if (!itemToDelete) return;
+
+    // Add money back to bank balance
+    updateBankBalance(itemToDelete.totalInvoiceValue);
+
+    // Remove from inventory
+    decreaseInventory(itemToDelete.materialType, itemToDelete.weight, 'GST');
+    
+    // Remove from state
+    setInwardGoods(prev => prev.filter(item => item.id !== id));
+  }
 
   const addOutwardGood = (item: Omit<GstOutward, 'id'>) => {
     const newItem = { ...item, id: String(Date.now()) };
     setOutwardGoods(prev => [newItem, ...prev]);
+    
+    const taxAmount = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
+    const totalValue = item.taxableAmount + taxAmount;
+
+    if (item.paymentStatus === 'Paid') {
+        updateBankBalance(totalValue);
+    }
+    decreaseInventory(item.materialType, item.weight, 'GST');
   };
   
   const deleteOutwardGood = (id: string) => {
-    let deletedItem: GstOutward | undefined;
-    setOutwardGoods(prev => {
-        deletedItem = prev.find(item => item.id === id);
-        return prev.filter(item => item.id !== id)
+    const itemToDelete = outwardGoods.find(item => item.id === id);
+    if (!itemToDelete) return;
+
+    const taxAmount = (itemToDelete.taxableAmount * (itemToDelete.cgst + itemToDelete.sgst + itemToDelete.igst)) / 100;
+    const totalValue = itemToDelete.taxableAmount + taxAmount;
+
+    // If sale was paid, subtract from bank balance
+    if (itemToDelete.paymentStatus === 'Paid') {
+      updateBankBalance(-totalValue);
+    }
+    
+    // Add the inventory back
+    addInventoryItem({
+        materialType: itemToDelete.materialType,
+        hsnCode: itemToDelete.hsnCode,
+        quantity: itemToDelete.weight,
+        unit: 'kg',
+        price: itemToDelete.weight > 0 ? itemToDelete.taxableAmount / itemToDelete.weight : 0,
+        transactionType: 'GST',
     });
 
-    if (deletedItem) {
-        const taxAmount = (deletedItem.taxableAmount * (deletedItem.cgst + deletedItem.sgst + deletedItem.igst)) / 100;
-        const totalValue = deletedItem.taxableAmount + taxAmount;
-        return { 
-            taxAmount, 
-            totalValue, 
-            status: deletedItem.paymentStatus,
-            materialType: deletedItem.materialType,
-            weight: deletedItem.weight 
-        };
-    }
-    return null;
+    setOutwardGoods(prev => prev.filter(item => item.id !== id));
   }
 
   const contextValue = {
     inwardGoods,
     outwardGoods,
     addInwardGood,
+    deleteInwardGood,
     addOutwardGood,
     deleteOutwardGood,
   };
