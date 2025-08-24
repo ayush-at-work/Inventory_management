@@ -62,7 +62,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const existingItemIndex = prevInventory.findIndex(
             invItem => invItem.materialType.toLowerCase() === item.materialType.toLowerCase() &&
                        invItem.transactionType === item.transactionType &&
-                       invItem.unit === item.unit
+                       invItem.unit === item.unit &&
+                       (invItem.hsnCode || '') === (item.hsnCode || '')
         );
 
         if (existingItemIndex > -1) {
