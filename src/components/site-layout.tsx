@@ -42,6 +42,7 @@ import {
   TrendingUp,
   Scale,
   BarChart,
+  HandCoins,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -59,6 +60,7 @@ const gstNavItems = [
 const cashNavItems = [
     { href: '/cash-inward', label: 'Cash Inward', icon: ArrowDownCircle },
     { href: '/cash-outward', label: 'Cash Outward', icon: DollarSign },
+    { href: '/ledger', label: 'Cash Ledger', icon: HandCoins },
 ]
 
 const mainNavItems = [

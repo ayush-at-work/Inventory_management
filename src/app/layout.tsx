@@ -12,6 +12,7 @@ import { GstProvider } from '@/context/gst-context';
 import { ExpensesProvider } from '@/context/expenses-context';
 import { PurchaseOrderProvider } from '@/context/purchase-order-context';
 import { AuthProvider } from '@/context/auth-context';
+import { LedgerProvider } from '@/context/ledger-context';
 
 export const metadata = {
   title: 'ScrapFlow',
@@ -45,9 +46,11 @@ export default function RootLayout({
                     <GstProvider>
                       <ExpensesProvider>
                         <PurchaseOrderProvider>
-                          <SiteLayout>
-                            {children}
-                          </SiteLayout>
+                          <LedgerProvider>
+                            <SiteLayout>
+                              {children}
+                            </SiteLayout>
+                          </LedgerProvider>
                         </PurchaseOrderProvider>
                       </ExpensesProvider>
                     </GstProvider>
