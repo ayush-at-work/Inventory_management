@@ -358,14 +358,14 @@ export default function OutwardGoodsPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Create New Invoice
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+            <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Invoice' : 'Create New Invoice'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the sales invoice.' : 'Log a new sale and generate an invoice.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="pr-4">
+              <ScrollArea className="max-h-[70vh] pr-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
@@ -570,5 +570,3 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
-
-    

@@ -181,14 +181,14 @@ export default function CashOutwardPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Cash Sale
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl max-h-[90vh]">
+            <DialogContent className="sm:max-w-xl">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Cash Sale' : 'Add New Cash Sale'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the cash sale.' : 'Log a new cash sale of scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="pr-4">
+              <ScrollArea className="max-h-[70vh] pr-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
@@ -336,5 +336,3 @@ export default function CashOutwardPage() {
     </div>
   );
 }
-
-    

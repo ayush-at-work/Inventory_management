@@ -122,11 +122,11 @@ export default function PurchaseOrdersPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Create PO
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl max-h-[90vh]">
+          <DialogContent className="sm:max-w-3xl">
             <DialogHeader>
               <DialogTitle>{editingItem ? 'Edit' : 'Create'} Purchase Order</DialogTitle>
             </DialogHeader>
-            <ScrollArea className="pr-4 -mx-6 px-6">
+            <ScrollArea className="max-h-[70vh] pr-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div className="space-y-2">
@@ -187,7 +187,7 @@ export default function PurchaseOrdersPage() {
                 </Button>
               </div>
 
-              <DialogFooter className="pr-6">
+              <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="secondary">Cancel</Button>
                 </DialogClose>
@@ -246,5 +246,3 @@ export default function PurchaseOrdersPage() {
     </div>
   );
 }
-
-    

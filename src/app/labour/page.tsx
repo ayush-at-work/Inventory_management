@@ -47,6 +47,7 @@ import { useLabour, Labourer, AttendanceRecord, AttendanceStatus } from '@/conte
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const AttendanceCalendar = ({
   selectedLabourerId,
@@ -345,6 +346,7 @@ export default function LabourPage() {
                       </DialogContent>
                   </Dialog>
               </div>
+              <ScrollArea className="max-h-96 pr-3">
               <div className="space-y-2">
                 {labourers.map(labourer => (
                   <div key={labourer.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedLabourerId === labourer.id ? 'bg-primary/10' : 'hover:bg-accent')}>
@@ -381,6 +383,7 @@ export default function LabourPage() {
                     <p className="text-sm text-muted-foreground text-center py-4">No labourers added yet.</p>
                 )}
               </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>

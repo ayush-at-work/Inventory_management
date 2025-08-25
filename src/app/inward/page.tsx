@@ -185,14 +185,14 @@ export default function InwardGoodsPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+            <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Inward Entry' : 'Add New Inward Entry'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the incoming scrap material.' : 'Log a new batch of incoming scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="pr-4">
+              <ScrollArea className="max-h-[70vh] pr-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
@@ -391,5 +391,3 @@ export default function InwardGoodsPage() {
     </div>
   );
 }
-
-    
