@@ -55,8 +55,8 @@ interface GstContextType {
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
 
-const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v4';
-const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v4';
+const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v5';
+const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v5';
 
 const initialInwardGoods: GstInward[] = [];
 const initialOutwardGoods: GstOutward[] = [];

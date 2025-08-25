@@ -135,7 +135,7 @@ export default function ImportPage() {
                         gstNumber: row['GST Number'],
                         placeOfSupply: row['Place Of Supply'],
                         materialType: row['Material'],
-                        hsnCode: row['HSN Code'],
+                        hsnCode: row['HSN Code'] || '',
                         weight: weight,
                         taxableAmount: Number(row['Taxable Amount'] || 0),
                         taxType: taxType,

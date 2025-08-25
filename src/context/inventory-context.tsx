@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_v6_final'; // Incremented version to avoid old data conflicts
+const INVENTORY_STORAGE_KEY = 'inventory_v7_final'; // Incremented version to avoid old data conflicts
 
 const initialInventoryData: InventoryItem[] = [];
 
