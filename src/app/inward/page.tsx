@@ -65,6 +65,7 @@ export default function InwardGoodsPage() {
   const [cgst, setCgst] = useState(0);
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
+  const [tcs, setTcs] = useState(0);
   
   const taxAmount = React.useMemo(() => {
     if (taxType === 'inter-state') {
@@ -76,7 +77,7 @@ export default function InwardGoodsPage() {
     return 0;
   }, [taxableAmount, taxType, cgst, sgst, igst]);
 
-  const totalInvoiceValue = taxableAmount + taxAmount;
+  const totalInvoiceValue = taxableAmount + taxAmount + tcs;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -99,6 +100,7 @@ export default function InwardGoodsPage() {
       totalInvoiceValue: totalInvoiceValue,
       materialType: formData.get('materialType') as string,
       weight: weight,
+      tcs: tcs,
     };
     
     addInwardGood(newEntry);
@@ -110,6 +112,7 @@ export default function InwardGoodsPage() {
     setCgst(0);
     setSgst(0);
     setIgst(0);
+    setTcs(0);
   };
   
   const handleDeleteClick = (id: string) => {
@@ -120,7 +123,7 @@ export default function InwardGoodsPage() {
     const headers = [
       'Invoice #', 'Date', 'Supplier', 'GST #', 'Supply Place',
       'Material', 'HSN Code', 'Weight', 'Taxable Amt', 'Tax Type', 'CGST', 'SGST', 'IGST',
-      'Tax Amt', 'Total Value'
+      'Tax Amt', 'TCS', 'Total Value'
     ];
     const rows = inwardGoods.map(item => [
       item.invoiceNumber, item.date, item.supplier, item.gstNumber, item.placeOfSupply,
@@ -128,7 +131,9 @@ export default function InwardGoodsPage() {
       item.cgst > 0 ? `${item.cgst}%` : '-',
       item.sgst > 0 ? `${item.sgst}%` : '-',
       item.igst > 0 ? `${item.igst}%` : '-',
-      `₹${item.taxAmount.toFixed(2)}`, `₹${item.totalInvoiceValue.toFixed(2)}`
+      `₹${item.taxAmount.toFixed(2)}`,
+      `₹${item.tcs.toFixed(2)}`,
+      `₹${item.totalInvoiceValue.toFixed(2)}`
     ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -252,6 +257,10 @@ export default function InwardGoodsPage() {
                     <Label htmlFor="taxAmount">Tax Amount (₹)</Label>
                     <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
                   </div>
+                   <div className="space-y-2">
+                        <Label htmlFor="tcs">TCS (₹)</Label>
+                        <Input id="tcs" name="tcs" type="number" step="0.01" value={tcs} onChange={(e) => setTcs(Number(e.target.value))} />
+                    </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
                     <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
                     <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
@@ -287,6 +296,7 @@ export default function InwardGoodsPage() {
               <TableHead className="text-right">SGST</TableHead>
               <TableHead className="text-right">IGST</TableHead>
               <TableHead className="text-right">Tax Amt</TableHead>
+              <TableHead className="text-right">TCS</TableHead>
               <TableHead className="text-right">Total Value</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -309,6 +319,7 @@ export default function InwardGoodsPage() {
                     <TableCell className="text-right">{item.sgst > 0 ? `${item.sgst}%` : '-'}</TableCell>
                     <TableCell className="text-right">{item.igst > 0 ? `${item.igst}%` : '-'}</TableCell>
                     <TableCell className="text-right whitespace-nowrap">₹{item.taxAmount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">₹{item.tcs.toFixed(2)}</TableCell>
                     <TableCell className="text-right font-bold whitespace-nowrap">₹{item.totalInvoiceValue.toFixed(2)}</TableCell>
                     <TableCell>
                     <DropdownMenu>
@@ -345,7 +356,7 @@ export default function InwardGoodsPage() {
                 ))
              ) : (
                 <TableRow>
-                    <TableCell colSpan={16} className="h-24 text-center">
+                    <TableCell colSpan={17} className="h-24 text-center">
                         No inward goods recorded yet.
                     </TableCell>
                 </TableRow>
