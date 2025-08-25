@@ -146,6 +146,7 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const itemToDelete = outwardGoods.find(item => item.id === id);
     if (!itemToDelete) return;
 
+    // Reverse the transaction effects
     const taxAmount = (itemToDelete.taxableAmount * (itemToDelete.cgst + itemToDelete.sgst + itemToDelete.igst)) / 100;
     const totalValue = itemToDelete.taxableAmount + taxAmount;
 
@@ -159,11 +160,12 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         materialType: itemToDelete.materialType,
         hsnCode: itemToDelete.hsnCode,
         quantity: itemToDelete.weight,
-        unit: 'kg',
+        unit: 'kg', // Assuming kg, this could be improved
         price: itemToDelete.weight > 0 ? itemToDelete.taxableAmount / itemToDelete.weight : 0,
         transactionType: 'GST',
     });
 
+    // Remove the item from state
     setOutwardGoods(prev => prev.filter(item => item.id !== id));
   }
 

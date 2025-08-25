@@ -106,7 +106,7 @@ export default function OutwardGoodsPage() {
   const [sgst, setSgst] = useState(0);
   const [igst, setIgst] = useState(0);
   const { updateBalance } = useBankBalance();
-  const { decreaseInventory, addInventoryItem } = useInventory();
+  const { decreaseInventory } = useInventory();
 
   const taxAmount = React.useMemo(() => {
     if (taxType === 'Inter-state') {
@@ -141,22 +141,7 @@ export default function OutwardGoodsPage() {
   };
   
   const handleDeleteClick = (id: string) => {
-    const deletedInfo = deleteOutwardGood(id);
-    if (deletedInfo) {
-      // If sale was paid, subtract from bank balance
-      if (deletedInfo.status === 'Paid') {
-        updateBalance(-deletedInfo.totalValue);
-      }
-      // Add the inventory back
-      addInventoryItem({
-          materialType: deletedInfo.materialType,
-          hsnCode: '', // HSN code isn't stored with deleted info, might need adjustment
-          quantity: deletedInfo.weight,
-          unit: 'kg', // Assuming kg
-          price: deletedInfo.totalValue / deletedInfo.weight, // Recalculate price
-          transactionType: 'GST',
-      });
-    }
+    deleteOutwardGood(id);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -192,11 +177,7 @@ export default function OutwardGoodsPage() {
         // TODO: Update logic
         // setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
     } else {
-        if(paymentStatus === 'Paid') {
-            updateBalance(totalInvoiceValue);
-        }
         addOutwardGood(newEntry);
-        decreaseInventory(newEntry.materialType, weight, 'GST');
     }
 
     setOpen(false);
