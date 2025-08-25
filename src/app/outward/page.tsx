@@ -49,6 +49,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGst, GstOutward } from '@/context/gst-context';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: any) => jsPDF;
@@ -357,14 +358,15 @@ export default function OutwardGoodsPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Create New Invoice
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Invoice' : 'Create New Invoice'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the sales invoice.' : 'Log a new sale and generate an invoice.'}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit}>
+              <ScrollArea className="pr-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Invoice Number</Label>
@@ -475,6 +477,7 @@ export default function OutwardGoodsPage() {
                   <Button type="submit">{editingItem ? 'Save Changes' : 'Create Invoice'}</Button>
                 </DialogFooter>
               </form>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>
@@ -567,3 +570,5 @@ export default function OutwardGoodsPage() {
     </div>
   );
 }
+
+    

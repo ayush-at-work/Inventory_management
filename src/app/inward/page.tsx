@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGst, GstInward } from '@/context/gst-context';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -184,14 +185,15 @@ export default function InwardGoodsPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Inward Entry' : 'Add New Inward Entry'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the incoming scrap material.' : 'Log a new batch of incoming scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit}>
+              <ScrollArea className="pr-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Invoice Number</Label>
@@ -294,6 +296,7 @@ export default function InwardGoodsPage() {
                   <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>

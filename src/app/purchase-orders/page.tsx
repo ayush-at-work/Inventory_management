@@ -33,6 +33,7 @@ import {
 import { usePurchaseOrders, PurchaseOrder, PurchaseOrderItem } from '@/context/purchase-order-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function PurchaseOrdersPage() {
   const { purchaseOrders, addPurchaseOrder, updatePurchaseOrderStatus } = usePurchaseOrders();
@@ -121,11 +122,12 @@ export default function PurchaseOrdersPage() {
               <PlusCircle className="mr-2 h-4 w-4" /> Create PO
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl">
+          <DialogContent className="sm:max-w-3xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>{editingItem ? 'Edit' : 'Create'} Purchase Order</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit}>
+            <ScrollArea className="pr-4 -mx-6 px-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="poNumber">PO Number</Label>
@@ -185,13 +187,14 @@ export default function PurchaseOrdersPage() {
                 </Button>
               </div>
 
-              <DialogFooter>
+              <DialogFooter className="pr-6">
                 <DialogClose asChild>
                   <Button type="button" variant="secondary">Cancel</Button>
                 </DialogClose>
                 <Button type="submit">{editingItem ? 'Save Changes' : 'Create Purchase Order'}</Button>
               </DialogFooter>
             </form>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       </div>
@@ -243,3 +246,5 @@ export default function PurchaseOrdersPage() {
     </div>
   );
 }
+
+    
