@@ -55,8 +55,8 @@ interface GstContextType {
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
 
-const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v3';
-const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v3';
+const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v4';
+const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v4';
 
 const initialInwardGoods: GstInward[] = [];
 const initialOutwardGoods: GstOutward[] = [];
@@ -97,7 +97,7 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [inwardGoods, outwardGoods, isMounted]);
 
   const addInwardGood = (item: Omit<GstInward, 'id'>) => {
-    const newItem = { ...item, id: String(Date.now()) };
+    const newItem = { ...item, id: String(Date.now()) + Math.random() };
     setInwardGoods(prev => [newItem, ...prev]);
 
     // Update bank balance
