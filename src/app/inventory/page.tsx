@@ -35,20 +35,37 @@ import {
 import { useInventory, InventoryItem } from '@/context/inventory-context';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+
+const getStockLevel = (quantity: number, unit: string) => {
+    if (unit === 'kg') {
+        if (quantity > 10000) return 'High';
+        if (quantity > 2000) return 'Medium';
+        return 'Low';
+    }
+    // Assuming NOS
+    if (quantity > 100) return 'High';
+    if (quantity > 20) return 'Medium';
+    return 'Low';
+};
+
+const getStockLevelVariant = (level: 'High' | 'Medium' | 'Low') => {
+  switch (level) {
+    case 'High': return 'default';
+    case 'Medium': return 'secondary';
+    case 'Low': return 'destructive';
+  }
+}
+
+const getStockLevelColor = (level: 'High' | 'Medium' | 'Low') => {
+  switch (level) {
+    case 'High': return 'bg-green-500/20 text-green-700';
+    case 'Medium': return 'bg-yellow-500/20 text-yellow-700';
+    case 'Low': return 'bg-red-500/20 text-red-700';
+  }
+}
 
 const InventoryTable = ({ items, onEdit, showHsnCode }: { items: InventoryItem[], onEdit: (item: InventoryItem) => void, showHsnCode: boolean }) => {
-    const getStockLevel = (quantity: number, unit: string) => {
-        if (unit === 'kg') {
-            if (quantity > 10000) return 'High';
-            if (quantity > 2000) return 'Medium';
-            return 'Low';
-        }
-        // Assuming NOS
-        if (quantity > 100) return 'High';
-        if (quantity > 20) return 'Medium';
-        return 'Low';
-    };
-
     return (
         <div className="rounded-md border overflow-x-auto">
         <Table>
@@ -65,7 +82,7 @@ const InventoryTable = ({ items, onEdit, showHsnCode }: { items: InventoryItem[]
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map(item => {
+            {items.length > 0 ? items.map(item => {
               const status = getStockLevel(item.quantity, item.unit);
               return (
               <TableRow key={item.id}>
@@ -76,14 +93,8 @@ const InventoryTable = ({ items, onEdit, showHsnCode }: { items: InventoryItem[]
                 <TableCell className="text-right whitespace-nowrap">₹{item.price.toFixed(2)}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={
-                      status === 'High'
-                        ? 'default'
-                        : status === 'Medium'
-                        ? 'secondary'
-                        : 'destructive'
-                    }
-                    className={`${status === 'High' ? 'bg-green-500/20 text-green-700' : status === 'Medium' ? 'bg-yellow-500/20 text-yellow-700' : 'bg-red-500/20 text-red-700'}`}
+                    variant={getStockLevelVariant(status)}
+                    className={getStockLevelColor(status)}
                   >
                     {status}
                   </Badge>
@@ -105,11 +116,76 @@ const InventoryTable = ({ items, onEdit, showHsnCode }: { items: InventoryItem[]
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            )})}
+            )}) : (
+              <TableRow>
+                <TableCell colSpan={showHsnCode ? 8 : 7} className="h-24 text-center">
+                  No inventory items found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
     )
+}
+
+const InventoryMobileCards = ({ items, onEdit, showHsnCode }: { items: InventoryItem[], onEdit: (item: InventoryItem) => void, showHsnCode: boolean }) => {
+  return (
+    <div className="space-y-4">
+      {items.length > 0 ? items.map(item => {
+        const stockLevel = getStockLevel(item.quantity, item.unit);
+        return (
+          <Card key={item.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-bold text-lg">{item.materialType}</p>
+                  {showHsnCode && <p className="text-sm text-muted-foreground">HSN: {item.hsnCode}</p>}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Quantity</span>
+                <span className="font-medium">{item.quantity.toLocaleString()} {item.unit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Avg. Price/Unit</span>
+                <span className="font-medium">₹{item.price.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Stock Level</span>
+                <Badge variant={getStockLevelVariant(stockLevel)} className={getStockLevelColor(stockLevel)}>
+                  {stockLevel}
+                </Badge>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+              <span className="font-bold text-sm">Estimated Value</span>
+              <span className="text-lg font-bold">₹{item.value.toFixed(2)}</span>
+            </CardFooter>
+          </Card>
+        )
+      }) : (
+        <Card>
+          <CardContent className="h-48 flex items-center justify-center">
+            <p className="text-muted-foreground">No inventory items found.</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
 }
 
 export default function InventoryPage() {
@@ -269,10 +345,20 @@ export default function InventoryPage() {
             <TabsTrigger value="cash">Cash Inventory</TabsTrigger>
         </TabsList>
         <TabsContent value="gst" className="space-y-4">
-            <InventoryTable items={gstInventory} onEdit={handleEditClick} showHsnCode={true} />
+            <div className="hidden md:block">
+              <InventoryTable items={gstInventory} onEdit={handleEditClick} showHsnCode={true} />
+            </div>
+            <div className="md:hidden">
+              <InventoryMobileCards items={gstInventory} onEdit={handleEditClick} showHsnCode={true} />
+            </div>
         </TabsContent>
         <TabsContent value="cash" className="space-y-4">
-            <InventoryTable items={cashInventory} onEdit={handleEditClick} showHsnCode={false} />
+            <div className="hidden md:block">
+              <InventoryTable items={cashInventory} onEdit={handleEditClick} showHsnCode={false} />
+            </div>
+             <div className="md:hidden">
+              <InventoryMobileCards items={cashInventory} onEdit={handleEditClick} showHsnCode={false} />
+            </div>
         </TabsContent>
       </Tabs>
 
@@ -280,5 +366,3 @@ export default function InventoryPage() {
     </div>
   );
 }
-
-    

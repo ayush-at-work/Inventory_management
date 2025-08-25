@@ -46,6 +46,7 @@ import { useExpenses, Expense } from '@/context/expenses-context';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 
 function CategoryCombobox({ value, onChange, categories }: { value: string, onChange: (value: string) => void, categories: string[] }) {
@@ -226,7 +227,66 @@ export default function ExpensesPage() {
         </Dialog>
       </div>
        
-        <div className="rounded-md border overflow-x-auto">
+        {/* Mobile View */}
+        <div className="md:hidden space-y-4">
+          {expenses.length > 0 ? (
+            expenses.map(item => (
+              <Card key={item.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-lg">{item.category}</p>
+                      <p className="text-sm text-muted-foreground">{item.date}</p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this expense entry and refund the amount to your cash balance.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteClick(item)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">{item.description}</p>
+                </CardContent>
+                <CardFooter className="flex justify-end items-center bg-muted/50 p-4">
+                  <p className="text-lg font-bold">₹{item.amount.toFixed(2)}</p>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <CardContent className="h-48 flex items-center justify-center">
+                <p className="text-muted-foreground">No expenses recorded yet.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="rounded-md border overflow-x-auto hidden md:block">
             <Table>
             <TableHeader>
                 <TableRow>

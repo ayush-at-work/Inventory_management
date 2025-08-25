@@ -3,7 +3,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText } from 'lucide-react';
 import { useGst } from '@/context/gst-context';
@@ -86,7 +86,34 @@ export default function ExpenseReportPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="rounded-md border">
+                    {/* Mobile View */}
+                    <div className="md:hidden space-y-4">
+                       {combinedExpenses.length > 0 ? (
+                            combinedExpenses.map((item, index) => (
+                                <Card key={index}>
+                                    <CardHeader>
+                                        <p className="font-bold text-lg">{item.type}</p>
+                                        <p className="text-sm text-muted-foreground">{item.date}</p>
+                                    </CardHeader>
+                                    <CardContent>
+                                       <p className="text-sm">{item.description}</p>
+                                    </CardContent>
+                                    <CardFooter className="flex justify-end items-center bg-muted/50 p-4">
+                                        <p className="text-lg font-bold">₹{item.amount.toFixed(2)}</p>
+                                    </CardFooter>
+                                </Card>
+                            ))
+                        ) : (
+                             <Card>
+                                <CardContent className="h-48 flex items-center justify-center">
+                                    <p className="text-muted-foreground">No expenses recorded yet.</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                    
+                    {/* Desktop View */}
+                    <div className="rounded-md border hidden md:block">
                         <Table>
                             <TableHeader>
                                 <TableRow>

@@ -45,6 +45,7 @@ import {
 import { useAuth, User, UserRole } from '@/context/auth-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 export default function UsersPage() {
   const { user, users, addUser, updateUser, deleteUser } = useAuth();
@@ -153,7 +154,62 @@ export default function UsersPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="rounded-md border">
+
+       {/* Mobile View */}
+       <div className="md:hidden space-y-4">
+        {users.map((u) => (
+          <Card key={u.id}>
+            <CardHeader>
+               <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-bold text-lg">{u.name}</p>
+                    <p className="text-sm text-muted-foreground">{u.email}</p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0" disabled={u.id === user?.id}>
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditClick(u)}>Edit</DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                            Delete
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the user account.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteUser(u.id)}>
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+               </div>
+            </CardHeader>
+            <CardFooter className="bg-muted/50 p-4">
+               <Badge variant={u.role === 'Admin' ? 'default' : 'secondary'}>
+                  {u.role}
+                </Badge>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+
+      {/* Desktop View */}
+      <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>

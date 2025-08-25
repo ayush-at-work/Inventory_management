@@ -46,6 +46,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 const LedgerTable = ({
     items,
@@ -135,6 +136,83 @@ const LedgerTable = ({
     )
 }
 
+const LedgerMobileCards = ({
+    items,
+    onSettle,
+    onDelete
+}: {
+    items: LedgerEntry[],
+    onSettle: (id: string) => void,
+    onDelete: (id: string) => void
+}) => {
+  return (
+    <div className="space-y-4">
+      {items.length > 0 ? items.map(item => (
+        <Card key={item.id}>
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-bold text-lg">{item.personName}</p>
+                <p className="text-sm text-muted-foreground">{item.date}</p>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {item.status === 'open' && (
+                    <DropdownMenuItem onClick={() => onSettle(item.id)}>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                      Mark as Settled
+                    </DropdownMenuItem>
+                  )}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete this ledger entry and update your cash balance.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(item.id)}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm">{item.description || 'No description'}</p>
+          </CardContent>
+          <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+            <Badge
+                variant={item.status === 'settled' ? 'default' : 'secondary'}
+                className={`${item.status === 'settled' ? 'bg-green-500/20 text-green-700' : 'bg-yellow-500/20 text-yellow-700'}`}
+            >
+                {item.status}
+            </Badge>
+            <p className="text-lg font-bold">₹{item.amount.toFixed(2)}</p>
+          </CardFooter>
+        </Card>
+      )) : (
+        <Card>
+          <CardContent className="h-48 flex items-center justify-center">
+            <p className="text-muted-foreground">No entries yet.</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
 
 export default function LedgerPage() {
   const { entries, addEntry, settleEntry, deleteEntry } = useLedger();
@@ -230,10 +308,20 @@ export default function LedgerPage() {
                 <TabsTrigger value="taken">Loans Taken</TabsTrigger>
             </TabsList>
             <TabsContent value="given" className="space-y-4">
-                <LedgerTable items={loansGiven} onSettle={settleEntry} onDelete={deleteEntry} />
+                <div className="hidden md:block">
+                  <LedgerTable items={loansGiven} onSettle={settleEntry} onDelete={deleteEntry} />
+                </div>
+                 <div className="md:hidden">
+                  <LedgerMobileCards items={loansGiven} onSettle={settleEntry} onDelete={deleteEntry} />
+                </div>
             </TabsContent>
             <TabsContent value="taken" className="space-y-4">
-                 <LedgerTable items={loansTaken} onSettle={settleEntry} onDelete={deleteEntry} />
+                 <div className="hidden md:block">
+                    <LedgerTable items={loansTaken} onSettle={settleEntry} onDelete={deleteEntry} />
+                  </div>
+                  <div className="md:hidden">
+                    <LedgerMobileCards items={loansTaken} onSettle={settleEntry} onDelete={deleteEntry} />
+                  </div>
             </TabsContent>
         </Tabs>
 

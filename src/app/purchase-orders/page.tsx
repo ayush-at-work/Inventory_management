@@ -34,6 +34,7 @@ import { usePurchaseOrders, PurchaseOrder, PurchaseOrderItem } from '@/context/p
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 export default function PurchaseOrdersPage() {
   const { purchaseOrders, addPurchaseOrder, updatePurchaseOrderStatus } = usePurchaseOrders();
@@ -198,8 +199,59 @@ export default function PurchaseOrdersPage() {
           </DialogContent>
         </Dialog>
       </div>
+      
+      {/* Mobile View */}
+       <div className="md:hidden space-y-4">
+        {purchaseOrders.length > 0 ? (
+          purchaseOrders.map(po => (
+            <Card key={po.id}>
+              <CardHeader>
+                 <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-lg">{po.supplier}</p>
+                      <p className="text-sm text-muted-foreground">PO-{po.poNumber}</p>
+                    </div>
+                     <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => { /* Edit logic */ }}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updatePurchaseOrderStatus(po.id, 'Received')}>Mark as Received</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updatePurchaseOrderStatus(po.id, 'Cancelled')} className="text-destructive">Cancel PO</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm"><strong>Order Date:</strong> {po.orderDate}</p>
+                <p className="text-sm"><strong>Expected:</strong> {po.expectedDate || 'N/A'}</p>
+                <ul className="text-sm list-disc pl-5 pt-1">
+                  {po.items.map(item => (
+                    <li key={item.id}>{item.quantity} {item.unit} of {item.materialType}</li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+                 <Badge variant={getStatusVariant(po.status)} className={getStatusColor(po.status)}>{po.status}</Badge>
+                 <p className="text-lg font-bold">₹{po.totalValue.toFixed(2)}</p>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="h-48 flex items-center justify-center">
+              <p className="text-muted-foreground">No purchase orders created yet.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
-      <div className="rounded-md border overflow-x-auto">
+      {/* Desktop View */}
+      <div className="rounded-md border overflow-x-auto hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -213,7 +265,7 @@ export default function PurchaseOrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {purchaseOrders.map(po => (
+            {purchaseOrders.length > 0 ? purchaseOrders.map(po => (
               <TableRow key={po.id}>
                 <TableCell className="font-medium">{po.poNumber}</TableCell>
                 <TableCell>{po.supplier}</TableCell>
@@ -239,7 +291,13 @@ export default function PurchaseOrdersPage() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+               <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    No purchase orders created yet.
+                  </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
