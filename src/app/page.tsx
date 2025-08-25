@@ -95,13 +95,13 @@ export default function Home() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-         <Link href="/cash-inward">
-            <Button variant="outline">
+         <Link href="/cash-inward" className="w-full md:w-auto">
+            <Button variant="outline" className="w-full">
                 <IndianRupee className="mr-2 h-4 w-4" /> Go to Cash Deals
             </Button>
         </Link>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {summaryData.map(item => (
           <Card key={item.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -115,12 +115,12 @@ export default function Home() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <div className="col-span-full lg:col-span-4">
           <RevenueChart />
         </div>
         <div className="col-span-full lg:col-span-3">
-          <Link href="/inventory" className="cursor-pointer">
+          <Link href="/inventory" className="cursor-pointer h-full flex">
             <InventoryChart />
           </Link>
         </div>
