@@ -142,12 +142,12 @@ const AttendanceCalendar = ({
         </div>
         
          <Dialog open={!!selectedDay} onOpenChange={(isOpen) => !isOpen && setSelectedDay(null)}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Mark Attendance for {selectedDay && format(selectedDay, 'PPP')}</DialogTitle>
                     <DialogDescription>Select the status and enter wages for the selected day.</DialogDescription>
                 </DialogHeader>
-                <div className="py-4 space-y-4">
+                <div className="py-4 space-y-4 flex-grow overflow-auto pr-4">
                     <div>
                         <Label className="mb-2 block">Status</Label>
                         <RadioGroup value={attendanceStatus} onValueChange={(v) => setAttendanceStatus(v as AttendanceStatus)} className="flex gap-4">
@@ -170,7 +170,7 @@ const AttendanceCalendar = ({
                         <Input id="wages" type="number" value={wages} onChange={e => setWages(Number(e.target.value))} />
                     </div>
                 </div>
-                <DialogFooter className="gap-2">
+                <DialogFooter className="flex-shrink-0 border-t pt-4 gap-2">
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">Cancel</Button>
                     </DialogClose>
@@ -315,21 +315,21 @@ export default function LabourPage() {
         <div className="md:col-span-1 space-y-4">
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                  <h3 className="flex-1 text-lg font-semibold whitespace-nowrap">All Labourers</h3>
-                  <div className="flex-shrink-0">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                  <h3 className="text-lg font-semibold">All Labourers</h3>
+                  <div>
                     <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
                         <DialogTrigger asChild>
-                          <Button size="sm" onClick={handleAddLabourerClick}>
+                          <Button size="sm" onClick={handleAddLabourerClick} className="w-full">
                             <PlusCircle className="mr-2 h-4 w-4"/> Add 
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
+                        <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
                           <DialogHeader>
                             <DialogTitle>{editingLabourer ? 'Edit Labourer' : 'Add New Labourer'}</DialogTitle>
                           </DialogHeader>
-                          <form onSubmit={handleLabourerSubmit}>
-                            <div className="grid gap-4 py-4">
+                          <form onSubmit={handleLabourerSubmit} className="flex-grow overflow-hidden flex flex-col">
+                            <div className="grid gap-4 py-4 flex-grow overflow-auto pr-4">
                                 <div className="space-y-2">
                                 <Label htmlFor="name">
                                     Labourer Name
@@ -337,7 +337,7 @@ export default function LabourPage() {
                                 <Input id="name" name="name" defaultValue={editingLabourer?.name} required />
                                 </div>
                             </div>
-                            <DialogFooter className="gap-2">
+                            <DialogFooter className="flex-shrink-0 border-t pt-4 gap-2">
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary" onClick={() => setEditingLabourer(null)}>Cancel</Button>
                                 </DialogClose>
@@ -407,5 +407,3 @@ export default function LabourPage() {
     </div>
   );
 }
-
-    
