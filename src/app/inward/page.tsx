@@ -60,6 +60,7 @@ const indianStates = [
 export default function InwardGoodsPage() {
   const { inwardGoods, addInwardGood, deleteInwardGood } = useGst();
   const [open, setOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<GstInward | null>(null);
   const [taxableAmount, setTaxableAmount] = useState(0);
   const [taxType, setTaxType] = useState<'inter-state' | 'intra-state' | ''>('');
   const [cgst, setCgst] = useState(0);
@@ -78,6 +79,29 @@ export default function InwardGoodsPage() {
   }, [taxableAmount, taxType, cgst, sgst, igst]);
 
   const totalInvoiceValue = taxableAmount + taxAmount + tcs;
+  
+  const handleAddNewClick = () => {
+    setEditingItem(null);
+    setTaxableAmount(0);
+    setTaxType('');
+    setCgst(0);
+    setSgst(0);
+    setIgst(0);
+    setTcs(0);
+    setOpen(true);
+  };
+  
+  const handleEditClick = (item: GstInward) => {
+    setEditingItem(item);
+    setTaxableAmount(item.taxableAmount);
+    setTaxType(item.taxType);
+    setCgst(item.cgst);
+    setSgst(item.sgst);
+    setIgst(item.igst);
+    setTcs(item.tcs);
+    setOpen(true);
+  };
+
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -103,10 +127,12 @@ export default function InwardGoodsPage() {
       tcs: tcs,
     };
     
+    // Note: Update logic is not implemented yet. This will always add.
     addInwardGood(newEntry);
 
     setOpen(false);
     // Reset form state
+    setEditingItem(null);
     setTaxableAmount(0);
     setTaxType('');
     setCgst(0);
@@ -160,38 +186,38 @@ export default function InwardGoodsPage() {
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full md:w-auto">
+              <Button onClick={handleAddNewClick} className="w-full md:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Add New Inward Entry</DialogTitle>
+                <DialogTitle>{editingItem ? 'Edit Inward Entry' : 'Add New Inward Entry'}</DialogTitle>
                 <DialogDescription>
-                  Log a new batch of incoming scrap material.
+                  {editingItem ? 'Update the details of the incoming scrap material.' : 'Log a new batch of incoming scrap material.'}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Invoice Number</Label>
-                    <Input id="invoiceNumber" name="invoiceNumber" required />
+                    <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>
-                    <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().substring(0, 10)} required />
+                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="supplier">Name of Supplier</Label>
-                    <Input id="supplier" name="supplier" required />
+                    <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="gstNumber">GST Number</Label>
-                    <Input id="gstNumber" name="gstNumber" required />
+                    <Input id="gstNumber" name="gstNumber" defaultValue={editingItem?.gstNumber} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="placeOfSupply">Place of Supply</Label>
-                    <Select name="placeOfSupply" required>
+                    <Select name="placeOfSupply" required defaultValue={editingItem?.placeOfSupply}>
                       <SelectTrigger id="placeOfSupply">
                         <SelectValue placeholder="Select a state" />
                       </SelectTrigger>
@@ -204,19 +230,19 @@ export default function InwardGoodsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="materialType">Material</Label>
-                    <Input id="materialType" name="materialType" required />
+                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="hsnCode">HSN Code</Label>
-                    <Input id="hsnCode" name="hsnCode" required />
+                    <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="weight">Weight (kg)</Label>
-                    <Input id="weight" name="weight" type="number" required />
+                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="taxType">Tax Type</Label>
-                     <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)}>
+                     <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)} value={taxType}>
                       <SelectTrigger id="taxType">
                         <SelectValue placeholder="Select tax type" />
                       </SelectTrigger>
@@ -229,6 +255,7 @@ export default function InwardGoodsPage() {
                    <div className="space-y-2">
                     <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
                     <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
+                      value={taxableAmount}
                       onChange={(e) => setTaxableAmount(Number(e.target.value))}
                     />
                   </div>
@@ -237,11 +264,11 @@ export default function InwardGoodsPage() {
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="cgst">CGST (%)</Label>
-                        <Input id="cgst" name="cgst" type="number" step="0.01" required onChange={(e) => setCgst(Number(e.target.value))} />
+                        <Input id="cgst" name="cgst" type="number" step="0.01" required value={cgst} onChange={(e) => setCgst(Number(e.target.value))} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="sgst">SGST (%)</Label>
-                        <Input id="sgst" name="sgst" type="number" step="0.01" required onChange={(e) => setSgst(Number(e.target.value))} />
+                        <Input id="sgst" name="sgst" type="number" step="0.01" required value={sgst} onChange={(e) => setSgst(Number(e.target.value))} />
                       </div>
                     </>
                   )}
@@ -249,7 +276,7 @@ export default function InwardGoodsPage() {
                   {taxType === 'intra-state' && (
                     <div className="space-y-2">
                       <Label htmlFor="igst">IGST (%)</Label>
-                      <Input id="igst" name="igst" type="number" step="0.01" required onChange={(e) => setIgst(Number(e.target.value))} />
+                      <Input id="igst" name="igst" type="number" step="0.01" required value={igst} onChange={(e) => setIgst(Number(e.target.value))} />
                     </div>
                   )}
 
@@ -270,7 +297,7 @@ export default function InwardGoodsPage() {
                   <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                   </DialogClose>
-                  <Button type="submit">Save Entry</Button>
+                  <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -330,7 +357,7 @@ export default function InwardGoodsPage() {
                         </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
