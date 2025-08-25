@@ -2,7 +2,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useExpenses } from './expenses-context';
 
 export type Labourer = {
     id: string;
@@ -41,7 +40,6 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [labourers, setLabourers] = useState<Labourer[]>(initialLabourers);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(initialAttendance);
   const [isMounted, setIsMounted] = useState(false);
-  const { addExpense } = useExpenses();
 
   useEffect(() => {
     try {
@@ -79,8 +77,6 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const deleteLabourer = (id: string) => {
-    // This needs to be more complex if we want to reverse expenses, which is tricky.
-    // For now, we just delete the labourer and their records.
     setLabourers(prev => prev.filter(s => s.id !== id));
     setAttendanceRecords(prev => prev.filter(r => r.labourerId !== id));
   };
@@ -97,23 +93,15 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const existingRecordIndex = prev.findIndex(r => r.labourerId === labourerId && r.date === date);
 
         if (existingRecordIndex > -1) {
-            // Updating an existing record is complex with expenses.
-            // A simple approach is to not allow edits that affect finance,
-            // or delete the old expense and create a new one.
-            // For now, we prevent changing the financial aspect.
-             alert("To change wage details, please delete the old attendance record and create a new one from the expenses page.");
              const updatedRecords = [...prev];
-             updatedRecords[existingRecordIndex] = { ...updatedRecords[existingRecordIndex], status };
+             // Allow updating status and wages
+             updatedRecords[existingRecordIndex] = { 
+                 ...updatedRecords[existingRecordIndex], 
+                 status,
+                 wages 
+            };
              return updatedRecords;
         } else {
-            if (wages > 0) {
-                 addExpense({
-                    date,
-                    category: 'Labour Wages',
-                    description: `Wages for ${labourer.name} on ${date}`,
-                    amount: wages,
-                });
-            }
             const newRecord: AttendanceRecord = {
                 id: String(Date.now()),
                 labourerId,

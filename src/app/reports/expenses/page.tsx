@@ -3,7 +3,7 @@
 
 import React, { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText } from 'lucide-react';
 import { useGst } from '@/context/gst-context';
@@ -60,7 +60,7 @@ export default function ExpenseReportPage() {
                  allExpenses.push({
                     date: item.date,
                     type: 'Labour Wage',
-                    description: `Wages for ${labourerMap.get(item.labourerId) || 'Unknown'}`,
+                    description: `Wages for ${labourerMap.get(item.labourerId) || 'Unknown'} on ${item.date}`,
                     amount: item.wages
                 });
             }
@@ -172,5 +172,3 @@ export default function ExpenseReportPage() {
         </div>
     );
 }
-
-    

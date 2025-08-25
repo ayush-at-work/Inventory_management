@@ -56,6 +56,7 @@ export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const addExpense = (expense: Omit<Expense, 'id'>) => {
     const newExpense = { ...expense, id: String(Date.now()) };
     setExpenses(prev => [newExpense, ...prev]);
+    // Assuming general expenses are paid from cash for simplicity
     updateBalance(-expense.amount);
   };
 
@@ -72,6 +73,7 @@ export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setExpenses(prev => {
       const expenseToDelete = prev.find(e => e.id === id);
       if (expenseToDelete) {
+        // Refund the amount to cash balance
         updateBalance(expenseToDelete.amount);
       }
       return prev.filter(e => e.id !== id);
