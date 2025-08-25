@@ -30,7 +30,7 @@ interface PurchaseOrderContextType {
 
 const PurchaseOrderContext = createContext<PurchaseOrderContextType | undefined>(undefined);
 
-const PO_STORAGE_KEY = 'purchaseOrders';
+const PO_STORAGE_KEY = 'purchaseOrders_v2';
 const initialPurchaseOrders: PurchaseOrder[] = [];
 
 export const PurchaseOrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

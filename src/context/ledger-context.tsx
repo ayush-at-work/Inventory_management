@@ -23,7 +23,7 @@ interface LedgerContextType {
 
 const LedgerContext = createContext<LedgerContextType | undefined>(undefined);
 
-const LEDGER_STORAGE_KEY = 'cashLedgerEntries';
+const LEDGER_STORAGE_KEY = 'cashLedgerEntries_v2';
 const initialEntries: LedgerEntry[] = [];
 
 export const LedgerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

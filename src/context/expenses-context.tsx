@@ -21,7 +21,7 @@ interface ExpensesContextType {
 
 const ExpensesContext = createContext<ExpensesContextType | undefined>(undefined);
 
-const EXPENSES_STORAGE_KEY = 'generalExpenses';
+const EXPENSES_STORAGE_KEY = 'generalExpenses_v2';
 const initialExpenses: Expense[] = [];
 
 export const ExpensesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

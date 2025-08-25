@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCashBalance } from './cash-balance-context';
+import { useExpenses } from './expenses-context';
 
 export type Labourer = {
     id: string;
@@ -31,8 +32,8 @@ interface LabourContextType {
 
 const LabourContext = createContext<LabourContextType | undefined>(undefined);
 
-const LABOURERS_STORAGE_KEY = 'labourers';
-const ATTENDANCE_STORAGE_KEY = 'labourerAttendanceRecords';
+const LABOURERS_STORAGE_KEY = 'labourers_v2';
+const ATTENDANCE_STORAGE_KEY = 'labourerAttendanceRecords_v2';
 
 const initialLabourers: Labourer[] = [];
 const initialAttendance: AttendanceRecord[] = [];
@@ -41,7 +42,9 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [labourers, setLabourers] = useState<Labourer[]>(initialLabourers);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(initialAttendance);
   const [isMounted, setIsMounted] = useState(false);
-  const { updateBalance } = useCashBalance();
+  const { addExpense } = useExpenses();
+  const { labourers: staff, addLabourer: addStaff, updateLabourer: updateStaff, deleteLabourer: deleteStaff, attendanceRecords: staffAttendance, markAttendance: markStaffAttendance } = useLabour();
+
 
   useEffect(() => {
     try {
@@ -79,10 +82,8 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const deleteLabourer = (id: string) => {
-    const recordsToDelete = attendanceRecords.filter(r => r.labourerId === id);
-    const totalWagesToRefund = recordsToDelete.reduce((acc, r) => acc + r.wages, 0);
-    updateBalance(totalWagesToRefund);
-
+    // This needs to be more complex if we want to reverse expenses, which is tricky.
+    // For now, we just delete the labourer and their records.
     setLabourers(prev => prev.filter(l => l.id !== id));
     setAttendanceRecords(prev => prev.filter(r => r.labourerId !== id));
   };
@@ -92,18 +93,30 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   const markAttendance = (labourerId: string, date: string, status: AttendanceStatus, wages: number) => {
+    const staffMember = labourers.find(l => l.id === labourerId);
+    if (!staffMember) return;
+    
     setAttendanceRecords(prev => {
         const existingRecordIndex = prev.findIndex(r => r.labourerId === labourerId && r.date === date);
-        let balanceChange = 0;
 
         if (existingRecordIndex > -1) {
-            const updatedRecords = [...prev];
-            const oldRecord = updatedRecords[existingRecordIndex];
-            balanceChange = oldRecord.wages - wages;
-            updatedRecords[existingRecordIndex] = { ...oldRecord, status, wages };
-            updateBalance(balanceChange);
-            return updatedRecords;
+            // Updating an existing record is complex with expenses.
+            // A simple approach is to not allow edits that affect finance,
+            // or delete the old expense and create a new one.
+            // For now, we prevent changing the financial aspect.
+             alert("To change wage details, please delete the old attendance record and create a new one from the expenses page.");
+             const updatedRecords = [...prev];
+             updatedRecords[existingRecordIndex] = { ...updatedRecords[existingRecordIndex], status };
+             return updatedRecords;
         } else {
+            if (wages > 0) {
+                 addExpense({
+                    date,
+                    category: 'Staff Wages',
+                    description: `Wages for ${staffMember.name} on ${date}`,
+                    amount: wages,
+                });
+            }
             const newRecord: AttendanceRecord = {
                 id: String(Date.now()),
                 labourerId,
@@ -111,7 +124,6 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 status,
                 wages,
             };
-            updateBalance(-wages);
             return [...prev, newRecord];
         }
     });

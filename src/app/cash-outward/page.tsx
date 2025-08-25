@@ -47,30 +47,7 @@ import { useInventory } from '@/context/inventory-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const initialCashOutward: CashSale[] = [
-    {
-        id: 'cash-out-1',
-        invoiceNumber: 'CASH-S-001',
-        date: '2024-07-11',
-        customer: 'Local Artist',
-        totalValue: 18000,
-        materialType: 'Brass Scrap',
-        weight: '40 kg',
-        hsnCode: '7404',
-        paymentStatus: 'Paid'
-    },
-    {
-        id: 'cash-out-2',
-        invoiceNumber: 'CASH-S-002',
-        date: '2024-07-14',
-        customer: 'DIY Hobbyist',
-        totalValue: 5000,
-        materialType: 'Mixed Wires',
-        weight: '20 kg',
-        hsnCode: '',
-        paymentStatus: 'Paid'
-    }
-];
+const initialCashOutward: CashSale[] = [];
 
 type CashSale = {
     id: string;
@@ -356,5 +333,3 @@ export default function CashOutwardPage() {
     </div>
   );
 }
-
-    

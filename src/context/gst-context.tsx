@@ -54,8 +54,8 @@ interface GstContextType {
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
 
-const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods';
-const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods';
+const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v2';
+const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v2';
 
 const initialInwardGoods: GstInward[] = [];
 const initialOutwardGoods: GstOutward[] = [];
@@ -87,16 +87,8 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (isMounted) {
       try {
-        if(inwardGoods.length > 0) {
-            localStorage.setItem(INWARD_GOODS_STORAGE_KEY, JSON.stringify(inwardGoods));
-        } else {
-             localStorage.removeItem(INWARD_GOODS_STORAGE_KEY);
-        }
-        if (outwardGoods.length > 0) {
-            localStorage.setItem(OUTWARD_GOODS_STORAGE_KEY, JSON.stringify(outwardGoods));
-        } else {
-            localStorage.removeItem(OUTWARD_GOODS_STORAGE_KEY);
-        }
+        localStorage.setItem(INWARD_GOODS_STORAGE_KEY, JSON.stringify(inwardGoods));
+        localStorage.setItem(OUTWARD_GOODS_STORAGE_KEY, JSON.stringify(outwardGoods));
       } catch (error) {
         console.error("Failed to write GST data to localStorage", error);
       }

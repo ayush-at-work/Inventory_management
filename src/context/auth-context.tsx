@@ -25,12 +25,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const USERS_STORAGE_KEY = 'appUsers';
-const CURRENT_USER_ID_KEY = 'appCurrentUserId';
+const USERS_STORAGE_KEY = 'appUsers_v2';
+const CURRENT_USER_ID_KEY = 'appCurrentUserId_v2';
 
 const initialUsers: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@scrapflow.com', role: 'Admin' },
-    { id: '2', name: 'Staff User', email: 'staff@scrapflow.com', role: 'Staff' },
+    { id: '1', name: 'Admin', email: 'admin@scrapflow.com', role: 'Admin' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_reset_v1';
+const INVENTORY_STORAGE_KEY = 'inventory_v2';
 
 const initialInventoryData: InventoryItem[] = [];
 
@@ -70,26 +70,31 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             // Update existing item
             const updatedInventory = [...prevInventory];
             const existingItem = updatedInventory[existingItemIndex];
-            const newQuantity = existingItem.quantity + item.quantity;
-            const newValue = existingItem.value + (item.price * item.quantity);
-            const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
+            
+            // Check if price is the same, if so, merge. Otherwise, create new.
+            // Using a small tolerance for float comparison
+            if (Math.abs(existingItem.price - item.price) < 0.001) {
+                const newQuantity = existingItem.quantity + item.quantity;
+                const newValue = existingItem.value + (item.price * item.quantity);
+                const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
 
-            updatedInventory[existingItemIndex] = {
-                ...existingItem,
-                quantity: newQuantity,
-                price: newPrice,
-                value: newValue,
-            };
-            return updatedInventory;
-        } else {
-            // Add new item
-            const newItem: InventoryItem = {
-                id: String(Date.now()),
-                ...item,
-                value: item.price * item.quantity,
-            };
-            return [...prevInventory, newItem];
+                updatedInventory[existingItemIndex] = {
+                    ...existingItem,
+                    quantity: newQuantity,
+                    price: newPrice,
+                    value: newValue,
+                };
+                return updatedInventory;
+            }
         }
+        
+        // Add new item if no match or price is different
+        const newItem: InventoryItem = {
+            id: String(Date.now()),
+            ...item,
+            value: item.price * item.quantity,
+        };
+        return [...prevInventory, newItem];
     });
   };
 
