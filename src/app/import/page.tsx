@@ -46,7 +46,7 @@ export default function ImportPage() {
 
         switch(importType) {
             case 'gst-inward':
-                headers = 'Invoice Number,Date,Name,GST Number,Place Of Supply,Material,HSN Code,Weight,Taxable Amount,CGST,SGST,IGST,Tax Percentage,Tax Amount,TCS,Invoice Value';
+                headers = 'Invoice Number,Date,Name,GST Number,Place Of Supply,Material,HSN Code,Weight,Taxable Amount,CGST,SGST,IGST,Tax Amount,TCS,Invoice Value';
                 break;
             // Add other cases here for different import types
             default:
@@ -115,12 +115,14 @@ export default function ImportPage() {
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
+                    // Skip row if essential data is missing
                     if (!row || !row['Invoice Number'] || !row['Material']) {
                         return;
                     }
                     
                     const cgst = Number(row['CGST'] || 0);
                     const sgst = Number(row['SGST'] || 0);
+                    // Determine tax type based on whether CGST/SGST or IGST is present
                     const taxType = (cgst > 0 || sgst > 0) ? 'inter-state' : 'intra-state';
 
                     addInwardGood({
