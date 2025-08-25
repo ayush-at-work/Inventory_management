@@ -112,19 +112,15 @@ export default function ImportPage() {
     };
 
     const processData = (data: any[]) => {
-        // This is a simplified processor. A real implementation would have much more robust validation.
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
-                    // Skip empty or invalid rows by checking for essential fields.
                     if (!row || !row['Invoice Number'] || !row['Material']) {
                         return;
                     }
                     
-                    const taxableAmount = Number(row['Taxable Amount'] || 0);
                     const cgst = Number(row['CGST'] || 0);
                     const sgst = Number(row['SGST'] || 0);
-                    const igst = Number(row['IGST'] || 0);
                     const taxType = (cgst > 0 || sgst > 0) ? 'inter-state' : 'intra-state';
 
                     addInwardGood({
@@ -136,11 +132,11 @@ export default function ImportPage() {
                         materialType: row['Material'],
                         hsnCode: row['HSN Code'],
                         weight: Number(row['Weight'] || 0),
-                        taxableAmount: taxableAmount,
+                        taxableAmount: Number(row['Taxable Amount'] || 0),
                         taxType: taxType,
                         cgst: cgst,
                         sgst: sgst,
-                        igst: igst,
+                        igst: Number(row['IGST'] || 0),
                         taxAmount: Number(row['Tax Amount'] || 0),
                         tcs: Number(row['TCS'] || 0),
                         totalInvoiceValue: Number(row['Invoice Value'] || 0),
