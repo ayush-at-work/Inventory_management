@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useExpenses } from './expenses-context';
 
-export type Staff = {
+export type Labourer = {
     id: string;
     name: string;
 };
@@ -13,41 +13,41 @@ export type AttendanceStatus = 'Present' | 'Absent' | 'Half Day';
 
 export type AttendanceRecord = {
     id: string;
-    staffId: string;
+    labourerId: string;
     date: string; // YYYY-MM-DD
     status: AttendanceStatus;
     wages: number;
 };
 
-interface StaffContextType {
-  staff: Staff[];
+interface LabourContextType {
+  labourers: Labourer[];
   attendanceRecords: AttendanceRecord[];
-  addStaff: (name: string) => void;
-  updateStaff: (id: string, name: string) => void;
-  deleteStaff: (id: string) => void;
-  getAttendanceForStaff: (staffId: string) => AttendanceRecord[];
-  markAttendance: (staffId: string, date: string, status: AttendanceStatus, wages: number) => void;
+  addLabourer: (name: string) => void;
+  updateLabourer: (id: string, name: string) => void;
+  deleteLabourer: (id: string) => void;
+  getAttendanceForLabourer: (labourerId: string) => AttendanceRecord[];
+  markAttendance: (labourerId: string, date: string, status: AttendanceStatus, wages: number) => void;
 }
 
-const StaffContext = createContext<StaffContextType | undefined>(undefined);
+const LabourContext = createContext<LabourContextType | undefined>(undefined);
 
-const STAFF_STORAGE_KEY = 'staff_v3';
-const ATTENDANCE_STORAGE_KEY = 'staffAttendanceRecords_v3';
+const LABOURER_STORAGE_KEY = 'labourers_v4';
+const ATTENDANCE_STORAGE_KEY = 'labourerAttendanceRecords_v4';
 
-const initialStaff: Staff[] = [];
+const initialLabourers: Labourer[] = [];
 const initialAttendance: AttendanceRecord[] = [];
 
 export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [staff, setStaff] = useState<Staff[]>(initialStaff);
+  const [labourers, setLabourers] = useState<Labourer[]>(initialLabourers);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(initialAttendance);
   const [isMounted, setIsMounted] = useState(false);
   const { addExpense } = useExpenses();
 
   useEffect(() => {
     try {
-        const savedStaff = localStorage.getItem(STAFF_STORAGE_KEY);
-        if (savedStaff) setStaff(JSON.parse(savedStaff));
-        else localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(initialStaff));
+        const savedLabourers = localStorage.getItem(LABOURER_STORAGE_KEY);
+        if (savedLabourers) setLabourers(JSON.parse(savedLabourers));
+        else localStorage.setItem(LABOURER_STORAGE_KEY, JSON.stringify(initialLabourers));
 
         const savedAttendance = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
         if (savedAttendance) setAttendanceRecords(JSON.parse(savedAttendance));
@@ -61,40 +61,40 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staff));
+        localStorage.setItem(LABOURER_STORAGE_KEY, JSON.stringify(labourers));
         localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(attendanceRecords));
       } catch (error) {
         console.error("Failed to write to localStorage", error);
       }
     }
-  }, [staff, attendanceRecords, isMounted]);
+  }, [labourers, attendanceRecords, isMounted]);
 
-  const addStaff = (name: string) => {
-    const newStaffer: Staff = { id: String(Date.now()), name };
-    setStaff(prev => [...prev, newStaffer]);
+  const addLabourer = (name: string) => {
+    const newLabourer: Labourer = { id: String(Date.now()), name };
+    setLabourers(prev => [...prev, newLabourer]);
   };
 
-  const updateStaff = (id: string, name: string) => {
-    setStaff(prev => prev.map(s => (s.id === id ? { ...s, name } : s)));
+  const updateLabourer = (id: string, name: string) => {
+    setLabourers(prev => prev.map(s => (s.id === id ? { ...s, name } : s)));
   };
 
-  const deleteStaff = (id: string) => {
+  const deleteLabourer = (id: string) => {
     // This needs to be more complex if we want to reverse expenses, which is tricky.
-    // For now, we just delete the staff member and their records.
-    setStaff(prev => prev.filter(s => s.id !== id));
-    setAttendanceRecords(prev => prev.filter(r => r.staffId !== id));
+    // For now, we just delete the labourer and their records.
+    setLabourers(prev => prev.filter(s => s.id !== id));
+    setAttendanceRecords(prev => prev.filter(r => r.labourerId !== id));
   };
   
-  const getAttendanceForStaff = (staffId: string) => {
-    return attendanceRecords.filter(record => record.staffId === staffId);
+  const getAttendanceForLabourer = (labourerId: string) => {
+    return attendanceRecords.filter(record => record.labourerId === labourerId);
   }
 
-  const markAttendance = (staffId: string, date: string, status: AttendanceStatus, wages: number) => {
-    const staffMember = staff.find(s => s.id === staffId);
-    if (!staffMember) return;
+  const markAttendance = (labourerId: string, date: string, status: AttendanceStatus, wages: number) => {
+    const labourer = labourers.find(s => s.id === labourerId);
+    if (!labourer) return;
     
     setAttendanceRecords(prev => {
-        const existingRecordIndex = prev.findIndex(r => r.staffId === staffId && r.date === date);
+        const existingRecordIndex = prev.findIndex(r => r.labourerId === labourerId && r.date === date);
 
         if (existingRecordIndex > -1) {
             // Updating an existing record is complex with expenses.
@@ -109,14 +109,14 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             if (wages > 0) {
                  addExpense({
                     date,
-                    category: 'Staff Wages',
-                    description: `Wages for ${staffMember.name} on ${date}`,
+                    category: 'Labour Wages',
+                    description: `Wages for ${labourer.name} on ${date}`,
                     amount: wages,
                 });
             }
             const newRecord: AttendanceRecord = {
                 id: String(Date.now()),
-                staffId,
+                labourerId,
                 date,
                 status,
                 wages,
@@ -131,24 +131,24 @@ export const LabourProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
   
   const value = {
-      staff,
+      labourers,
       attendanceRecords,
-      addStaff,
-      updateStaff,
-      deleteStaff,
-      getAttendanceForStaff,
+      addLabourer,
+      updateLabourer,
+      deleteLabourer,
+      getAttendanceForLabourer,
       markAttendance
   }
 
   return (
-    <StaffContext.Provider value={value}>
+    <LabourContext.Provider value={value}>
       {children}
-    </StaffContext.Provider>
+    </LabourContext.Provider>
   );
 };
 
 export const useLabour = () => {
-  const context = useContext(StaffContext);
+  const context = useContext(LabourContext);
   if (context === undefined) {
     throw new Error('useLabour must be used within a LabourProvider');
   }

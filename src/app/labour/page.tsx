@@ -67,12 +67,12 @@ const AttendanceCalendar = ({
     if (!selectedLabourerId) return new Map();
     const records = getAttendanceForLabourer(selectedLabourerId);
     return new Map(records.map(r => [r.date, r]));
-  }, [selectedLabourerId, getAttendanceForLabourer]);
+  }, [selectedLabourerId, getAttendanceForLabourer, currentMonth]);
 
   const start = startOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({
     start,
-    end: new Date(start.getFullYear(), start.getMonth() + 1, 0),
+    end: endOfMonth(currentMonth),
   });
 
   const handleDayClick = (day: Date) => {
