@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_v4_reset';
+const INVENTORY_STORAGE_KEY = 'inventory_v5_final';
 
 const initialInventoryData: InventoryItem[] = [];
 
@@ -81,12 +81,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             
             const newQuantity = existingItem.quantity + item.quantity;
             const newValue = existingItem.value + (item.price * item.quantity);
-            const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
-
+            
             updatedInventory[existingItemIndex] = {
                 ...existingItem,
                 quantity: newQuantity,
-                price: newPrice,
                 value: newValue,
             };
             return updatedInventory;
@@ -94,7 +92,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         
         // Add new item if no match or price is different
         const newItem: InventoryItem = {
-            id: String(Date.now()),
+            id: String(Date.now()) + Math.random(), // Ensure unique ID
             ...item,
             value: item.price * item.quantity,
         };
@@ -109,6 +107,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const decreaseInventory = (materialType: string, quantity: number, transactionType: 'GST' | 'Cash') => {
       setInventory(prevInventory => {
           const updatedInventory = [...prevInventory];
+          // Find the most relevant inventory item to decrease from (e.g. oldest one, but for now, first found is fine)
           const itemIndex = updatedInventory.findIndex(
               item => item.materialType.toLowerCase() === materialType.toLowerCase() && item.transactionType === transactionType
           );
@@ -123,6 +122,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               }
               const newValue = item.price * newQuantity;
               updatedInventory[itemIndex] = { ...item, quantity: newQuantity, value: newValue };
+              // Filter out items with zero quantity
+              return updatedInventory.filter(i => i.quantity > 0.001);
           } else {
               console.warn(`Inventory item not found for ${materialType} (${transactionType})`);
           }
