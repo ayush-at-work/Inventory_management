@@ -346,7 +346,7 @@ export default function LabourPage() {
                       </DialogContent>
                   </Dialog>
               </div>
-              <ScrollArea className="max-h-96 pr-3">
+              <ScrollArea className="h-96 pr-3 -mr-3">
               <div className="space-y-2">
                 {labourers.map(labourer => (
                   <div key={labourer.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedLabourerId === labourer.id ? 'bg-primary/10' : 'hover:bg-accent')}>

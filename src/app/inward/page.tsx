@@ -185,14 +185,14 @@ export default function InwardGoodsPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Inward Entry' : 'Add New Inward Entry'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the incoming scrap material.' : 'Log a new batch of incoming scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[70vh] pr-4">
+              <ScrollArea className="flex-grow pr-6 -mr-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
@@ -289,7 +289,7 @@ export default function InwardGoodsPage() {
                     <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
                   </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                   </DialogClose>

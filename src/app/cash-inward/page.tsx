@@ -165,14 +165,14 @@ export default function CashInwardPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Cash Entry
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl">
+            <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Cash Inward Entry' : 'Add New Cash Inward Entry'}</DialogTitle>
                 <DialogDescription>
                   {editingItem ? 'Update the details of the cash purchase.' : 'Log a new cash purchase of scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[70vh] pr-4">
+              <ScrollArea className="flex-grow pr-6 -mr-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
@@ -216,7 +216,7 @@ export default function CashInwardPage() {
                     <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
                   </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                   </DialogClose>
