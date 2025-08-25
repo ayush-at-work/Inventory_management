@@ -46,7 +46,7 @@ export default function ImportPage() {
 
         switch(importType) {
             case 'gst-inward':
-                headers = 'invoiceNumber,date,supplier,gstNumber,placeOfSupply,materialType,hsnCode,weight,taxableAmount,taxType,cgst,sgst,igst';
+                headers = 'Invoice Number,Date,Name,GST Number,Place Of Supply,Material,HSN Code,Weight,Taxable Amount,CGST,SGST,IGST,Tax Percentage,Tax Amount,TCS,Invoice Value';
                 break;
             // Add other cases here for different import types
             default:
@@ -116,24 +116,29 @@ export default function ImportPage() {
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
-                     const taxAmount = (Number(row.taxableAmount) * (Number(row.cgst) + Number(row.sgst) + Number(row.igst))) / 100;
-                     const totalInvoiceValue = Number(row.taxableAmount) + taxAmount;
+                    const taxableAmount = Number(row['Taxable Amount']);
+                    const cgst = Number(row['CGST']);
+                    const sgst = Number(row['SGST']);
+                    const igst = Number(row['IGST']);
+                    const taxType = (cgst > 0 || sgst > 0) ? 'inter-state' : 'intra-state';
+
                     addInwardGood({
-                        invoiceNumber: row.invoiceNumber,
-                        date: row.date,
-                        supplier: row.supplier,
-                        gstNumber: row.gstNumber,
-                        placeOfSupply: row.placeOfSupply,
-                        materialType: row.materialType,
-                        hsnCode: row.hsnCode,
-                        weight: Number(row.weight),
-                        taxableAmount: Number(row.taxableAmount),
-                        taxType: row.taxType,
-                        cgst: Number(row.cgst),
-                        sgst: Number(row.sgst),
-                        igst: Number(row.igst),
-                        taxAmount: taxAmount,
-                        totalInvoiceValue: totalInvoiceValue,
+                        invoiceNumber: row['Invoice Number'],
+                        date: row['Date'],
+                        supplier: row['Name'],
+                        gstNumber: row['GST Number'],
+                        placeOfSupply: row['Place Of Supply'],
+                        materialType: row['Material'],
+                        hsnCode: row['HSN Code'],
+                        weight: Number(row['Weight']),
+                        taxableAmount: taxableAmount,
+                        taxType: taxType,
+                        cgst: cgst,
+                        sgst: sgst,
+                        igst: igst,
+                        taxAmount: Number(row['Tax Amount']),
+                        tcs: Number(row['TCS']),
+                        totalInvoiceValue: Number(row['Invoice Value']),
                     });
                 });
                 break;

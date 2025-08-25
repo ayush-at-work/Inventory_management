@@ -21,6 +21,7 @@ export type GstInward = {
   sgst: number;
   igst: number;
   taxAmount: number;
+  tcs: number;
   totalInvoiceValue: number;
 };
 
@@ -54,8 +55,8 @@ interface GstContextType {
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
 
-const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v2';
-const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v2';
+const INWARD_GOODS_STORAGE_KEY = 'gstInwardGoods_v3';
+const OUTWARD_GOODS_STORAGE_KEY = 'gstOutwardGoods_v3';
 
 const initialInwardGoods: GstInward[] = [];
 const initialOutwardGoods: GstOutward[] = [];
