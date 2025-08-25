@@ -316,35 +316,37 @@ export default function LabourPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">All Labourers</h3>
-                  <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" onClick={handleAddLabourerClick}>
-                          <PlusCircle className="mr-2 h-4 w-4"/> Add 
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>{editingLabourer ? 'Edit Labourer' : 'Add New Labourer'}</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleLabourerSubmit}>
-                          <div className="grid gap-4 py-4">
-                              <div className="space-y-2">
-                              <Label htmlFor="name">
-                                  Labourer Name
-                              </Label>
-                              <Input id="name" name="name" defaultValue={editingLabourer?.name} required />
-                              </div>
-                          </div>
-                          <DialogFooter className="gap-2">
-                              <DialogClose asChild>
-                                  <Button type="button" variant="secondary" onClick={() => setEditingLabourer(null)}>Cancel</Button>
-                              </DialogClose>
-                              <Button type="submit">{editingLabourer ? 'Save Changes' : 'Save Labourer'}</Button>
-                          </DialogFooter>
-                        </form>
-                      </DialogContent>
-                  </Dialog>
+                  <h3 className="text-lg font-semibold whitespace-nowrap">All Labourers</h3>
+                  <div className="flex-shrink-0 ml-4">
+                    <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" onClick={handleAddLabourerClick}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> Add 
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>{editingLabourer ? 'Edit Labourer' : 'Add New Labourer'}</DialogTitle>
+                          </DialogHeader>
+                          <form onSubmit={handleLabourerSubmit}>
+                            <div className="grid gap-4 py-4">
+                                <div className="space-y-2">
+                                <Label htmlFor="name">
+                                    Labourer Name
+                                </Label>
+                                <Input id="name" name="name" defaultValue={editingLabourer?.name} required />
+                                </div>
+                            </div>
+                            <DialogFooter className="gap-2">
+                                <DialogClose asChild>
+                                    <Button type="button" variant="secondary" onClick={() => setEditingLabourer(null)}>Cancel</Button>
+                                </DialogClose>
+                                <Button type="submit">{editingLabourer ? 'Save Changes' : 'Save Labourer'}</Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                    </Dialog>
+                  </div>
               </div>
               <ScrollArea className="h-96">
                 <ScrollBar orientation="vertical" />
