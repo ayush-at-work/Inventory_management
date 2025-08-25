@@ -173,9 +173,10 @@ export default function CashInwardPage() {
                   {editingItem ? 'Update the details of the cash purchase.' : 'Log a new cash purchase of scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="flex-grow pr-6 -mr-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <form onSubmit={handleSubmit} className="flex-grow overflow-hidden flex flex-col">
+                <ScrollArea className="flex-grow pr-6 -mr-6">
+                <div className="space-y-4 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Reference / Bill No.</Label>
                     <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
@@ -217,14 +218,15 @@ export default function CashInwardPage() {
                     <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
                   </div>
                 </div>
-                <DialogFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
+                </div>
+              </ScrollArea>
+              <DialogFooter className="flex-shrink-0 pt-4">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                   </DialogClose>
                   <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
-              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>

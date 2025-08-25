@@ -193,8 +193,8 @@ export default function InwardGoodsPage() {
                   {editingItem ? 'Update the details of the incoming scrap material.' : 'Log a new batch of incoming scrap material.'}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="flex-grow pr-6 -mr-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex-grow overflow-hidden flex flex-col">
+                <ScrollArea className="flex-grow pr-6 -mr-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="invoiceNumber">Invoice Number</Label>
@@ -290,14 +290,14 @@ export default function InwardGoodsPage() {
                     <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
                   </div>
                 </div>
-                <DialogFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
+                </ScrollArea>
+                <DialogFooter className="flex-shrink-0 pt-4">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                   </DialogClose>
                   <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
-              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>
