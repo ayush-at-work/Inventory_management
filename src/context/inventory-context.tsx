@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_v2';
+const INVENTORY_STORAGE_KEY = 'inventory_v4_reset';
 
 const initialInventoryData: InventoryItem[] = [];
 
@@ -58,12 +58,20 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [inventory, isMounted]);
 
   const addInventoryItem = (item: Omit<InventoryItem, 'id' | 'value'> & { value?: number }) => {
+    // Prevent adding items without a material type
+    if (!item.materialType || typeof item.materialType !== 'string') {
+        console.error("Attempted to add inventory item with invalid materialType:", item);
+        return; 
+    }
+      
     setInventory(prevInventory => {
         const existingItemIndex = prevInventory.findIndex(
-            invItem => invItem.materialType.toLowerCase() === item.materialType.toLowerCase() &&
+            invItem => 
+                       invItem.materialType.toLowerCase() === item.materialType.toLowerCase() &&
                        invItem.transactionType === item.transactionType &&
                        invItem.unit === item.unit &&
-                       (invItem.hsnCode || '') === (item.hsnCode || '')
+                       (invItem.hsnCode || '') === (item.hsnCode || '') &&
+                       Math.abs(invItem.price - item.price) < 0.001
         );
 
         if (existingItemIndex > -1) {
@@ -71,21 +79,17 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const updatedInventory = [...prevInventory];
             const existingItem = updatedInventory[existingItemIndex];
             
-            // Check if price is the same, if so, merge. Otherwise, create new.
-            // Using a small tolerance for float comparison
-            if (Math.abs(existingItem.price - item.price) < 0.001) {
-                const newQuantity = existingItem.quantity + item.quantity;
-                const newValue = existingItem.value + (item.price * item.quantity);
-                const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
+            const newQuantity = existingItem.quantity + item.quantity;
+            const newValue = existingItem.value + (item.price * item.quantity);
+            const newPrice = newQuantity > 0 ? newValue / newQuantity : 0;
 
-                updatedInventory[existingItemIndex] = {
-                    ...existingItem,
-                    quantity: newQuantity,
-                    price: newPrice,
-                    value: newValue,
-                };
-                return updatedInventory;
-            }
+            updatedInventory[existingItemIndex] = {
+                ...existingItem,
+                quantity: newQuantity,
+                price: newPrice,
+                value: newValue,
+            };
+            return updatedInventory;
         }
         
         // Add new item if no match or price is different
