@@ -43,8 +43,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useBankBalance } from '@/context/bank-balance-context';
-import { useInventory } from '@/context/inventory-context';
 import { useGst, GstInward } from '@/context/gst-context';
 
 const indianStates = [
@@ -57,48 +55,49 @@ const indianStates = [
   "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
+const initialFormState = {
+    taxableAmount: 0,
+    taxType: '' as 'inter-state' | 'intra-state' | '',
+    cgst: 0,
+    sgst: 0,
+    igst: 0,
+    tcs: 0
+}
+
 export default function InwardGoodsPage() {
   const { inwardGoods, addInwardGood, deleteInwardGood } = useGst();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<GstInward | null>(null);
-  const [taxableAmount, setTaxableAmount] = useState(0);
-  const [taxType, setTaxType] = useState<'inter-state' | 'intra-state' | ''>('');
-  const [cgst, setCgst] = useState(0);
-  const [sgst, setSgst] = useState(0);
-  const [igst, setIgst] = useState(0);
-  const [tcs, setTcs] = useState(0);
+  const [formState, setFormState] = useState(initialFormState);
   
   const taxAmount = React.useMemo(() => {
-    if (taxType === 'inter-state') {
-      return (taxableAmount * (cgst + sgst)) / 100;
+    if (formState.taxType === 'inter-state') {
+      return (formState.taxableAmount * (formState.cgst + formState.sgst)) / 100;
     }
-    if (taxType === 'intra-state') {
-      return (taxableAmount * igst) / 100;
+    if (formState.taxType === 'intra-state') {
+      return (formState.taxableAmount * formState.igst) / 100;
     }
     return 0;
-  }, [taxableAmount, taxType, cgst, sgst, igst]);
+  }, [formState]);
 
-  const totalInvoiceValue = taxableAmount + taxAmount + tcs;
+  const totalInvoiceValue = formState.taxableAmount + taxAmount + formState.tcs;
   
   const handleAddNewClick = () => {
     setEditingItem(null);
-    setTaxableAmount(0);
-    setTaxType('');
-    setCgst(0);
-    setSgst(0);
-    setIgst(0);
-    setTcs(0);
+    setFormState(initialFormState);
     setOpen(true);
   };
   
   const handleEditClick = (item: GstInward) => {
     setEditingItem(item);
-    setTaxableAmount(item.taxableAmount);
-    setTaxType(item.taxType);
-    setCgst(item.cgst);
-    setSgst(item.sgst);
-    setIgst(item.igst);
-    setTcs(item.tcs);
+    setFormState({
+        taxableAmount: item.taxableAmount,
+        taxType: item.taxType,
+        cgst: item.cgst,
+        sgst: item.sgst,
+        igst: item.igst,
+        tcs: item.tcs,
+    });
     setOpen(true);
   };
 
@@ -115,16 +114,16 @@ export default function InwardGoodsPage() {
       gstNumber: formData.get('gstNumber') as string,
       placeOfSupply: formData.get('placeOfSupply') as string,
       hsnCode: formData.get('hsnCode') as string,
-      taxableAmount: taxableAmount,
-      taxType: taxType as 'inter-state' | 'intra-state',
-      cgst: taxType === 'inter-state' ? cgst : 0,
-      sgst: taxType === 'inter-state' ? sgst : 0,
-      igst: taxType === 'intra-state' ? igst : 0,
+      taxableAmount: formState.taxableAmount,
+      taxType: formState.taxType as 'inter-state' | 'intra-state',
+      cgst: formState.taxType === 'inter-state' ? formState.cgst : 0,
+      sgst: formState.taxType === 'inter-state' ? formState.sgst : 0,
+      igst: formState.taxType === 'intra-state' ? formState.igst : 0,
       taxAmount: taxAmount,
       totalInvoiceValue: totalInvoiceValue,
       materialType: formData.get('materialType') as string,
       weight: weight,
-      tcs: tcs,
+      tcs: formState.tcs,
     };
     
     // Note: Update logic is not implemented yet. This will always add.
@@ -133,12 +132,7 @@ export default function InwardGoodsPage() {
     setOpen(false);
     // Reset form state
     setEditingItem(null);
-    setTaxableAmount(0);
-    setTaxType('');
-    setCgst(0);
-    setSgst(0);
-    setIgst(0);
-    setTcs(0);
+    setFormState(initialFormState);
   };
   
   const handleDeleteClick = (id: string) => {
@@ -242,7 +236,7 @@ export default function InwardGoodsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="taxType">Tax Type</Label>
-                     <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)} value={taxType}>
+                     <Select name="taxType" required onValueChange={(value) => setFormState(s => ({ ...s, taxType: value as any}))} value={formState.taxType}>
                       <SelectTrigger id="taxType">
                         <SelectValue placeholder="Select tax type" />
                       </SelectTrigger>
@@ -255,28 +249,28 @@ export default function InwardGoodsPage() {
                    <div className="space-y-2">
                     <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
                     <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required 
-                      value={taxableAmount}
-                      onChange={(e) => setTaxableAmount(Number(e.target.value))}
+                      value={formState.taxableAmount}
+                      onChange={(e) => setFormState(s => ({ ...s, taxableAmount: Number(e.target.value)}))}
                     />
                   </div>
 
-                  {taxType === 'inter-state' && (
+                  {formState.taxType === 'inter-state' && (
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="cgst">CGST (%)</Label>
-                        <Input id="cgst" name="cgst" type="number" step="0.01" required value={cgst} onChange={(e) => setCgst(Number(e.target.value))} />
+                        <Input id="cgst" name="cgst" type="number" step="0.01" required value={formState.cgst} onChange={(e) => setFormState(s => ({ ...s, cgst: Number(e.target.value)}))} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="sgst">SGST (%)</Label>
-                        <Input id="sgst" name="sgst" type="number" step="0.01" required value={sgst} onChange={(e) => setSgst(Number(e.target.value))} />
+                        <Input id="sgst" name="sgst" type="number" step="0.01" required value={formState.sgst} onChange={(e) => setFormState(s => ({ ...s, sgst: Number(e.target.value)}))} />
                       </div>
                     </>
                   )}
 
-                  {taxType === 'intra-state' && (
+                  {formState.taxType === 'intra-state' && (
                     <div className="space-y-2">
                       <Label htmlFor="igst">IGST (%)</Label>
-                      <Input id="igst" name="igst" type="number" step="0.01" required value={igst} onChange={(e) => setIgst(Number(e.target.value))} />
+                      <Input id="igst" name="igst" type="number" step="0.01" required value={formState.igst} onChange={(e) => setFormState(s => ({ ...s, igst: Number(e.target.value)}))} />
                     </div>
                   )}
 
@@ -286,7 +280,7 @@ export default function InwardGoodsPage() {
                   </div>
                    <div className="space-y-2">
                         <Label htmlFor="tcs">TCS (₹)</Label>
-                        <Input id="tcs" name="tcs" type="number" step="0.01" value={tcs} onChange={(e) => setTcs(Number(e.target.value))} />
+                        <Input id="tcs" name="tcs" type="number" step="0.01" value={formState.tcs} onChange={(e) => setFormState(s => ({ ...s, tcs: Number(e.target.value)}))} />
                     </div>
                   <div className="space-y-2 col-span-1 md:col-span-2">
                     <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
@@ -394,3 +388,5 @@ export default function InwardGoodsPage() {
     </div>
   );
 }
+
+    
