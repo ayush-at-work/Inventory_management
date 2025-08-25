@@ -12,6 +12,7 @@ import { Loader2, TrendingUp, BrainCircuit } from 'lucide-react';
 import { useGst } from '@/context/gst-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import React from 'react';
+import { Separator } from '@/components/ui/separator';
 
 const initialState: { result: ForecastDemandOutput | null; error: string | null } = {
   result: null,
@@ -70,61 +71,63 @@ export default function ForecastingPage() {
         <TrendingUp className="h-8 w-8 text-primary" />
         <h2 className="text-3xl font-bold tracking-tight">AI Demand Forecasting</h2>
       </div>
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Forecast Future Sales</CardTitle>
-          <CardDescription>
-            Select a material to get an AI-powered demand forecast based on your sales history.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <form action={formAction} className="space-y-4">
-            <div>
-              <Label htmlFor="materialType">Material Type</Label>
-              <Select name="materialType" required>
-                <SelectTrigger>
-                    <SelectValue placeholder="Select a material" />
-                </SelectTrigger>
-                <SelectContent>
-                    {uniqueMaterials.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="forecastPeriod">Forecast Period</Label>
-              <Input id="forecastPeriod" name="forecastPeriod" defaultValue="next 30 days" required />
-            </div>
-            <SubmitButton />
-          </form>
-
-          {state.error && (
-            <p className="text-sm font-medium text-destructive">{state.error}</p>
-          )}
-
-          {state.result && (
-            <Card className="bg-primary/5 border-primary/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BrainCircuit className="h-5 w-5 text-primary" />
-                  Forecast Result
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+      <div className="max-w-2xl mx-auto">
+        <Card>
+            <CardHeader>
+            <CardTitle>Forecast Future Sales</CardTitle>
+            <CardDescription>
+                Select a material to get an AI-powered demand forecast based on your sales history.
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <form action={formAction} className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Predicted Demand ({state.result.unit})</p>
-                  <p className="text-2xl font-bold text-primary">
-                    {state.result.predictedDemand.toLocaleString()} {state.result.unit}
-                  </p>
+                <Label htmlFor="materialType">Material Type</Label>
+                <Select name="materialType" required>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a material" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {uniqueMaterials.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                </Select>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Analysis</p>
-                  <p className="text-sm text-foreground/80">{state.result.analysis}</p>
+                <Label htmlFor="forecastPeriod">Forecast Period</Label>
+                <Input id="forecastPeriod" name="forecastPeriod" defaultValue="next 30 days" required />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </CardContent>
-      </Card>
+                <SubmitButton />
+            </form>
+
+            {state.error && (
+                <p className="text-sm font-medium text-destructive mt-4">{state.error}</p>
+            )}
+            </CardContent>
+
+            {state.result && (
+                <>
+                <Separator />
+                <CardContent className="pt-6">
+                    <div className="space-y-4 rounded-md border border-primary/20 bg-primary/5 p-4">
+                        <div className="flex items-start gap-4">
+                            <BrainCircuit className="h-6 w-6 text-primary mt-1" />
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-primary">Forecast Result</h3>
+                                <div>
+                                <p className="text-2xl font-bold">
+                                    {state.result.predictedDemand.toLocaleString()} {state.result.unit}
+                                </p>
+                                <p className="text-sm text-muted-foreground">Predicted Demand</p>
+                                </div>
+                                <p className="text-sm text-foreground/80 mt-2">{state.result.analysis}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+                </>
+            )}
+        </Card>
+      </div>
     </div>
   );
 }

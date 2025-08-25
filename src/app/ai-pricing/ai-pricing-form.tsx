@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useActionState } from 'react';
@@ -9,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Lightbulb } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const initialState: { result: SuggestPricingOutput | null; error: string | null } = {
   result: null,
@@ -40,49 +42,56 @@ export function AiPricingForm() {
   }, initialState);
 
   return (
-    <div className="space-y-6">
-      <form action={formAction} className="space-y-4">
-        <div>
-          <Label htmlFor="materialType">Material Type</Label>
-          <Input id="materialType" name="materialType" placeholder="e.g., Copper, Aluminum" required />
-        </div>
-        <div>
-          <Label htmlFor="quantity">Quantity (kg)</Label>
-          <Input id="quantity" name="quantity" type="number" placeholder="e.g., 500" required />
-        </div>
-        <div>
-          <Label htmlFor="marketTrends">Known Market Trends (Optional)</Label>
-          <Textarea id="marketTrends" name="marketTrends" placeholder="e.g., Prices are currently high due to demand." />
-        </div>
-        <SubmitButton />
-      </form>
+    <Card>
+       <CardHeader>
+          <CardTitle>Get Price Suggestions</CardTitle>
+          <CardDescription>
+            Provide details about your scrap material to receive an AI-powered price suggestion based on market data.
+          </CardDescription>
+        </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-4">
+          <div>
+            <Label htmlFor="materialType">Material Type</Label>
+            <Input id="materialType" name="materialType" placeholder="e.g., Copper, Aluminum" required />
+          </div>
+          <div>
+            <Label htmlFor="quantity">Quantity (kg)</Label>
+            <Input id="quantity" name="quantity" type="number" placeholder="e.g., 500" required />
+          </div>
+          <div>
+            <Label htmlFor="marketTrends">Known Market Trends (Optional)</Label>
+            <Textarea id="marketTrends" name="marketTrends" placeholder="e.g., Prices are currently high due to demand." />
+          </div>
+          <SubmitButton />
+        </form>
 
-      {state.error && (
-        <p className="text-sm font-medium text-destructive">{state.error}</p>
-      )}
+        {state.error && (
+          <p className="text-sm font-medium text-destructive mt-4">{state.error}</p>
+        )}
+      </CardContent>
 
       {state.result && (
-        <Card className="bg-primary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-primary" />
-              Pricing Suggestion
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Suggested Price / kg</p>
-              <p className="text-2xl font-bold text-primary">
-                ₹{state.result.suggestedPrice.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Reasoning</p>
-              <p className="text-sm text-foreground/80">{state.result.reasoning}</p>
+        <>
+          <Separator />
+          <CardContent className="space-y-4 pt-6">
+             <div className="space-y-4 rounded-md border border-primary/20 bg-primary/5 p-4">
+                <div className='flex items-start gap-4'>
+                    <Lightbulb className="h-6 w-6 text-primary mt-1" />
+                    <div className='flex-1'>
+                        <h3 className="text-lg font-semibold text-primary">Pricing Suggestion</h3>
+                        <div>
+                          <p className="text-2xl font-bold">
+                            ₹{state.result.suggestedPrice.toFixed(2)} / kg
+                          </p>
+                        </div>
+                        <p className="text-sm text-foreground/80 mt-2">{state.result.reasoning}</p>
+                    </div>
+                </div>
             </div>
           </CardContent>
-        </Card>
+        </>
       )}
-    </div>
+    </Card>
   );
 }
