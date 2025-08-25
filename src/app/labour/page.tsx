@@ -315,8 +315,8 @@ export default function LabourPage() {
         <div className="md:col-span-1 space-y-4">
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between gap-4 mb-4">
-                  <h3 className="text-lg font-semibold">All Labourers</h3>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                  <h3 className="text-lg font-semibold flex-grow overflow-hidden text-ellipsis whitespace-nowrap">All Labourers</h3>
                   <div className="flex-shrink-0">
                     <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
                         <DialogTrigger asChild>
