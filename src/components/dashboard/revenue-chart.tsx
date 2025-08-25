@@ -51,7 +51,7 @@ export function RevenueChart() {
 
     // Calculate revenue from paid GST sales
     outwardGoods.forEach(item => {
-        if (item.paymentStatus === 'Paid') {
+        if (item.paymentStatus === 'Paid' && item.date && !isNaN(new Date(item.date).getTime())) {
             const monthKey = format(startOfMonth(new Date(item.date)), 'yyyy-MM');
             if (dataByMonth[monthKey]) {
                 const tax = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
@@ -62,17 +62,21 @@ export function RevenueChart() {
     
     // Calculate expenses from GST purchases
     inwardGoods.forEach(item => {
-        const monthKey = format(startOfMonth(new Date(item.date)), 'yyyy-MM');
-        if (dataByMonth[monthKey]) {
-            dataByMonth[monthKey].expenses += item.totalInvoiceValue;
+        if (item.date && !isNaN(new Date(item.date).getTime())) {
+            const monthKey = format(startOfMonth(new Date(item.date)), 'yyyy-MM');
+            if (dataByMonth[monthKey]) {
+                dataByMonth[monthKey].expenses += item.totalInvoiceValue;
+            }
         }
     });
 
     // Calculate expenses from general expenses
     expenses.forEach(item => {
-        const monthKey = format(startOfMonth(new Date(item.date)), 'yyyy-MM');
-        if (dataByMonth[monthKey]) {
-            dataByMonth[monthKey].expenses += item.amount;
+        if (item.date && !isNaN(new Date(item.date).getTime())) {
+            const monthKey = format(startOfMonth(new Date(item.date)), 'yyyy-MM');
+            if (dataByMonth[monthKey]) {
+                dataByMonth[monthKey].expenses += item.amount;
+            }
         }
     });
 

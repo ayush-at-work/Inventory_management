@@ -116,7 +116,7 @@ export default function ImportPage() {
             case 'gst-inward':
                 data.forEach(row => {
                     // Skip row if essential data is missing
-                    if (!row || !row['Invoice Number'] || !row['Material']) {
+                    if (!row || !row['Invoice Number'] || !row['Material'] || !row['Date'] || isNaN(new Date(row['Date']).getTime())) {
                         return;
                     }
                     
