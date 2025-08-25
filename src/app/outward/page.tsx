@@ -97,7 +97,7 @@ function numberToWords(num: number): string {
 
 
 export default function OutwardGoodsPage() {
-  const { outwardGoods, addOutwardGood, deleteOutwardGood } = useGst();
+  const { outwardGoods, addOutwardGood, deleteOutwardGood, updateOutwardGood } = useGst();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<GstOutward | null>(null);
 
@@ -169,14 +169,7 @@ export default function OutwardGoodsPage() {
     };
 
     if (editingItem) {
-        // If status changed from Unpaid to Paid, update balance
-        if(editingItem.paymentStatus === 'Unpaid' && newEntry.paymentStatus === 'Paid') {
-            const currentTaxAmount = (newEntry.taxableAmount * (newEntry.cgst + newEntry.sgst + newEntry.igst)) / 100;
-            const currentTotalValue = newEntry.taxableAmount + currentTaxAmount;
-            updateBalance(currentTotalValue);
-        }
-        // TODO: Update logic
-        // setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+      updateOutwardGood(editingItem.id, newEntry);
     } else {
         addOutwardGood(newEntry);
     }

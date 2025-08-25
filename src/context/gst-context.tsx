@@ -51,6 +51,7 @@ interface GstContextType {
   deleteInwardGood: (id: string) => void;
   addOutwardGood: (item: Omit<GstOutward, 'id'>) => void;
   deleteOutwardGood: (id: string) => void;
+  updateOutwardGood: (id: string, data: Omit<GstOutward, 'id'>) => void;
 }
 
 const GstContext = createContext<GstContextType | undefined>(undefined);
@@ -169,6 +170,30 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Remove the item from state
     setOutwardGoods(prev => prev.filter(item => item.id !== id));
   }
+  
+  const updateOutwardGood = (id: string, data: Omit<GstOutward, 'id'>) => {
+    setOutwardGoods(prev => {
+        const originalItem = prev.find(item => item.id === id);
+        if (!originalItem) return prev;
+
+        const updatedItem = { ...data, id };
+        
+        let balanceChange = 0;
+        const newTax = (data.taxableAmount * (data.cgst + data.sgst + data.igst)) / 100;
+        const newValue = data.taxableAmount + newTax;
+        
+        // If status changed from Unpaid to Paid
+        if (originalItem.paymentStatus === 'Unpaid' && data.paymentStatus === 'Paid') {
+            balanceChange = newValue;
+        }
+
+        if (balanceChange !== 0) {
+            updateBankBalance(balanceChange);
+        }
+
+        return prev.map(item => (item.id === id ? updatedItem : item));
+    });
+  }
 
   const contextValue = {
     inwardGoods,
@@ -177,6 +202,7 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     deleteInwardGood,
     addOutwardGood,
     deleteOutwardGood,
+    updateOutwardGood,
   };
   
   if (!isMounted) {
