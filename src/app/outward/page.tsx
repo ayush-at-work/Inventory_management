@@ -50,6 +50,7 @@ import { useGst, GstOutward } from '@/context/gst-context';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: any) => jsPDF;
@@ -476,7 +477,83 @@ export default function OutwardGoodsPage() {
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto">
+       {/* Mobile View - Card Layout */}
+      <div className="md:hidden space-y-4">
+        {outwardGoods.length > 0 ? (
+          outwardGoods.map(item => {
+            const itemTaxAmount = (item.taxableAmount * (item.cgst + item.sgst + item.igst)) / 100;
+            const itemTotalValue = item.taxableAmount + itemTaxAmount;
+            return (
+              <Card key={item.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-lg">{item.customer}</p>
+                      <p className="text-sm text-muted-foreground">INV-{item.invoiceNumber}</p>
+                    </div>
+                     <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDownloadPdf(item)}>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Download PDF
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">Delete</DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this invoice
+                                and reverse any impact on your bank balance and inventory.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClick(item.id)}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <p className="text-sm"><strong>Material:</strong> {item.materialType} ({item.weight} kg)</p>
+                    <p className="text-sm"><strong>Date:</strong> {item.date}</p>
+                    <p className="text-sm"><strong>GST:</strong> {item.gstNumber}</p>
+                </CardContent>
+                 <CardFooter className="flex justify-between items-center bg-muted/50 p-4">
+                    <Badge
+                        variant={item.paymentStatus === 'Paid' ? 'default' : 'destructive'}
+                        className={`${item.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-700' : 'bg-red-500/20 text-red-700'}`}
+                    >
+                        {item.paymentStatus}
+                    </Badge>
+                    <p className="text-lg font-bold">₹{itemTotalValue.toFixed(2)}</p>
+                </CardFooter>
+              </Card>
+            )
+          })
+        ) : (
+           <Card>
+            <CardContent className="h-48 flex items-center justify-center">
+              <p className="text-muted-foreground">No invoices recorded yet.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Desktop View - Table Layout */}
+      <div className="rounded-md border overflow-x-auto hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
