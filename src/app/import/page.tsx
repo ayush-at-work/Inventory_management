@@ -116,10 +116,15 @@ export default function ImportPage() {
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
-                    const taxableAmount = Number(row['Taxable Amount']);
-                    const cgst = Number(row['CGST']);
-                    const sgst = Number(row['SGST']);
-                    const igst = Number(row['IGST']);
+                    // Skip empty or invalid rows
+                    if (!row || !row['Invoice Number']) {
+                        return;
+                    }
+                    
+                    const taxableAmount = Number(row['Taxable Amount'] || 0);
+                    const cgst = Number(row['CGST'] || 0);
+                    const sgst = Number(row['SGST'] || 0);
+                    const igst = Number(row['IGST'] || 0);
                     const taxType = (cgst > 0 || sgst > 0) ? 'inter-state' : 'intra-state';
 
                     addInwardGood({
@@ -130,15 +135,15 @@ export default function ImportPage() {
                         placeOfSupply: row['Place Of Supply'],
                         materialType: row['Material'],
                         hsnCode: row['HSN Code'],
-                        weight: Number(row['Weight']),
+                        weight: Number(row['Weight'] || 0),
                         taxableAmount: taxableAmount,
                         taxType: taxType,
                         cgst: cgst,
                         sgst: sgst,
                         igst: igst,
-                        taxAmount: Number(row['Tax Amount']),
-                        tcs: Number(row['TCS']),
-                        totalInvoiceValue: Number(row['Invoice Value']),
+                        taxAmount: Number(row['Tax Amount'] || 0),
+                        tcs: Number(row['TCS'] || 0),
+                        totalInvoiceValue: Number(row['Invoice Value'] || 0),
                     });
                 });
                 break;
