@@ -116,8 +116,8 @@ export default function ImportPage() {
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
-                    // Skip empty or invalid rows
-                    if (!row || !row['Invoice Number']) {
+                    // Skip empty or invalid rows by checking for essential fields.
+                    if (!row || !row['Invoice Number'] || !row['Material']) {
                         return;
                     }
                     
