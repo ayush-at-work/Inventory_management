@@ -8,7 +8,7 @@ export type InventoryItem = {
     materialType: string;
     quantity: number;
     unit: string;
-    price: number;
+    price: number; // This will now be the average price
     value: number;
     hsnCode: string;
     transactionType: 'GST' | 'Cash';
@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_v5_final';
+const INVENTORY_STORAGE_KEY = 'inventory_v6_final'; // Incremented version to avoid old data conflicts
 
 const initialInventoryData: InventoryItem[] = [];
 
@@ -59,44 +59,50 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const addInventoryItem = (item: Omit<InventoryItem, 'id' | 'value'> & { value?: number }) => {
     // Prevent adding items without a material type
-    if (!item.materialType || typeof item.materialType !== 'string') {
+    if (!item.materialType || typeof item.materialType !== 'string' || item.materialType.trim() === '') {
         console.error("Attempted to add inventory item with invalid materialType:", item);
-        return; 
+        return;
+    }
+    // Prevent adding items with non-positive quantity
+    if (item.quantity <= 0) {
+        console.error("Attempted to add inventory item with zero or negative quantity:", item);
+        return;
     }
       
     setInventory(prevInventory => {
-        const existingItemIndex = prevInventory.findIndex(
+        const updatedInventory = [...prevInventory];
+        const existingItemIndex = updatedInventory.findIndex(
             invItem => 
                        invItem.materialType.toLowerCase() === item.materialType.toLowerCase() &&
                        invItem.transactionType === item.transactionType &&
                        invItem.unit === item.unit &&
-                       (invItem.hsnCode || '') === (item.hsnCode || '') &&
-                       Math.abs(invItem.price - item.price) < 0.001
+                       (invItem.hsnCode || '') === (item.hsnCode || '')
         );
 
         if (existingItemIndex > -1) {
-            // Update existing item
-            const updatedInventory = [...prevInventory];
+            // Update existing item using weighted average for price
             const existingItem = updatedInventory[existingItemIndex];
             
             const newQuantity = existingItem.quantity + item.quantity;
             const newValue = existingItem.value + (item.price * item.quantity);
+            const newAveragePrice = newQuantity > 0 ? newValue / newQuantity : 0;
             
             updatedInventory[existingItemIndex] = {
                 ...existingItem,
                 quantity: newQuantity,
                 value: newValue,
+                price: newAveragePrice, // Update to the new average price
             };
             return updatedInventory;
+        } else {
+            // Add as a new item
+            const newItem: InventoryItem = {
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // More robust unique ID
+                ...item,
+                value: item.price * item.quantity,
+            };
+            return [...updatedInventory, newItem];
         }
-        
-        // Add new item if no match or price is different
-        const newItem: InventoryItem = {
-            id: String(Date.now()) + Math.random(), // Ensure unique ID
-            ...item,
-            value: item.price * item.quantity,
-        };
-        return [...prevInventory, newItem];
     });
   };
 
@@ -107,7 +113,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const decreaseInventory = (materialType: string, quantity: number, transactionType: 'GST' | 'Cash') => {
       setInventory(prevInventory => {
           const updatedInventory = [...prevInventory];
-          // Find the most relevant inventory item to decrease from (e.g. oldest one, but for now, first found is fine)
+          // Find the most relevant inventory item to decrease from
           const itemIndex = updatedInventory.findIndex(
               item => item.materialType.toLowerCase() === materialType.toLowerCase() && item.transactionType === transactionType
           );
@@ -117,17 +123,16 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               const newQuantity = item.quantity - quantity;
               if (newQuantity < 0) {
                   console.warn(`Not enough inventory for ${materialType} (${transactionType}). Trying to sell ${quantity}, but only have ${item.quantity}`);
-                  // Optionally, you could throw an error or handle it differently
                   return prevInventory; // Don't change inventory
               }
-              const newValue = item.price * newQuantity;
+              const newValue = item.price * newQuantity; // Value decreases based on the average price
               updatedInventory[itemIndex] = { ...item, quantity: newQuantity, value: newValue };
               // Filter out items with zero quantity
               return updatedInventory.filter(i => i.quantity > 0.001);
           } else {
               console.warn(`Inventory item not found for ${materialType} (${transactionType})`);
           }
-          return updatedInventory;
+          return prevInventory; // Return original if no item found
       });
   }
 
