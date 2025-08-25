@@ -23,7 +23,7 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const INVENTORY_STORAGE_KEY = 'inventory_v7_final'; // Incremented version to avoid old data conflicts
+const INVENTORY_STORAGE_KEY = 'inventory_v8_stable'; // Incremented version to ensure stability.
 
 const initialInventoryData: InventoryItem[] = [];
 
@@ -58,14 +58,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [inventory, isMounted]);
 
   const addInventoryItem = (item: Omit<InventoryItem, 'id' | 'value'> & { value?: number }) => {
-    // Prevent adding items without a material type
-    if (!item.materialType || typeof item.materialType !== 'string' || item.materialType.trim() === '') {
-        console.error("Attempted to add inventory item with invalid materialType:", item);
-        return;
-    }
-    // Prevent adding items with non-positive quantity
-    if (item.quantity <= 0) {
-        console.error("Attempted to add inventory item with zero or negative quantity:", item);
+    // Prevent adding items with invalid materialType or quantity
+    if (!item.materialType || typeof item.materialType !== 'string' || item.materialType.trim() === '' || item.quantity <= 0) {
+        console.error("Attempted to add inventory item with invalid materialType or non-positive quantity:", item);
         return;
     }
       
@@ -76,7 +71,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                        invItem.materialType.toLowerCase() === item.materialType.toLowerCase() &&
                        invItem.transactionType === item.transactionType &&
                        invItem.unit === item.unit &&
-                       (invItem.hsnCode || '') === (item.hsnCode || '')
+                       (invItem.hsnCode || '').toLowerCase() === (item.hsnCode || '').toLowerCase()
         );
 
         if (existingItemIndex > -1) {
@@ -97,7 +92,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         } else {
             // Add as a new item
             const newItem: InventoryItem = {
-                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // More robust unique ID
+                id: `${Date.now()}-${item.materialType}-${item.transactionType}`, // More robust unique ID
                 ...item,
                 value: item.price * item.quantity,
             };
@@ -121,13 +116,18 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (itemIndex > -1) {
               const item = updatedInventory[itemIndex];
               const newQuantity = item.quantity - quantity;
+              
               if (newQuantity < 0) {
                   console.warn(`Not enough inventory for ${materialType} (${transactionType}). Trying to sell ${quantity}, but only have ${item.quantity}`);
-                  return prevInventory; // Don't change inventory
+                  // In a real app, you might throw an error here to notify the user.
+                  // For now, we prevent the state from becoming negative.
+                  return prevInventory; 
               }
+
               const newValue = item.price * newQuantity; // Value decreases based on the average price
               updatedInventory[itemIndex] = { ...item, quantity: newQuantity, value: newValue };
-              // Filter out items with zero quantity
+              
+              // Filter out items with zero quantity to keep the inventory clean
               return updatedInventory.filter(i => i.quantity > 0.001);
           } else {
               console.warn(`Inventory item not found for ${materialType} (${transactionType})`);
