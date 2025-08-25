@@ -315,12 +315,12 @@ export default function LabourPage() {
         <div className="md:col-span-1 space-y-4">
           <Card>
             <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                   <h3 className="text-lg font-semibold">All Labourers</h3>
-                  <div>
+                  <div className="flex-shrink-0">
                     <Dialog open={labourerOpen} onOpenChange={setLabourerOpen}>
                         <DialogTrigger asChild>
-                          <Button size="sm" onClick={handleAddLabourerClick} className="w-full">
+                          <Button size="sm" onClick={handleAddLabourerClick}>
                             <PlusCircle className="mr-2 h-4 w-4"/> Add 
                           </Button>
                         </DialogTrigger>
