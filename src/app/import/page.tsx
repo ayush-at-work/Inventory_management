@@ -122,6 +122,8 @@ export default function ImportPage() {
                     
                     const cgst = Number(row['CGST'] || 0);
                     const sgst = Number(row['SGST'] || 0);
+                    const igst = Number(row['IGST'] || 0);
+
                     // Determine tax type based on whether CGST/SGST or IGST is present
                     const taxType = (cgst > 0 || sgst > 0) ? 'inter-state' : 'intra-state';
 
@@ -138,7 +140,7 @@ export default function ImportPage() {
                         taxType: taxType,
                         cgst: cgst,
                         sgst: sgst,
-                        igst: Number(row['IGST'] || 0),
+                        igst: igst,
                         taxAmount: Number(row['Tax Amount'] || 0),
                         tcs: Number(row['TCS'] || 0),
                         totalInvoiceValue: Number(row['Invoice Value'] || 0),
