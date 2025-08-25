@@ -115,8 +115,9 @@ export default function ImportPage() {
         switch(importType) {
             case 'gst-inward':
                 data.forEach(row => {
-                    // Skip row if essential data is missing
-                    if (!row || !row['Invoice Number'] || !row['Material'] || !row['Date'] || isNaN(new Date(row['Date']).getTime())) {
+                    const weight = Number(row['Weight'] || 0);
+                    // Skip row if essential data is missing or invalid
+                    if (!row || !row['Invoice Number'] || !row['Material'] || !row['Date'] || isNaN(new Date(row['Date']).getTime()) || weight <= 0) {
                         return;
                     }
                     
@@ -135,7 +136,7 @@ export default function ImportPage() {
                         placeOfSupply: row['Place Of Supply'],
                         materialType: row['Material'],
                         hsnCode: row['HSN Code'],
-                        weight: Number(row['Weight'] || 0),
+                        weight: weight,
                         taxableAmount: Number(row['Taxable Amount'] || 0),
                         taxType: taxType,
                         cgst: cgst,
