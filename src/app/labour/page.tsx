@@ -47,7 +47,7 @@ import { useLabour, Labourer, AttendanceRecord, AttendanceStatus } from '@/conte
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const AttendanceCalendar = ({
   selectedLabourerId,
@@ -170,7 +170,7 @@ const AttendanceCalendar = ({
                         <Input id="wages" type="number" value={wages} onChange={e => setWages(Number(e.target.value))} />
                     </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2">
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">Cancel</Button>
                     </DialogClose>
@@ -336,7 +336,7 @@ export default function LabourPage() {
                               <Input id="name" name="name" defaultValue={editingLabourer?.name} required />
                               </div>
                           </div>
-                          <DialogFooter>
+                          <DialogFooter className="gap-2">
                               <DialogClose asChild>
                                   <Button type="button" variant="secondary" onClick={() => setEditingLabourer(null)}>Cancel</Button>
                               </DialogClose>
@@ -346,43 +346,44 @@ export default function LabourPage() {
                       </DialogContent>
                   </Dialog>
               </div>
-              <ScrollArea className="h-96 pr-3 -mr-3">
-              <div className="space-y-2">
-                {labourers.map(labourer => (
-                  <div key={labourer.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedLabourerId === labourer.id ? 'bg-primary/10' : 'hover:bg-accent')}>
-                     <button onClick={() => setSelectedLabourerId(labourer.id)} className="flex-1 text-left">
-                      {labourer.name}
-                    </button>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditLabourerClick(labourer)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete {labourer.name} and all their attendance records. This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteLabourer(labourer.id)}>Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
+              <ScrollArea className="h-96">
+                <ScrollBar orientation="vertical" />
+                <div className="space-y-2 pr-6">
+                  {labourers.map(labourer => (
+                    <div key={labourer.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedLabourerId === labourer.id ? 'bg-primary/10' : 'hover:bg-accent')}>
+                       <button onClick={() => setSelectedLabourerId(labourer.id)} className="flex-1 text-left">
+                        {labourer.name}
+                      </button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditLabourerClick(labourer)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete {labourer.name} and all their attendance records. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteLabourer(labourer.id)}>Continue</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                 {labourers.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No labourers added yet.</p>
-                )}
-              </div>
+                  ))}
+                   {labourers.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">No labourers added yet.</p>
+                  )}
+                </div>
               </ScrollArea>
             </CardContent>
           </Card>

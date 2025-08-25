@@ -45,7 +45,7 @@ import {
 import { useCashBalance } from '@/context/cash-balance-context';
 import { useInventory } from '@/context/inventory-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 const initialCashInward: CashInward[] = [];
@@ -174,57 +174,58 @@ export default function CashInwardPage() {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex-grow overflow-hidden flex flex-col">
-                <ScrollArea className="flex-grow pr-6 -mr-6">
-                <div className="space-y-4 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="invoiceNumber">Reference / Bill No.</Label>
-                    <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
+                <ScrollArea className="flex-grow">
+                  <ScrollBar orientation="vertical" />
+                  <div className="space-y-4 py-4 pr-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="invoiceNumber">Reference / Bill No.</Label>
+                      <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Date</Label>
+                      <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="supplier">Name of Supplier</Label>
+                      <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="materialType">Material</Label>
+                      <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="hsnCode">HSN Code (Optional)</Label>
+                      <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="unit">Unit</Label>
+                       <Select name="unit" required defaultValue={unitValue || 'kg'}>
+                        <SelectTrigger id="unit">
+                          <SelectValue placeholder="Select a unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="kg">kg</SelectItem>
+                          <SelectItem value="NOS">NOS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="quantity">Quantity</Label>
+                      <Input id="quantity" name="quantity" type="number" defaultValue={weightValue} required />
+                    </div>
+                    <div className="space-y-2 col-span-1 md:col-span-2">
+                      <Label htmlFor="totalValue">Total Value (₹)</Label>
+                      <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
-                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="supplier">Name of Supplier</Label>
-                    <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="materialType">Material</Label>
-                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hsnCode">HSN Code (Optional)</Label>
-                    <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="unit">Unit</Label>
-                     <Select name="unit" required defaultValue={unitValue || 'kg'}>
-                      <SelectTrigger id="unit">
-                        <SelectValue placeholder="Select a unit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="NOS">NOS</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="quantity">Quantity</Label>
-                    <Input id="quantity" name="quantity" type="number" defaultValue={weightValue} required />
-                  </div>
-                  <div className="space-y-2 col-span-1 md:col-span-2">
-                    <Label htmlFor="totalValue">Total Value (₹)</Label>
-                    <Input id="totalValue" name="totalValue" type="number" step="0.01" defaultValue={editingItem?.totalValue} required />
-                  </div>
-                </div>
-                </div>
-              </ScrollArea>
-              <DialogFooter className="flex-shrink-0 pt-4">
-                  <DialogClose asChild>
-                    <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
-                  </DialogClose>
-                  <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
+                </ScrollArea>
+                <DialogFooter className="flex-shrink-0 border-t pt-4 gap-2">
+                    <DialogClose asChild>
+                      <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">{editingItem ? 'Save Changes' : 'Save Entry'}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>

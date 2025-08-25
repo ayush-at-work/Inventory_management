@@ -49,7 +49,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGst, GstOutward } from '@/context/gst-context';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 interface jsPDFWithAutoTable extends jsPDF {
@@ -360,112 +360,113 @@ export default function OutwardGoodsPage() {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex-grow overflow-hidden flex flex-col">
-                <ScrollArea className="flex-grow pr-6 -mr-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="invoiceNumber">Invoice Number</Label>
-                    <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
-                    <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="customer">Name of Customer</Label>
-                    <Input id="customer" name="customer" defaultValue={editingItem?.customer} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gstNumber">GST Number</Label>
-                    <Input id="gstNumber" name="gstNumber" defaultValue={editingItem?.gstNumber} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="placeOfSupply">Place of Supply</Label>
-                    <Select name="placeOfSupply" required defaultValue={editingItem?.placeOfSupply}>
-                      <SelectTrigger id="placeOfSupply">
-                        <SelectValue placeholder="Select a state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {indianStates.map(state => (
-                          <SelectItem key={state} value={state}>{state}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="materialType">Material</Label>
-                    <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hsnCode">HSN Code</Label>
-                    <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (kg)</Label>
-                    <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight} required />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="taxType">Tax Type</Label>
-                     <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)} defaultValue={editingItem?.taxType}>
-                      <SelectTrigger id="taxType">
-                        <SelectValue placeholder="Select tax type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Inter-state">Inter-state</SelectItem>
-                        <SelectItem value="Intra-state">Intra-state</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
-                    <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required
-                      value={taxableAmount}
-                      onChange={(e) => setTaxableAmount(Number(e.target.value))}
-                    />
-                  </div>
-
-                  {taxType === 'Inter-state' && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="cgst">CGST (%)</Label>
-                        <Input id="cgst" name="cgst" type="number" step="0.01" required value={cgst} onChange={(e) => setCgst(Number(e.target.value))} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="sgst">SGST (%)</Label>
-                        <Input id="sgst" name="sgst" type="number" step="0.01" required value={sgst} onChange={(e) => setSgst(Number(e.target.value))} />
-                      </div>
-                    </>
-                  )}
-
-                  {taxType === 'Intra-state' && (
+                <ScrollArea className="flex-grow">
+                  <ScrollBar orientation="vertical" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 pr-6">
                     <div className="space-y-2">
-                      <Label htmlFor="igst">IGST (%)</Label>
-                      <Input id="igst" name="igst" type="number" step="0.01" required value={igst} onChange={(e) => setIgst(Number(e.target.value))} />
+                      <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                      <Input id="invoiceNumber" name="invoiceNumber" defaultValue={editingItem?.invoiceNumber} required />
                     </div>
-                  )}
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Date</Label>
+                      <Input id="date" name="date" type="date" defaultValue={editingItem?.date || new Date().toISOString().substring(0, 10)} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customer">Name of Customer</Label>
+                      <Input id="customer" name="customer" defaultValue={editingItem?.customer} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gstNumber">GST Number</Label>
+                      <Input id="gstNumber" name="gstNumber" defaultValue={editingItem?.gstNumber} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="placeOfSupply">Place of Supply</Label>
+                      <Select name="placeOfSupply" required defaultValue={editingItem?.placeOfSupply}>
+                        <SelectTrigger id="placeOfSupply">
+                          <SelectValue placeholder="Select a state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {indianStates.map(state => (
+                            <SelectItem key={state} value={state}>{state}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="materialType">Material</Label>
+                      <Input id="materialType" name="materialType" defaultValue={editingItem?.materialType} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="hsnCode">HSN Code</Label>
+                      <Input id="hsnCode" name="hsnCode" defaultValue={editingItem?.hsnCode} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Weight (kg)</Label>
+                      <Input id="weight" name="weight" type="number" defaultValue={editingItem?.weight} required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="taxType">Tax Type</Label>
+                       <Select name="taxType" required onValueChange={(value) => setTaxType(value as any)} defaultValue={editingItem?.taxType}>
+                        <SelectTrigger id="taxType">
+                          <SelectValue placeholder="Select tax type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Inter-state">Inter-state</SelectItem>
+                          <SelectItem value="Intra-state">Intra-state</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="taxableAmount">Taxable Amount (₹)</Label>
+                      <Input id="taxableAmount" name="taxableAmount" type="number" step="0.01" required
+                        value={taxableAmount}
+                        onChange={(e) => setTaxableAmount(Number(e.target.value))}
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="taxAmount">Tax Amount (₹)</Label>
-                    <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
+                    {taxType === 'Inter-state' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="cgst">CGST (%)</Label>
+                          <Input id="cgst" name="cgst" type="number" step="0.01" required value={cgst} onChange={(e) => setCgst(Number(e.target.value))} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="sgst">SGST (%)</Label>
+                          <Input id="sgst" name="sgst" type="number" step="0.01" required value={sgst} onChange={(e) => setSgst(Number(e.target.value))} />
+                        </div>
+                      </>
+                    )}
+
+                    {taxType === 'Intra-state' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="igst">IGST (%)</Label>
+                        <Input id="igst" name="igst" type="number" step="0.01" required value={igst} onChange={(e) => setIgst(Number(e.target.value))} />
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="taxAmount">Tax Amount (₹)</Label>
+                      <Input id="taxAmount" name="taxAmount" type="number" step="0.01" value={taxAmount.toFixed(2)} disabled />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="paymentStatus">Payment Status</Label>
+                       <Select name="paymentStatus" required defaultValue={editingItem?.paymentStatus || 'Unpaid'}>
+                        <SelectTrigger id="paymentStatus">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="Unpaid">Unpaid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2 col-span-1 md:col-span-2">
+                      <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
+                      <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="paymentStatus">Payment Status</Label>
-                     <Select name="paymentStatus" required defaultValue={editingItem?.paymentStatus || 'Unpaid'}>
-                      <SelectTrigger id="paymentStatus">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Paid">Paid</SelectItem>
-                        <SelectItem value="Unpaid">Unpaid</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2 col-span-1 md:col-span-2">
-                    <Label htmlFor="totalInvoiceValue">Total Invoice Value (₹)</Label>
-                    <Input id="totalInvoiceValue" name="totalInvoiceValue" type="number" step="0.01" value={totalInvoiceValue.toFixed(2)} disabled />
-                  </div>
-                </div>
                 </ScrollArea>
-                <DialogFooter className="flex-shrink-0 pt-4">
+                <DialogFooter className="flex-shrink-0 border-t pt-4 gap-2">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                   </DialogClose>

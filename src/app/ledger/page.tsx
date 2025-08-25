@@ -290,7 +290,7 @@ export default function LedgerPage() {
                     <Textarea id="description" name="description" placeholder="e.g., For business supplies" />
                   </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary">Cancel</Button>
                   </DialogClose>

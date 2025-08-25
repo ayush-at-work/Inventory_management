@@ -216,7 +216,7 @@ export default function ExpensesPage() {
                     <Textarea id="description" name="description" defaultValue={editingItem?.description} required />
                     </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2">
                     <DialogClose asChild>
                         <Button type="button" variant="secondary" onClick={() => setEditingItem(null)}>Cancel</Button>
                     </DialogClose>

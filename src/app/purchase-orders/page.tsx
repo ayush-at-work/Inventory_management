@@ -33,7 +33,7 @@ import {
 import { usePurchaseOrders, PurchaseOrder, PurchaseOrderItem } from '@/context/purchase-order-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 export default function PurchaseOrdersPage() {
@@ -128,68 +128,70 @@ export default function PurchaseOrdersPage() {
               <DialogTitle>{editingItem ? 'Edit' : 'Create'} Purchase Order</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="flex-grow overflow-hidden flex flex-col">
-              <ScrollArea className="flex-grow pr-6 -mr-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="poNumber">PO Number</Label>
-                  <Input id="poNumber" name="poNumber" defaultValue={editingItem?.poNumber} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="supplier">Supplier</Label>
-                  <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="orderDate">Order Date</Label>
-                  <Input id="orderDate" name="orderDate" type="date" defaultValue={editingItem?.orderDate || new Date().toISOString().substring(0, 10)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expectedDate">Expected Delivery</Label>
-                  <Input id="expectedDate" name="expectedDate" type="date" defaultValue={editingItem?.expectedDate} />
-                </div>
-              </div>
-
-              <div className="space-y-4 py-4">
-                <h3 className="text-lg font-medium">Items</h3>
-                {items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-2 items-end p-2 border rounded-md">
-                     <div className="col-span-5 space-y-1">
-                        <Label htmlFor={`material-${index}`}>Material</Label>
-                        <Input id={`material-${index}`} value={item.materialType} onChange={e => handleItemChange(index, 'materialType', e.target.value)} />
-                     </div>
-                     <div className="col-span-2 space-y-1">
-                        <Label htmlFor={`quantity-${index}`}>Quantity</Label>
-                        <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} />
-                     </div>
-                     <div className="col-span-2 space-y-1">
-                        <Label htmlFor={`unit-${index}`}>Unit</Label>
-                         <Select value={item.unit} onValueChange={value => handleItemChange(index, 'unit', value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="kg">kg</SelectItem>
-                            <SelectItem value="NOS">NOS</SelectItem>
-                          </SelectContent>
-                        </Select>
-                     </div>
-                     <div className="col-span-2 space-y-1">
-                        <Label htmlFor={`price-${index}`}>Price/Unit</Label>
-                        <Input id={`price-${index}`} type="number" value={item.price} onChange={e => handleItemChange(index, 'price', Number(e.target.value))} />
-                     </div>
-                      <div className="col-span-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(index)}>
-                            <Trash2 className="h-4 w-4 text-destructive"/>
-                        </Button>
-                     </div>
+              <ScrollArea className="flex-grow">
+                <ScrollBar orientation="vertical" />
+                <div className="pr-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="poNumber">PO Number</Label>
+                    <Input id="poNumber" name="poNumber" defaultValue={editingItem?.poNumber} required />
                   </div>
-                ))}
-                 <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-                </Button>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="supplier">Supplier</Label>
+                    <Input id="supplier" name="supplier" defaultValue={editingItem?.supplier} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="orderDate">Order Date</Label>
+                    <Input id="orderDate" name="orderDate" type="date" defaultValue={editingItem?.orderDate || new Date().toISOString().substring(0, 10)} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expectedDate">Expected Delivery</Label>
+                    <Input id="expectedDate" name="expectedDate" type="date" defaultValue={editingItem?.expectedDate} />
+                  </div>
+                </div>
 
+                <div className="space-y-4 py-4">
+                  <h3 className="text-lg font-medium">Items</h3>
+                  {items.map((item, index) => (
+                    <div key={index} className="grid grid-cols-12 gap-2 items-end p-2 border rounded-md">
+                       <div className="col-span-5 space-y-1">
+                          <Label htmlFor={`material-${index}`}>Material</Label>
+                          <Input id={`material-${index}`} value={item.materialType} onChange={e => handleItemChange(index, 'materialType', e.target.value)} />
+                       </div>
+                       <div className="col-span-2 space-y-1">
+                          <Label htmlFor={`quantity-${index}`}>Quantity</Label>
+                          <Input id={`quantity-${index}`} type="number" value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} />
+                       </div>
+                       <div className="col-span-2 space-y-1">
+                          <Label htmlFor={`unit-${index}`}>Unit</Label>
+                           <Select value={item.unit} onValueChange={value => handleItemChange(index, 'unit', value)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="kg">kg</SelectItem>
+                              <SelectItem value="NOS">NOS</SelectItem>
+                            </SelectContent>
+                          </Select>
+                       </div>
+                       <div className="col-span-2 space-y-1">
+                          <Label htmlFor={`price-${index}`}>Price/Unit</Label>
+                          <Input id={`price-${index}`} type="number" value={item.price} onChange={e => handleItemChange(index, 'price', Number(e.target.value))} />
+                       </div>
+                        <div className="col-span-1">
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(index)}>
+                              <Trash2 className="h-4 w-4 text-destructive"/>
+                          </Button>
+                       </div>
+                    </div>
+                  ))}
+                   <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Item
+                  </Button>
+                </div>
+              </div>
               </ScrollArea>
-              <DialogFooter className="flex-shrink-0 pt-4">
+              <DialogFooter className="flex-shrink-0 border-t pt-4 gap-2">
                 <DialogClose asChild>
                   <Button type="button" variant="secondary">Cancel</Button>
                 </DialogClose>
