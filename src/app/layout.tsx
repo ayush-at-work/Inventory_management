@@ -42,9 +42,9 @@ export default function RootLayout({
             <BankBalanceProvider>
               <CashBalanceProvider>
                 <InventoryProvider>
-                  <LabourProvider>
-                    <GstProvider>
-                      <ExpensesProvider>
+                  <GstProvider>
+                    <ExpensesProvider>
+                       <LabourProvider>
                         <PurchaseOrderProvider>
                           <LedgerProvider>
                             <SiteLayout>
@@ -52,9 +52,9 @@ export default function RootLayout({
                             </SiteLayout>
                           </LedgerProvider>
                         </PurchaseOrderProvider>
-                      </ExpensesProvider>
-                    </GstProvider>
-                  </LabourProvider>
+                      </LabourProvider>
+                    </ExpensesProvider>
+                  </GstProvider>
                 </InventoryProvider>
               </CashBalanceProvider>
             </BankBalanceProvider>
