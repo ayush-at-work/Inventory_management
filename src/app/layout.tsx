@@ -13,6 +13,8 @@ import { ExpensesProvider } from '@/context/expenses-context';
 import { PurchaseOrderProvider } from '@/context/purchase-order-context';
 import { AuthProvider } from '@/context/auth-context';
 import { LedgerProvider } from '@/context/ledger-context';
+import { CashInwardProvider } from '@/context/cash-inward-context';
+import { CashOutwardProvider } from '@/context/cash-outward-context';
 
 export const metadata = {
   title: 'ScrapFlow',
@@ -43,17 +45,21 @@ export default function RootLayout({
               <CashBalanceProvider>
                 <InventoryProvider>
                   <GstProvider>
-                    <ExpensesProvider>
-                       <LabourProvider>
-                        <PurchaseOrderProvider>
-                          <LedgerProvider>
-                            <SiteLayout>
-                              {children}
-                            </SiteLayout>
-                          </LedgerProvider>
-                        </PurchaseOrderProvider>
-                      </LabourProvider>
-                    </ExpensesProvider>
+                    <CashInwardProvider>
+                        <CashOutwardProvider>
+                            <ExpensesProvider>
+                               <LabourProvider>
+                                <PurchaseOrderProvider>
+                                  <LedgerProvider>
+                                    <SiteLayout>
+                                      {children}
+                                    </SiteLayout>
+                                  </LedgerProvider>
+                                </PurchaseOrderProvider>
+                              </LabourProvider>
+                            </ExpensesProvider>
+                        </CashOutwardProvider>
+                    </CashInwardProvider>
                   </GstProvider>
                 </InventoryProvider>
               </CashBalanceProvider>
@@ -65,3 +71,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

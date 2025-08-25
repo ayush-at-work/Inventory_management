@@ -42,32 +42,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useCashBalance } from '@/context/cash-balance-context';
-import { useInventory } from '@/context/inventory-context';
+import { useCashInward, CashInward } from '@/context/cash-inward-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
-const initialCashInward: CashInward[] = [];
-
-type CashInward = {
-    id: string;
-    invoiceNumber: string;
-    date: string;
-    supplier: string;
-    totalValue: number;
-    materialType: string;
-    weight: string;
-    hsnCode: string;
-};
-
-
 export default function CashInwardPage() {
-  const [inwardGoods, setInwardGoods] = useState<CashInward[]>(initialCashInward);
+  const { inwardGoods, addInward, updateInward, deleteInward } = useCashInward();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CashInward | null>(null);
-  const { updateBalance } = useCashBalance();
-  const { addInventoryItem } = useInventory();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
@@ -80,9 +63,7 @@ export default function CashInwardPage() {
   };
   
   const handleDeleteClick = (itemToDelete: CashInward) => {
-      // Add the value back to balance since the purchase is being deleted
-      updateBalance(itemToDelete.totalValue);
-      setInwardGoods(inwardGoods.filter(item => item.id !== itemToDelete.id));
+    deleteInward(itemToDelete.id);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -92,8 +73,7 @@ export default function CashInwardPage() {
     const quantity = Number(formData.get('quantity'));
     const unit = formData.get('unit') as string;
 
-    const newEntry: CashInward = {
-      id: editingItem ? editingItem.id : String(Date.now()),
+    const newEntry: Omit<CashInward, 'id'> = {
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       supplier: formData.get('supplier') as string,
@@ -104,21 +84,9 @@ export default function CashInwardPage() {
     };
 
     if (editingItem) {
-        // Recalculate balance impact
-        const originalValue = editingItem.totalValue;
-        updateBalance(originalValue - newEntry.totalValue); // Add back old, subtract new
-        setInwardGoods(inwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+      updateInward(editingItem.id, newEntry);
     } else {
-        setInwardGoods([newEntry, ...inwardGoods]);
-        updateBalance(-totalValue);
-        addInventoryItem({
-            materialType: newEntry.materialType,
-            hsnCode: newEntry.hsnCode,
-            quantity: quantity,
-            unit: unit,
-            price: totalValue / quantity,
-            transactionType: 'Cash'
-        });
+      addInward(newEntry);
     }
 
     setOpen(false);
@@ -362,3 +330,5 @@ export default function CashInwardPage() {
     </div>
   );
 }
+
+    

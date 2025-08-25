@@ -1,30 +1,32 @@
 
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, FileText } from 'lucide-react';
 import { useGst } from '@/context/gst-context';
 import { useExpenses } from '@/context/expenses-context';
-// Note: We cannot get cash inward data here as it's local to that page. 
-// A better implementation would use a global context for all transactions.
+import { useCashInward } from '@/context/cash-inward-context';
+import { useLabour } from '@/context/labour-context';
 
 type CombinedExpense = {
     date: string;
-    type: 'GST Purchase' | 'General Expense' | 'Labour Wage';
+    type: 'GST Purchase' | 'Cash Purchase' | 'General Expense' | 'Labour Wage';
     description: string;
     amount: number;
 };
 
 export default function ExpenseReportPage() {
     const { inwardGoods: gstPurchases } = useGst();
+    const { inwardGoods: cashPurchases } = useCashInward();
     const { expenses: generalExpenses } = useExpenses();
-    // const { labourers, attendanceRecords } = useLabour(); // Assuming we can get labour context here
+    const { labourers, attendanceRecords } = useLabour();
 
     const combinedExpenses = useMemo(() => {
         const allExpenses: CombinedExpense[] = [];
+        const labourerMap = new Map(labourers.map(l => [l.id, l.name]));
 
         gstPurchases.forEach(item => {
             allExpenses.push({
@@ -32,6 +34,15 @@ export default function ExpenseReportPage() {
                 type: 'GST Purchase',
                 description: `Purchase from ${item.supplier} - Inv #${item.invoiceNumber}`,
                 amount: item.totalInvoiceValue
+            });
+        });
+
+        cashPurchases.forEach(item => {
+            allExpenses.push({
+                date: item.date,
+                type: 'Cash Purchase',
+                description: `Purchase from ${item.supplier} - Bill #${item.invoiceNumber}`,
+                amount: item.totalValue
             });
         });
 
@@ -44,10 +55,20 @@ export default function ExpenseReportPage() {
             });
         });
 
-        // Labour costs would be added here if context was available globally
+        attendanceRecords.forEach(item => {
+            if (item.wages > 0) {
+                 allExpenses.push({
+                    date: item.date,
+                    type: 'Labour Wage',
+                    description: `Wages for ${labourerMap.get(item.labourerId) || 'Unknown'}`,
+                    amount: item.wages
+                });
+            }
+        });
+
 
         return allExpenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [gstPurchases, generalExpenses]);
+    }, [gstPurchases, cashPurchases, generalExpenses, attendanceRecords, labourers]);
 
     const totalExpenses = combinedExpenses.reduce((sum, item) => sum + item.amount, 0);
 
@@ -151,3 +172,5 @@ export default function ExpenseReportPage() {
         </div>
     );
 }
+
+    

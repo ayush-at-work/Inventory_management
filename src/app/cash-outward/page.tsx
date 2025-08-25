@@ -42,35 +42,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useCashBalance } from '@/context/cash-balance-context';
-import { useInventory } from '@/context/inventory-context';
+import { useCashOutward, CashSale } from '@/context/cash-outward-context';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
-const initialCashOutward: CashSale[] = [];
-
-type CashSale = {
-    id: string;
-    invoiceNumber: string;
-    date: string;
-    customer: string;
-    totalValue: number;
-    materialType: string;
-    weight: string;
-    hsnCode: string;
-    paymentStatus: 'Paid' | 'Unpaid';
-};
-
-
 export default function CashOutwardPage() {
-  const [outwardGoods, setOutwardGoods] = useState<CashSale[]>(initialCashOutward);
+  const { outwardGoods, addOutward, updateOutward, deleteOutward } = useCashOutward();
   const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CashSale | null>(null);
-
-  const { updateBalance } = useCashBalance();
-  const { decreaseInventory } = useInventory();
 
   const handleAddNewClick = () => {
     setEditingItem(null);
@@ -83,11 +64,7 @@ export default function CashOutwardPage() {
   };
 
    const handleDeleteClick = (itemToDelete: CashSale) => {
-      // If the sale was paid, subtract the value from the balance
-      if (itemToDelete.paymentStatus === 'Paid') {
-          updateBalance(-itemToDelete.totalValue);
-      }
-      setOutwardGoods(outwardGoods.filter(item => item.id !== itemToDelete.id));
+      deleteOutward(itemToDelete.id);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -98,8 +75,7 @@ export default function CashOutwardPage() {
     const quantity = Number(formData.get('quantity'));
     const unit = formData.get('unit') as string;
     
-    const newEntry: CashSale = {
-      id: editingItem ? editingItem.id : String(Date.now()),
+    const newEntry: Omit<CashSale, 'id'> = {
       invoiceNumber: formData.get('invoiceNumber') as string,
       date: formData.get('date') as string,
       customer: formData.get('customer') as string,
@@ -111,29 +87,9 @@ export default function CashOutwardPage() {
     };
 
     if (editingItem) {
-        let balanceChange = 0;
-        // Case 1: Was Paid, now Unpaid
-        if(editingItem.paymentStatus === 'Paid' && newEntry.paymentStatus === 'Unpaid') {
-            balanceChange = -editingItem.totalValue;
-        }
-        // Case 2: Was Unpaid, now Paid
-        if(editingItem.paymentStatus === 'Unpaid' && newEntry.paymentStatus === 'Paid') {
-            balanceChange = newEntry.totalValue;
-        }
-        // Case 3: Was Paid, still Paid, value changed
-        if(editingItem.paymentStatus === 'Paid' && newEntry.paymentStatus === 'Paid') {
-            balanceChange = newEntry.totalValue - editingItem.totalValue;
-        }
-        if(balanceChange !== 0) {
-            updateBalance(balanceChange);
-        }
-        setOutwardGoods(outwardGoods.map(item => item.id === editingItem.id ? newEntry : item));
+      updateOutward(editingItem.id, newEntry);
     } else {
-        if(paymentStatus === 'Paid') {
-            updateBalance(totalValue);
-        }
-        setOutwardGoods([newEntry, ...outwardGoods]);
-        decreaseInventory(newEntry.materialType, quantity, 'Cash');
+      addOutward(newEntry);
     }
 
     setOpen(false);
@@ -403,3 +359,5 @@ export default function CashOutwardPage() {
     </div>
   );
 }
+
+    

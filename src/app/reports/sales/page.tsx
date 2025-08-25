@@ -1,15 +1,14 @@
 
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, BarChart } from 'lucide-react';
 import { useGst } from '@/context/gst-context';
-// Note: We cannot get cash outward data here as it's local to that page.
-// A better implementation would use a global context for all transactions.
+import { useCashOutward } from '@/context/cash-outward-context';
 
 type CombinedSale = {
     date: string;
@@ -22,8 +21,8 @@ type CombinedSale = {
 
 export default function SalesReportPage() {
     const { outwardGoods: gstSales } = useGst();
+    const { outwardGoods: cashSales } = useCashOutward();
     
-    // We would combine cash sales here if the context was global.
     const combinedSales = useMemo(() => {
         const gstSalesFormatted: CombinedSale[] = gstSales.map(sale => {
             const tax = (sale.taxableAmount * (sale.cgst + sale.sgst + sale.igst)) / 100;
@@ -38,10 +37,18 @@ export default function SalesReportPage() {
             };
         });
 
-        // cashSalesFormatted would be created and combined here
+        const cashSalesFormatted: CombinedSale[] = cashSales.map(sale => ({
+            date: sale.date,
+            invoiceNumber: sale.invoiceNumber,
+            customer: sale.customer,
+            type: 'Cash',
+            amount: sale.totalValue,
+            status: sale.paymentStatus,
+        }));
         
-        return gstSalesFormatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [gstSales]);
+        return [...gstSalesFormatted, ...cashSalesFormatted]
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [gstSales, cashSales]);
 
     const totalRevenue = combinedSales
         .filter(sale => sale.status === 'Paid')
@@ -156,3 +163,5 @@ export default function SalesReportPage() {
         </div>
     );
 }
+
+    
