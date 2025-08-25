@@ -43,6 +43,7 @@ import {
   Scale,
   BarChart,
   HandCoins,
+  DatabaseZap,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useBankBalance } from '@/context/bank-balance-context';
@@ -82,6 +83,7 @@ const reportsNavItems = [
 
 const adminNavItems = [
     { href: '/users', label: 'Users', icon: UserCog },
+    { href: '/import', label: 'Data Import', icon: DatabaseZap },
     { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
