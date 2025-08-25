@@ -156,12 +156,13 @@ export const GstProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     
     // Add the inventory back
+    const pricePerUnit = itemToDelete.weight > 0 ? itemToDelete.taxableAmount / itemToDelete.weight : 0;
     addInventoryItem({
         materialType: itemToDelete.materialType,
         hsnCode: itemToDelete.hsnCode,
         quantity: itemToDelete.weight,
         unit: 'kg', // Assuming kg, this could be improved
-        price: itemToDelete.weight > 0 ? itemToDelete.taxableAmount / itemToDelete.weight : 0,
+        price: pricePerUnit,
         transactionType: 'GST',
     });
 
